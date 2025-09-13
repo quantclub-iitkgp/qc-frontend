@@ -1,7 +1,22 @@
-# Ochi Landing Page
+# no longer maintained
+read [this](https://github.com/ekmas/neobrutalism-components/discussions/100) for more info
 
-A modern landing page design for an agency website built with React.js and other modern technologies with cool interactive animations.
+# Neobrutalism components
 
-Project Live Link: https://dc-ochi.vercel.app/
+<img src="public/preview.png" alt="preview">
 
-![DCOchi1-ezgif com-optimize](https://github.com/DevrajDC/ochi/assets/65373279/ccb4d185-ccfd-4ca2-bfd1-0c112c59d575)
+## Introduction
+
+Neobrutalism components are a collection of neobrutalism-styled components based on shadcn/ui. 
+
+## Documentation
+
+Visit [docs](https://www.neobrutalism.dev/docs) to get started.
+
+## About 
+
+I created this collection of components for people who want to learn more about neobrutalism style and to help them get started with creating neobrutalism layouts.
+
+## License
+
+[MIT](https://github.com/ekmas/neobrutalism-components/blob/main/LICENSE)
