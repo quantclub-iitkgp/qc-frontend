@@ -29,6 +29,13 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion"
 import { Footer } from "@/components/app/footer"
+import ChartAreaInteractive from "@/examples/ui/chart/chart-area-interactive"
+import ChartPieDonut from "@/examples/ui/chart/chart-pie-donut"
+import Star24 from "@/components/stars/s24"
+import Star28 from "@/components/stars/s28"
+import Star30 from "@/components/stars/s30"
+import Star31 from "@/components/stars/s31"
+import ChartBarNegative from "@/examples/ui/chart/chart-bar-negative"
 
 export default function Home() {
   const { Tabs, TabsContent, TabsList, TabsTrigger } = sharedComponents
@@ -98,72 +105,91 @@ export default function Home() {
             )
           })}
         </Marquee>
-<div className="grid grid-cols-1 md:grid-cols-2 border-b-4 border-t-4 border-border">
-  <section className="border-b-4 md:border-r-4 border-border md:bg-background 2xl:p-14 2xl:py-16 xl:p-10 xl:py-10 lg:p-8 lg:py-10 p-5 py-7 border-r-0 bg-main md:text-foreground text-main-foreground">
-    <div className="flex items-center sm:gap-6 gap-4 sm:mb-6 mb-4">
-      <div className="xl:size-[70px] lg:size-[55px] sm:size-12 size-10 flex items-center justify-center">
-        <TailwindIcon />
-      </div>
-      <h3>Quant Blogs</h3>
-    </div>
-    <p className="2xl:text-2xl xl:text-xl md:text-base sm:text-lg text-base">
-      Explore engaging blogs that break down complex quant concepts, market trends, and trading strategies into easy-to-read insights.
-    </p>
-  </section>
+        <div className="grid grid-cols-1 md:grid-cols-2 border-b-4 border-t-4 border-border">
+          <section className="border-b-4 md:border-r-4 border-border md:bg-background 2xl:p-14 2xl:py-16 xl:p-10 xl:py-10 lg:p-8 lg:py-10 p-5 py-7 border-r-0 bg-main md:text-foreground text-main-foreground">
+            <div className="flex items-center sm:gap-6 gap-4 sm:mb-6 mb-4">
+              <div className="xl:size-[70px] lg:size-[55px] sm:size-12 size-10 flex items-center justify-center">
+                <Star24 />
+              </div>
+              <h3>Quant Blogs</h3>
+            </div>
+            <p className="2xl:text-2xl xl:text-xl md:text-base sm:text-lg text-base">
+              Explore engaging blogs that break down complex quant concepts, market trends, and trading strategies into easy-to-read insights.
+            </p>
+          </section>
 
-  <section className="border-b-4 border-border md:text-main-foreground md:dark:text-main-foreground md:bg-main text-main-foreground dark:text-foreground 2xl:p-14 2xl:py-16 xl:p-10 xl:py-10 lg:p-8 lg:py-10 p-5 py-7 bg-background">
-    <div className="flex items-center sm:gap-6 gap-4 sm:mb-6 mb-4">
-      <div className="xl:size-[70px] lg:size-[55px] sm:size-12 size-10 flex items-center justify-center">
-        <OpenSourceIcon />
-      </div>
-      <h3>Whitepapers</h3>
-    </div>
-    <p className="2xl:text-2xl xl:text-xl md:text-base sm:text-lg text-base">
-      Access detailed whitepapers on cutting-edge quantitative finance topics, from stochastic models to algorithmic trading research.
-    </p>
-  </section>
+          <section className="border-b-4 border-border md:text-main-foreground md:dark:text-main-foreground md:bg-main text-main-foreground dark:text-foreground 2xl:p-14 2xl:py-16 xl:p-10 xl:py-10 lg:p-8 lg:py-10 p-5 py-7 bg-background">
+            <div className="flex items-center sm:gap-6 gap-4 sm:mb-6 mb-4">
+              <div className="xl:size-[70px] lg:size-[55px] sm:size-12 size-10 flex items-center justify-center">
+                <Star28 />
+              </div>
+              <h3>Whitepapers</h3>
+            </div>
+            <p className="2xl:text-2xl xl:text-xl md:text-base sm:text-lg text-base">
+              Access detailed whitepapers on cutting-edge quantitative finance topics, from stochastic models to algorithmic trading research.
+            </p>
+          </section>
 
-  <section className="md:border-r-4 md:border-b-0 border-border bg-main dark:text-main-foreground 2xl:p-14 2xl:py-16 xl:p-10 xl:py-10 lg:p-8 lg:py-10 p-5 py-7 border-b-4">
-    <div className="flex items-center sm:gap-6 gap-4 sm:mb-6 mb-4">
-      <div className="xl:size-[70px] lg:size-[55px] sm:size-12 size-10 flex items-center justify-center">
-        <ShadcnIcon />
-      </div>
-      <h3>Summaries</h3>
-    </div>
-    <p className="2xl:text-2xl xl:text-xl md:text-base sm:text-lg text-base">
-      Don’t have time to read full research? Get concise, high-quality summaries of key quant papers and market studies.
-    </p>
-  </section>
+          <section className="md:border-r-4 md:border-b-0 border-border bg-main dark:text-main-foreground 2xl:p-14 2xl:py-16 xl:p-10 xl:py-10 lg:p-8 lg:py-10 p-5 py-7 border-b-4">
+            <div className="flex items-center sm:gap-6 gap-4 sm:mb-6 mb-4">
+              <div className="xl:size-[70px] lg:size-[55px] sm:size-12 size-10 flex items-center justify-center">
+                <Star30 />
+              </div>
+              <h3>Summaries</h3>
+            </div>
+            <p className="2xl:text-2xl xl:text-xl md:text-base sm:text-lg text-base">
+              Don’t have time to read full research? Get concise, high-quality summaries of key quant papers and market studies.
+            </p>
+          </section>
 
-  <section className="bg-background 2xl:p-14 2xl:py-16 xl:p-10 xl:py-10 lg:p-8 lg:py-10 p-5 py-7">
-    <div className="flex items-center sm:gap-6 gap-4 sm:mb-6 mb-4">
-      <div className="xl:size-[70px] lg:size-[55px] sm:size-12 size-10 flex items-center justify-center">
-        <CustomizableIcon />
-      </div>
-      <h3>Community</h3>
-    </div>
-    <p className="2xl:text-2xl xl:text-xl md:text-base sm:text-lg text-base">
-      Join a growing quant community where members share insights, debate ideas, and collaborate on projects that push finance forward.
-    </p>
-  </section>
-</div>
+          <section className="bg-background 2xl:p-14 2xl:py-16 xl:p-10 xl:py-10 lg:p-8 lg:py-10 p-5 py-7">
+            <div className="flex items-center sm:gap-6 gap-4 sm:mb-6 mb-4">
+              <div className="xl:size-[70px] lg:size-[55px] sm:size-12 size-10 flex items-center justify-center">
+                <Star31 />
+              </div>
+              <h3>Community</h3>
+            </div>
+            <p className="2xl:text-2xl xl:text-xl md:text-base sm:text-lg text-base">
+              Join a growing quant community where members share insights, debate ideas, and collaborate on projects that push finance forward.
+            </p>
+          </section>
+        </div>
+
+
+        {/* EVENTS SECTION */}
+
+        
 
         <section className="border-b-4 border-b-border bg-background py-16 lg:py-[100px]">
-          <h2 className="mb-5 px-5 text-center">
-            Fully customizable set of components.
+          <h2 className="mb-5 text-center">
+            <span className="relative px-6 sm:mr-2 mr-0 md:[&_svg]:size-[45px] sm:[&_svg]:size-7 bg-main/50 rounded-base border-2 border-border/40 dark:border-border/70">
+              EVENTS GALLERY
+              <Star9
+                className="absolute sm:block hidden md:-bottom-4 md:-right-5 -bottom-2.5 -right-2.5"
+                color="var(--main)"
+                pathClassName="stroke-5 dark:stroke-3.5 stroke-black dark:stroke-black/70"
+              />
+              <Star9
+                className="absolute sm:block hidden md:-top-4 md:-left-5 -top-2.5 -left-2.5"
+                color="var(--main)"
+                pathClassName="stroke-5 dark:stroke-3.5 stroke-black dark:stroke-black/70"
+              />
+            </span>{" "}
           </h2>
 
-          <p className="text-center px-5 xl:text-xl md:text-lg sm:text-base text-sm">
-            You can customize the styling of the components to your liking.
-            Visit{" "}
-            <Link className="underline font-heading" href={"/styling"}>
-              styling page
-            </Link>{" "}
-            to see the available options.
+          <p className="text-center px-5 xl:text-2xl md:text-lg sm:text-base text-sm">
+            Check out our recent events and workshops in quantitative finance
           </p>
 
           <StylingCustomizer />
+
         </section>
+
+
+        {/* CHARTS SECTION */}
+
+
+
         <section className="inset-0 flex relative overflow-hidden w-full px-5 flex-col items-center justify-center bg-secondary-background bg-[linear-gradient(to_right,#80808033_1px,transparent_1px),linear-gradient(to_bottom,#80808033_1px,transparent_1px)] bg-[size:70px_70px] z-0">
           <Star20
             color="var(--main)"
@@ -179,46 +205,25 @@ export default function Home() {
             size={250}
             className="absolute bottom-[120px] lg:block hidden -right-[125px] -z-10"
           />
-          <div className="mx-auto w-container max-w-full py-16 lg:py-[100px]">
-            <h2 className="sm:mb-20 mb-14 text-center">
-              Loved by the community
-            </h2>
-            <div className="grid-cols-1 grid lg:grid-cols-3 gap-0 lg:gap-8">
-              {[
-                [reviews[0], reviews[1]],
-                [reviews[2], reviews[3], reviews[4]],
-                [reviews[5], reviews[6]],
-              ].map((card, index) => (
-                <div className="group flex flex-col justify-center" key={index}>
-                  {card.map(({ jobTitle, pfp, fullName, review }, index) => (
-                    <div
-                      className="min-h-20 sm:w-[500px] w-full mx-auto mb-4 lg:min-h-48 lg:mb-8 lg:w-full rounded-base border-2 border-border bg-background p-5 shadow-shadow"
-                      key={index}
-                    >
-                      <div className="flex items-center sm:gap-5 gap-3">
-                        <img
-                          className="size-10 sm:size-12 rounded-base border-2 border-border"
-                          src={`${pfp.src}`}
-                          alt="pfp"
-                        />
+          <div className="mx-auto w-container max-w-full py-16 gap-10 grid lg:grid-cols-2 md:grid-cols-1 grid-cols-1">
 
-                        <div>
-                          <h4 className="sm:text-lg text-base font-heading">
-                            {fullName}
-                          </h4>
-                          <p className="text-xs sm:text-sm ">{jobTitle}</p>
-                        </div>
-                      </div>
-                      <div className="sm:mt-5 mt-3 sm:text-base text-sm break-words">
-                        {review}
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              ))}
-            </div>
+            <ChartPieDonut />
+            <ChartBarNegative />
           </div>
+          <div className="mx-auto w-container max-w-full py-8">
+
+            <ChartAreaInteractive />
+
+          </div>
+
         </section>
+
+
+
+        {/* FAQ SECTION */}
+
+
+
         <section className="border-t-4 z-0 border-t-border border-b-4 border-b-border bg-background py-16 lg:py-[100px]">
           <h2 className="sm:mb-20 mb-14 px-5 text-center">
             Frequently asked questions
@@ -232,7 +237,7 @@ export default function Home() {
             >
               <AccordionItem className="mb-2" value="item-2">
                 <AccordionTrigger className="text-left">
-                  Are these components accessible?
+                  What is Quant Club?
                 </AccordionTrigger>
                 <AccordionContent className="text-sm sm:text-base">
                   Most of the components are based on shadcn/ui, which means
@@ -242,7 +247,7 @@ export default function Home() {
               </AccordionItem>
               <AccordionItem className="mb-2" value="item-3">
                 <AccordionTrigger className="text-left">
-                  Why copy/paste and not packaged as a dependency?
+                  What we do?
                 </AccordionTrigger>
                 <AccordionContent className="text-sm sm:text-base">
                   I like shadcn&apos;s philosophy about component libraries,
