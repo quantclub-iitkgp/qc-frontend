@@ -1,27 +1,15 @@
 import "@/styling/code.css"
 
 import { docs } from "@docs"
-import { ExternalLink } from "lucide-react"
-
 import { notFound } from "next/navigation"
 
-import { MAIN_SIDEBAR } from "@/data/sidebar-links"
-
 import { MDXContent, MDXTableOfContents } from "@/components/app/mdx-components"
-import Pagination from "@/components/app/pagination"
 import { TableOfContents } from "@/components/app/toc"
-import { Badge } from "@/components/ui/badge"
 
-interface DocPageProps {
+interface WhitepaperPageProps {
   params: Promise<{
     slug: string[]
   }>
-}
-
-export async function generateMetadata(props: DocPageProps) {
-  const doc = await getDocFromParams(props)
-  if (doc == null) return {}
-  return { title: doc.title, description: doc.description }
 }
 
 export async function generateStaticParams(): Promise<
@@ -29,78 +17,38 @@ export async function generateStaticParams(): Promise<
     slug: string[]
   }[]
 > {
-  return docs.map((doc) => ({
-    slug: doc.slugAsParams.split("/"),
-  }))
+  return docs
+    .filter((doc) => doc.slug.startsWith("/whitepapers"))
+    .map((doc) => ({
+      slug: doc.slugAsParams.split("/"),
+    }))
 }
 
-async function getDocFromParams({ params }: DocPageProps) {
+async function getDocFromParams({ params }: WhitepaperPageProps) {
   const slug = (await params).slug?.join("/") || ""
   const doc = docs.find((doc) => doc.slugAsParams === slug)
 
-  if (!doc) {
+  if (!doc || !doc.slug.startsWith("/whitepapers")) {
     return null
   }
 
   return doc
 }
 
-interface TOCItem {
-  depth: number
-  value: string
-  id: string
-}
-
-function transformTableOfContents(items: any[]): TOCItem[] {
-  const flattened: TOCItem[] = []
-
-  items.forEach((item) => {
-    flattened.push({
-      depth: item.depth,
-      value: item.value,
-      id: item.id,
-    })
-
-    if (item.children) {
-      flattened.push(...transformTableOfContents(item.children))
-    }
-  })
-
-  return flattened
-}
-
-export default async function DocPage(props: DocPageProps) {
+export default async function WhitepaperPage(props: WhitepaperPageProps) {
   const doc = await getDocFromParams(props)
   if (doc == null) notFound()
 
-  const { description, title, body, shadcnDocsLink, slug, slugAsParams } = doc
-
-  const filteredSidebar = MAIN_SIDEBAR.filter(
-    (item): item is { href: string; text: string } => typeof item === "object",
-  )
-
-  const currentIndex = filteredSidebar.findIndex((item) => {
-    const isIndex = slugAsParams === ""
-
-    if (isIndex) {
-      return item.href === "/docs"
-    }
-
-    return item.href === "/docs/" + slugAsParams
-  })
-
-  const prevItem = filteredSidebar[currentIndex - 1]
-  const nextItem = filteredSidebar[currentIndex + 1]
+  const { description, title, body } = doc
 
   const rawTableOfContents = MDXTableOfContents({ code: body })
-  const tableOfContents = transformTableOfContents(rawTableOfContents)
-
-  
-
-  const paginationProps = {
-    prev: prevItem ? { name: prevItem.text, path: prevItem.href } : undefined,
-    next: nextItem ? { name: nextItem.text, path: nextItem.href } : undefined,
-  }
+  const tableOfContents = rawTableOfContents
+    .filter((item) => typeof item.id === "string")
+    .map((item) => ({
+      depth: item.depth,
+      value: item.value,
+      id: item.id as string,
+    }))
 
   const isTocEmpty = tableOfContents.length < 2
 
@@ -116,20 +64,8 @@ export default async function DocPage(props: DocPageProps) {
                   {description}
                 </p>
               )}
-              {shadcnDocsLink && (
-                <a href={shadcnDocsLink} target="_blank">
-                  <Badge className="gap-2">
-                    shadcn/ui docs
-                    <ExternalLink />
-                  </Badge>
-                </a>
-              )}
             </div>
             <MDXContent code={body} />
-
-            <div className="mt-14">
-              <Pagination {...paginationProps} />
-            </div>
           </article>
           {!isTocEmpty && (
             <aside className="fixed bg-secondary-background border-l-4 not-prose border-l-border overflow-hidden top-[70px] xl:flex hidden flex-col justify-between right-0 w-[250px] h-[calc(100svh-70px)] overflow-y-auto">
@@ -141,3 +77,5 @@ export default async function DocPage(props: DocPageProps) {
     </div>
   )
 }
+
+

@@ -44,28 +44,14 @@ async function Navbar() {
             Quant Club
             </Link>
 
-          <div className="items-center text-base font-base xl:gap-10 lg:flex gap-10 hidden">
-            <Link href="/docs">Blogs</Link>
+        </div>
 
-
-
-            <Link href="/styling">WhitePaper</Link>
-
-            {/* <Link href="/blocks">Blocks</Link> */}
-
-
-
-            <Link href="/aboutus">About Us</Link>
-
-            <Link href="/contactus">Contact Us</Link>
-
-
-
-
-            <Link href="/templates">Templates</Link>
-
-            <Link href="/showcase">Showcase</Link>
-          </div>
+        <div className="hidden lg:flex flex-1 items-center justify-center text-base font-base gap-10 xl:gap-10">
+          <Link href="/docs">Blogs</Link>
+          <Link href="/whitepapers">WhitePaper</Link>
+          {/* <Link href="/blocks">Blocks</Link> */}
+          <Link href="/aboutus">About Us</Link>
+          <Link href="/contactus">Contact Us</Link>
         </div>
 
         <div className="flex items-center gap-4">

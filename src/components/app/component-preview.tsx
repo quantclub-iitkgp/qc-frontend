@@ -1,4 +1,4 @@
-import components from "@/data/components"
+import components from "@/data/blogs"
 import { STARS_EXAMPLES } from "@/data/stars"
 
 import { cn, transformToSlug } from "@/lib/utils"

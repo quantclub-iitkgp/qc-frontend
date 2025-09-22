@@ -5,7 +5,7 @@ import { Search as SearchIcon } from "lucide-react"
 import React, { useCallback, useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
 
-import { COMPONENTS_LINKS, GETTING_STARTED_LINKS } from "@/data/sidebar-links"
+import { BLOGS_LINKS, GETTING_STARTED_LINKS, WHITEPAPERS_LINKS } from "@/data/sidebar-links"
 
 import { Button } from "@/components/ui/button"
 import {
@@ -25,8 +25,12 @@ export default function Search() {
       links: [...GETTING_STARTED_LINKS],
     },
     {
-      heading: "Components",
-      links: [...COMPONENTS_LINKS],
+      heading: "BLOGS",
+      links: [...BLOGS_LINKS],
+    },
+    {
+      heading: "WHITEPAPERS",
+      links: [...WHITEPAPERS_LINKS],
     },
   ]
 
@@ -66,7 +70,7 @@ export default function Search() {
         </span>
       </Button>
       <CommandDialog
-        title="Search documentation"
+        title="Search"
         open={open}
         onOpenChange={setOpen}
       >

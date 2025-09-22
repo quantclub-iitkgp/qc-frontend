@@ -1,94 +1,70 @@
 import { transformToSlug } from "@/lib/utils"
 
-import COMPONENTS from "./components"
+import { BLOGS } from "./blogs"
+import { WHITEPAPERS } from "./whitepaper/paper"
 
-const COMPONENTS_LINKS = COMPONENTS.map((component) => {
+
+const BLOGS_LINKS = BLOGS.map((component) => {
   return {
-    href: `/docs/${transformToSlug(component.name)}`,
-    text: component.name,
+    href: `/docs/blogs/${transformToSlug(component.title)}`,
+    text: component.title,
+  }
+})
+
+const WHITEPAPERS_LINKS = WHITEPAPERS.map((component) => {
+  return {
+    href: `/docs/whitepapers/${transformToSlug(component.title)}`,
+    text: component.title,
   }
 })
 
 const GETTING_STARTED_LINKS = [
   {
-    href: "/docs/migrating-from-v3",
-    text: "Migrating from V3",
-  },
-  {
     href: "/docs",
-    text: "Introduction",
+    text: "Blogs",
   },
   {
-    href: "/docs/installation",
-    text: "Installation",
+    href: "/whitepapers",
+    text: "Whitepapers",
   },
   {
-    href: "/docs/resources",
-    text: "Resources",
+    href: "/events",
+    text: "Events",
   },
   {
-    href: "/docs/figma",
-    text: "Figma",
+    href: "/aboutus",
+    text: "About Us",
   },
   {
-    href: "/docs/changelog",
-    text: "Changelog",
+    href: "/contactus",
+    text: "Contact Us",
   },
-  {
-    href: "/styling",
-    text: "Styling",
-  },
-  {
-    href: "/charts",
-    text: "Charts",
-  },
-  {
-    href: "/stars",
-    text: "Stars",
-  },
-  {
-    href: "/templates",
-    text: "Templates",
-  },
-  {
-    href: "/showcase",
-    text: "Showcase",
-  },
+
+
+
 ]
 
 const MAIN_SIDEBAR = [
   "Getting started",
-  {
-    href: "/docs/migrating-from-v3",
-    text: "Migrating from V3",
-  },
+ 
   {
     href: "/docs",
     text: "Introduction",
   },
   {
     href: "/docs/installation",
-    text: "Installation",
+    text: "All Blogs",
   },
-  {
-    href: "/docs/resources",
-    text: "Resources",
-  },
-  {
-    href: "/docs/figma",
-    text: "Figma",
-  },
-  {
-    href: "/docs/changelog",
-    text: "Changelog",
-  },
-  "Components",
-  ...COMPONENTS_LINKS,
-  "Stars",
-  {
-    href: "/docs/stars",
-    text: "Installation",
-  },
+
+
+
+
+  "BLOGS",
+  ...BLOGS_LINKS,
+
+  "WHITEPAPERS",
+  ...WHITEPAPERS_LINKS,
+
 ]
 
-export { MAIN_SIDEBAR, COMPONENTS_LINKS, GETTING_STARTED_LINKS }
+export { MAIN_SIDEBAR, BLOGS_LINKS, GETTING_STARTED_LINKS ,WHITEPAPERS_LINKS}
