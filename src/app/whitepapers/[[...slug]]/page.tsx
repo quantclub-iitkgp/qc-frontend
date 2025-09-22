@@ -5,6 +5,14 @@ import { notFound } from "next/navigation"
 
 import { MDXContent, MDXTableOfContents } from "@/components/app/mdx-components"
 import { TableOfContents } from "@/components/app/toc"
+import {
+  PageHeader,
+  PageHeading,
+  PageWrapper,
+} from "@/components/app/page"
+import Link from "next/link"
+import ImageCard from "@/components/ui/image-card"
+import { WHITEPAPERS } from "@/data/whitepaper/paper"
 
 interface WhitepaperPageProps {
   params: Promise<{
@@ -17,11 +25,14 @@ export async function generateStaticParams(): Promise<
     slug: string[]
   }[]
 > {
-  return docs
+  const whitepaperSlugs = docs
     .filter((doc) => doc.slug.startsWith("/whitepapers"))
     .map((doc) => ({
       slug: doc.slugAsParams.split("/"),
     }))
+
+  // Include the base "/whitepapers" route for the optional catch-all
+  return [{ slug: [] }, ...whitepaperSlugs]
 }
 
 async function getDocFromParams({ params }: WhitepaperPageProps) {
@@ -36,6 +47,32 @@ async function getDocFromParams({ params }: WhitepaperPageProps) {
 }
 
 export default async function WhitepaperPage(props: WhitepaperPageProps) {
+  const { slug: slugParts = [] } = await props.params
+
+  // Render the whitepapers listing for the base route
+  if (slugParts.length === 0) {
+    return (
+      <PageWrapper>
+        <PageHeader>
+          <PageHeading>Whitepapers</PageHeading>
+          <div className="mt-10">
+            <div className="w-full grid lg:grid-cols-3 sm:grid-cols-2 grid-cols-1 gap-6">
+              {WHITEPAPERS.map((wp) => (
+                <Link key={wp.id} href={`/docs/whitepapers/${wp.slug}`}>
+                  <ImageCard
+                    className="w-full"
+                    imageUrl={wp.imageUrl}
+                    caption={wp.title}
+                  />
+                </Link>
+              ))}
+            </div>
+          </div>
+        </PageHeader>
+      </PageWrapper>
+    )
+  }
+
   const doc = await getDocFromParams(props)
   if (doc == null) notFound()
 
