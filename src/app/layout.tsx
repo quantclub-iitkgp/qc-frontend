@@ -21,35 +21,14 @@ export const metadata: Metadata = {
       "Quant CLub",
     template: "%s | Quant CLub",
   },
-  description:
-    "A collection of neobrutalism-styled components based on shadcn/ui.",
-  keywords: [
-    "neobrutalism",
-    "neobrutalism components",
-    "neobrutalism tailwind",
-    "react neobrutalism",
-    "react tailwind components",
-    "shadcn components",
-    "shadcn neobrutalism",
-  ],
-  authors: [{ name: "Samuel Breznjak", url: "https://github.com/ekmas" }],
+  
+  authors: [{ name: "Harsh Bhatt", url: "https://github.com/Harsh-BH" }],
   openGraph: {
     type: "website",
     description:
-      "A collection of neobrutalism-styled components based on shadcn/ui.",
-    images: ["https://www.neobrutalism.dev/preview.png"],
-    url: "https://www.neobrutalism.dev/",
-    title: "Neobrutalism components",
+      "Official Website of Quant Club, IIT Kharagpur.",
   },
-  metadataBase: new URL("https://www.neobrutalism.dev/"),
-  twitter: {
-    card: "summary_large_image",
-    title: "Neobrutalism components - Start making neobrutalism layouts",
-    description:
-      "A collection of neobrutalism-styled components based on shadcn/ui.",
-    images: ["https://www.neobrutalism.dev/preview.png"],
-    creator: "@samuelbreznjak",
-  },
+  
 }
 
 export default function RootLayout({

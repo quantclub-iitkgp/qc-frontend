@@ -47,7 +47,7 @@ async function Navbar() {
         </div>
 
         <div className="hidden lg:flex flex-1 items-center justify-center text-base font-base gap-10 xl:gap-10">
-          <Link href="/docs">Blogs</Link>
+          <Link href="/docs/Introduction">Blogs</Link>
           <Link href="/whitepapers">WhitePaper</Link>
           {/* <Link href="/blocks">Blocks</Link> */}
           <Link href="/aboutus">About Us</Link>

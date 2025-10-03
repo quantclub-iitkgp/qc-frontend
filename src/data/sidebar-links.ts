@@ -48,7 +48,7 @@ const MAIN_SIDEBAR = [
   "Getting started",
  
   {
-    href: "/docs",
+    href: "/docs/Introduction",
     text: "Introduction",
   },
   {
