@@ -1,4 +1,3 @@
-import components from "@/data/blogs"
 import { STARS_EXAMPLES } from "@/data/stars"
 
 import { cn, transformToSlug } from "@/lib/utils"
@@ -27,21 +26,7 @@ export default function ComponentPreview({
     if (!starData) return null
 
     ExampleComponent = starData
-  } else {
-    const componentData = components.find(
-      (c) => transformToSlug(c.name) === component,
-    )
-
-    if (!componentData) return null
-
-    if (type === "component") {
-      ExampleComponent = example
-        ? componentData.examples?.[example]
-        : componentData.exampleComponent
-    }
   }
-
-  if (!ExampleComponent) return null
 
   return (
     <>
@@ -58,7 +43,7 @@ export default function ComponentPreview({
               "bg-secondary-background",
             )}
           >
-            <ExampleComponent />
+            {ExampleComponent ? <ExampleComponent /> : null}
           </div>
         </TabsContent>
         <TabsContent value="code">{children}</TabsContent>

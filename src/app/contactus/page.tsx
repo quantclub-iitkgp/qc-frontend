@@ -459,7 +459,7 @@ export default function ContactPage() {
                 </motion.div>
               </CardContent>
               <CardFooter>
-                <Button variant="outline" className="w-full group">
+                <Button variant="neutral" className="w-full group">
                   View on Map
                   <ChevronRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
                 </Button>

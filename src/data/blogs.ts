@@ -61,3 +61,5 @@ export const BLOGS: Blog[] = [
     tags: ["risk", "portfolio"],
   },
 ]
+
+export default BLOGS
