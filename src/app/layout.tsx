@@ -28,6 +28,10 @@ export const metadata: Metadata = {
     description:
       "Official Website of Quant Club, IIT Kharagpur.",
   },
+  icons: {
+    icon: "/quant_club_iit_kharagpur_logo.jpg",
+    apple: "/quant_club_iit_kharagpur_logo.jpg",
+  },
   
 }
 
