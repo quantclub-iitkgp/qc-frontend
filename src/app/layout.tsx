@@ -18,8 +18,8 @@ const dmSans = DM_Sans({
 export const metadata: Metadata = {
   title: {
     default:
-      "Quant CLub",
-    template: "%s | Quant CLub",
+      "Quant Club",
+    template: "%s | Quant Club",
   },
   
   authors: [{ name: "Harsh Bhatt", url: "https://github.com/Harsh-BH" }],
