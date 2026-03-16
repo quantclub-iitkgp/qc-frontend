@@ -8,4 +8,5 @@ export type Blog = {
   author?: string
   readTime?: string
   tags?: string[]
+  content?: string
 }

@@ -36,6 +36,7 @@ function blogFromRow(row: any): Blog {
     author: row.author ?? undefined,
     readTime: row.read_time ?? undefined,
     tags: row.tags ?? undefined,
+    content: row.content ?? undefined,
   }
 }
 

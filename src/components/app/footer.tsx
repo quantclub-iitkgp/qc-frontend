@@ -71,7 +71,7 @@ export const Footer = () => {
             <div className="flex items-center gap-2">
               <div className="h-12 w-12 flex items-center justify-center bg-main border-4 border-border shadow-shadow">
                 <img
-                  src="/quant_club_iit_kharagpur_logo.png"
+                  src="/quant_club_iit_kharagpur_logo.jpg"
                   alt="Quant Club Logo"
                   className="h-7 w-7 object-contain"
                 />
