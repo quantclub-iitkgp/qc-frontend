@@ -184,6 +184,7 @@ export default async function BlogArticlePage(props: BlogPageProps) {
                 src={blog.coverImage}
                 alt={blog.title}
                 fill
+                unoptimized
                 className="object-cover"
                 priority
               />

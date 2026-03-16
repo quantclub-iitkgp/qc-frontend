@@ -14,6 +14,7 @@ const nextConfig = withMDX({
         pathname: "/storage/v1/object/public/**",
       },
     ],
+    minimumCacheTTL: 60 * 60 * 24 * 7, // 7 days
   },
   pageExtensions: ["js", "jsx", "ts", "tsx", "md", "mdx"],
   webpack: (config) => {
