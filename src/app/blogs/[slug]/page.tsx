@@ -163,7 +163,7 @@ export default async function BlogArticlePage(props: BlogPageProps) {
           className="
             mx-auto max-w-[800px] px-5 pb-16
             prose-headings:font-heading prose-headings:scroll-mt-28
-            prose-h2:text-2xl prose-h2:mt-12 prose-h2:mb-5 prose-h2:pb-2 prose-h2:border-b-2 prose-h2:border-border/30
+            prose-h2:text-2xl prose-h2:mt-12 prose-h2:mb-5 prose-h2:pb-2 prose-h2:border-b-2 prose-h2:border-border/60
             prose-h3:text-xl prose-h3:mt-8 prose-h3:mb-4
             prose-h4:text-lg prose-h4:mt-6 prose-h4:mb-3
             prose-p:text-base prose-p:leading-8 prose-p:mt-5 prose-p:text-foreground prose-p:font-base

@@ -13,6 +13,7 @@ import {
 import Link from "next/link"
 import ImageCard from "@/components/ui/image-card"
 import { WHITEPAPERS } from "@/data/whitepaper/paper"
+import { FadeInStagger, FadeInItem } from "@/components/app/fade-in"
 
 interface WhitepaperPageProps {
   params: Promise<{
@@ -56,19 +57,21 @@ export default async function WhitepaperPage(props: WhitepaperPageProps) {
         <PageHeader>
           <PageHeading>Whitepapers</PageHeading>
           <div className="mt-10">
-            <div className="w-full grid lg:grid-cols-3 sm:grid-cols-2 grid-cols-1 gap-6">
+            <FadeInStagger className="w-full grid lg:grid-cols-3 sm:grid-cols-2 grid-cols-1 gap-6">
               {[...WHITEPAPERS]
                 .sort((a, b) => new Date(b.publishedAt).getTime() - new Date(a.publishedAt).getTime())
                 .map((wp) => (
-                <Link key={wp.id} href={`/docs/whitepapers/${wp.slug}`}>
-                  <ImageCard
-                    className="w-full"
-                    imageUrl={wp.imageUrl}
-                    caption={wp.title}
-                  />
-                </Link>
-              ))}
-            </div>
+                  <FadeInItem key={wp.id}>
+                    <Link href={`/docs/whitepapers/${wp.slug}`} className="block hover:-translate-y-1 transition-transform duration-200">
+                      <ImageCard
+                        className="w-full"
+                        imageUrl={wp.imageUrl}
+                        caption={wp.title}
+                      />
+                    </Link>
+                  </FadeInItem>
+                ))}
+            </FadeInStagger>
           </div>
         </PageHeader>
       </PageWrapper>
@@ -92,7 +95,7 @@ export default async function WhitepaperPage(props: WhitepaperPageProps) {
   const isTocEmpty = tableOfContents.length < 2
 
   return (
-    <div className="docs min-h-[100dvh] w-full bg-background pt-[70px]">
+    <div className="min-h-[100dvh] w-full bg-background pt-[70px]">
       <div className="lg:ml-[250px] xl:mr-[250px] mr-0 ml-0 prose-p:text-foreground prose-p:mt-6 prose-headings:scroll-mt-32 prose-h1:mb-4 prose-ul:pl-5 prose-ul:list-disc prose-li:font-base sm:prose-li:text-base prose-li:text-sm prose-li:mt-2 lg:py-20 sm:py-16 py-12 leading-relaxed prose-h2:mt-10 prose-h2:mb-6 prose-h3:mt-8 prose-headings:font-heading sm:prose-h1:text-3xl prose-h1:text-2xl sm:prose-h2:text-2xl prose-h2:text-xl prose-h3:mb-6 sm:prose-h3:text-xl prose-h3:text-lg prose-p:leading-7 sm:prose-p:text-base prose-p:text-sm prose-p:font-base prose-code:px-[5px] prose-code:py-[3px] prose-a:underline prose-a:font-heading prose-code:rounded-base prose-code:font-bold prose-code:border prose-code:text-main-foreground prose-code:break-normal prose-code:text-sm prose-code:mx-0.5 prose-code:border-border prose-code:bg-main">
         <div className="2xl:max-w-[750px] max-w-[650px] w-full px-5 mx-auto">
           <article>
@@ -107,7 +110,7 @@ export default async function WhitepaperPage(props: WhitepaperPageProps) {
             <MDXContent code={body} />
           </article>
           {!isTocEmpty && (
-            <aside className="fixed bg-secondary-background border-l-4 not-prose border-l-border overflow-hidden top-[70px] xl:flex hidden flex-col justify-between right-0 w-[250px] h-[calc(100svh-70px)] overflow-y-auto">
+            <aside className="fixed bg-secondary-background border-l-4 not-prose border-border overflow-hidden top-[70px] xl:flex hidden flex-col justify-between right-0 w-[250px] h-[calc(100svh-70px)] overflow-y-auto">
               <TableOfContents items={tableOfContents} />
             </aside>
           )}
@@ -116,5 +119,3 @@ export default async function WhitepaperPage(props: WhitepaperPageProps) {
     </div>
   )
 }
-
-

@@ -27,6 +27,12 @@
 
   --shadow: var(--box-shadow-x) var(--box-shadow-y) 0px 0px var(--border);
 
+  /* shadcn compatibility aliases */
+  --muted: oklch(93.46% 0.0304 254.32 / 0.5);
+  --muted-foreground: oklch(0% 0 0 / 0.5);
+  --primary: var(--main);
+  --primary-foreground: var(--main-foreground);
+
   --chart-1: oklch(67.47% 0.1726 259.49);
   --chart-2: oklch(67.28% 0.2147 24.22);
   --chart-3: oklch(86.03% 0.176 92.36);
@@ -46,6 +52,12 @@
 
   --shadow: var(--box-shadow-x) var(--box-shadow-y) 0px 0px var(--border);
 
+  /* shadcn compatibility aliases */
+  --muted: oklch(23.93% 0 0 / 0.5);
+  --muted-foreground: oklch(92.49% 0 0 / 0.5);
+  --primary: var(--main);
+  --primary-foreground: var(--main-foreground);
+
   --chart-active-dot: #fff;
 }
 
@@ -58,6 +70,10 @@
   --color-border: var(--border);
   --color-overlay: var(--overlay);
   --color-ring: var(--ring);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
 
   --color-chart-1: var(--chart-1);
   --color-chart-2: var(--chart-2);
@@ -74,7 +90,6 @@
 
   --shadow-shadow: var(--shadow);
   --shadow-nav: 4px 4px 0px 0px var(--border);
-  --shadow-darkNav: 4px 4px 0px 0px var(--dark-border);
 
   --font-weight-base: var(--base-font-weight);
   --font-weight-heading: var(--heading-font-weight);
@@ -105,7 +120,7 @@
 
 @layer base {
   body {
-    @apply text-foreground font-base;
+    @apply text-foreground font-base transition-colors duration-200;
   }
 
   h1,
@@ -118,6 +133,17 @@
   }
 }
 
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
 body,
 .scrollbar {
   --sb-track-color: #ffffff;
@@ -126,7 +152,7 @@ body,
 
 html.dark body,
 html.dark .scrollbar {
-  --sb-track-color: #1f1f1f;
+  --sb-track-color: oklch(23.93% 0 0);
   --sb-thumb-color: #e6e6e6;
 }
 

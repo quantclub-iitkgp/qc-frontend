@@ -11,6 +11,8 @@ import HeroComponents from "@/components/app/hero-components"
 import { sharedComponents } from "@/components/app/mdx-components"
 import { Pre } from "@/components/app/pre"
 import StylingCustomizer from "@/components/app/styling-customizer"
+import { HeroHeading, HeroSubtitle, HeroCTA, AnimatedSection } from "@/components/app/home-animations"
+import { FadeIn, FadeInStagger, FadeInItem } from "@/components/app/fade-in"
 import Star8 from "@/components/stars/s8"
 import Star9 from "@/components/stars/s9"
 import Star11 from "@/components/stars/s11"
@@ -50,35 +52,41 @@ export default function Home() {
         />
         <div className="mx-auto w-container max-w-full">
           <div className="flex flex-col items-center text-center">
-            <h1 className="leading-normal">
-              Code. Calculate. Capitalize. <br />{" "}
-              <span className="relative px-2 sm:mr-2 mr-0 md:[&_svg]:size-[45px] sm:[&_svg]:size-7 bg-main/50 rounded-base border-2 border-border/40 dark:border-border/70">
-                QUANT
-                <Star9
-                  className="absolute sm:block hidden md:-bottom-4 md:-right-5 -bottom-2.5 -right-2.5"
-                  color="var(--main)"
-                  pathClassName="stroke-5 dark:stroke-3.5 stroke-black dark:stroke-black/70"
-                />
-                <Star9
-                  className="absolute sm:block hidden md:-top-4 md:-left-5 -top-2.5 -left-2.5"
-                  color="var(--main)"
-                  pathClassName="stroke-5 dark:stroke-3.5 stroke-black dark:stroke-black/70"
-                />
-              </span>{" "}
-              CLUB.
-            </h1>
+            <HeroHeading>
+              <h1 className="leading-normal">
+                Code. Calculate. Capitalize. <br />{" "}
+                <span className="relative px-2 sm:mr-2 mr-0 md:[&_svg]:size-[45px] sm:[&_svg]:size-7 bg-main/50 rounded-base border-2 border-border/40 dark:border-border/70">
+                  QUANT
+                  <Star9
+                    className="absolute sm:block hidden md:-bottom-4 md:-right-5 -bottom-2.5 -right-2.5"
+                    color="var(--main)"
+                    pathClassName="stroke-5 dark:stroke-3.5 stroke-black dark:stroke-black/70"
+                  />
+                  <Star9
+                    className="absolute sm:block hidden md:-top-4 md:-left-5 -top-2.5 -left-2.5"
+                    color="var(--main)"
+                    pathClassName="stroke-5 dark:stroke-3.5 stroke-black dark:stroke-black/70"
+                  />
+                </span>{" "}
+                CLUB.
+              </h1>
+            </HeroHeading>
 
-            <p className="leading-snug w-full md:mt-[50px] md:mb-[30px] sm:mt-12 my-9 sm:mb-10 2xl:text-3xl xl:text-2xl lg:text-2xl xl:w-full lg:w-2/3 md:w-full md:text-2xl sm:text-xl text-xl">
+            <HeroSubtitle>
+              <p className="leading-snug w-full md:mt-[50px] md:mb-[30px] sm:mt-12 my-9 sm:mb-10 2xl:text-3xl xl:text-2xl lg:text-2xl xl:w-full lg:w-2/3 md:w-full md:text-2xl sm:text-xl text-xl">
+                Where mathematics meets markets — explore quant research, trading strategies, and financial algorithms from IIT Kharagpur.
+              </p>
+            </HeroSubtitle>
 
-            </p>
-
-            <Link
-              className="flex items-center gap-2.5 w-max text-main-foreground rounded-base border-2 border-border bg-main md:px-10 px-4 md:py-3 py-2 md:text-[22px] text-base shadow-shadow transition-all hover:translate-x-boxShadowX hover:translate-y-boxShadowY hover:shadow-none"
-              href={"/docs"}
-            >
-              BOOM BOOM MONEY
-              <ArrowUpRight className="md:size-[30px] size-5" />
-            </Link>
+            <HeroCTA>
+              <Link
+                className="flex items-center gap-2.5 w-max text-main-foreground rounded-base border-2 border-border bg-main md:px-10 px-4 md:py-3 py-2 md:text-[22px] text-base shadow-shadow transition-all hover:translate-x-boxShadowX hover:translate-y-boxShadowY hover:shadow-none"
+                href={"/blogs"}
+              >
+                Explore Blogs
+                <ArrowUpRight className="md:size-[30px] size-5" />
+              </Link>
+            </HeroCTA>
           </div>
         </div>
       </main>
@@ -105,6 +113,7 @@ export default function Home() {
             )
           })}
         </Marquee>
+        <FadeIn>
         <div className="grid grid-cols-1 md:grid-cols-2 border-b-4 border-t-4 border-border">
           <section className="border-b-4 md:border-r-4 border-border md:bg-background 2xl:p-14 2xl:py-16 xl:p-10 xl:py-10 lg:p-8 lg:py-10 p-5 py-7 border-r-0 bg-main md:text-foreground text-main-foreground">
             <div className="flex items-center sm:gap-6 gap-4 sm:mb-6 mb-4">
@@ -154,12 +163,13 @@ export default function Home() {
             </p>
           </section>
         </div>
-
+        </FadeIn>
 
         {/* EVENTS SECTION */}
 
         
 
+        <AnimatedSection>
         <section className="border-b-4 border-b-border bg-background py-16 lg:py-[100px]">
           <h2 className="mb-5 text-center">
             <span className="relative px-6 sm:mr-2 mr-0 md:[&_svg]:size-[45px] sm:[&_svg]:size-7 bg-main/50 rounded-base border-2 border-border/40 dark:border-border/70">
@@ -184,12 +194,14 @@ export default function Home() {
           <StylingCustomizer />
 
         </section>
+        </AnimatedSection>
 
 
         {/* CHARTS SECTION */}
 
 
 
+        <AnimatedSection>
         <section className="inset-0 flex relative overflow-hidden w-full px-5 flex-col items-center justify-center bg-secondary-background bg-[linear-gradient(to_right,#80808033_1px,transparent_1px),linear-gradient(to_bottom,#80808033_1px,transparent_1px)] bg-[size:70px_70px] z-0">
           <Star20
             color="var(--main)"
@@ -217,13 +229,13 @@ export default function Home() {
           </div>
 
         </section>
-
-
+        </AnimatedSection>
 
         {/* FAQ SECTION */}
 
 
 
+        <AnimatedSection>
         <section className="border-t-4 z-0 border-t-border border-b-4 border-b-border bg-background py-16 lg:py-[100px]">
           <h2 className="sm:mb-20 mb-14 px-5 text-center">
             Frequently asked questions
@@ -235,54 +247,42 @@ export default function Home() {
               type="single"
               collapsible
             >
-              <AccordionItem className="mb-2" value="item-2">
+              <AccordionItem className="mb-2" value="item-1">
                 <AccordionTrigger className="text-left">
-                  What is Quant Club?
+                  What is Quant Club IIT Kharagpur?
                 </AccordionTrigger>
                 <AccordionContent className="text-sm sm:text-base">
-                  Most of the components are based on shadcn/ui, which means
-                  they are accessible because under the hood they use radix-ui
-                  which is fully accessible.
+                  Quant Club IIT Kharagpur is a student-run organization dedicated to quantitative finance and algorithmic trading. We bridge the gap between financial theory and practical implementation through research, workshops, and hands-on projects.
+                </AccordionContent>
+              </AccordionItem>
+              <AccordionItem className="mb-2" value="item-2">
+                <AccordionTrigger className="text-left">
+                  What topics do your blogs cover?
+                </AccordionTrigger>
+                <AccordionContent className="text-sm sm:text-base">
+                  Our blogs cover quantitative finance fundamentals, algorithmic trading strategies, stochastic modelling, machine learning for finance, portfolio optimization, risk management, and market microstructure analysis.
                 </AccordionContent>
               </AccordionItem>
               <AccordionItem className="mb-2" value="item-3">
                 <AccordionTrigger className="text-left">
-                  What we do?
+                  How can I access the whitepapers?
                 </AccordionTrigger>
                 <AccordionContent className="text-sm sm:text-base">
-                  I like shadcn&apos;s philosophy about component libraries,
-                  I&apos;ll quote what he said about this:
-                  <br />
-                  <q className="mt-5 block">
-                    The idea behind this is to give you ownership and control
-                    over the code, allowing you to decide how the components are
-                    built and styled. Start with some sensible defaults, then
-                    customize the components to your needs. One of the drawback
-                    of packaging the components in an npm package is that the
-                    style is coupled with the implementation. The design of your
-                    components should be separate from their implementation.
-                  </q>
+                  All whitepapers are freely accessible on our website. Navigate to the Whitepapers section to browse and read detailed research papers produced by our members on topics ranging from options pricing to high-frequency trading.
                 </AccordionContent>
               </AccordionItem>
               <AccordionItem value="item-4">
                 <AccordionTrigger className="text-left">
-                  How to contribute?
+                  How can I get involved or collaborate?
                 </AccordionTrigger>
                 <AccordionContent className="text-sm sm:text-base">
-                  Visit{" "}
-                  <a
-                    target="_blank"
-                    className="underline font-heading"
-                    href="https://github.com/ekmas/neobrutalism-components/blob/main/CONTRIBUTING.md"
-                  >
-                    contributing.md
-                  </a>{" "}
-                  to get started.
+                  You can reach out to us through the Contact page or join our community forums. We welcome collaboration on research projects, workshop proposals, and contributions to our open knowledge base.
                 </AccordionContent>
               </AccordionItem>
             </Accordion>
           </div>
         </section>
+        </AnimatedSection>
         <Marquee
           className="border-b-4 border-border md:[&_.animate-marquee-left]:gap-[50px]! [&_.animate-marquee-left]:gap-[35px]! bg-secondary-background md:py-4 py-3"
           direction="left"
@@ -307,17 +307,21 @@ export default function Home() {
           })}
         </Marquee>
         <section className="inset-0 w-full flex flex-col items-center justify-center bg-main  bg-[linear-gradient(to_right,#00000033_1px,transparent_1px),linear-gradient(to_bottom,#00000033_1px,transparent_1px)] bg-[size:70px_70px] px-5 lg:py-[200px] md:py-[150px] sm:py-[100px] py-[100px]">
+          <AnimatedSection>
           <h2 className="text-center font-heading not-prose 2xl:text-5xl xl:text-5xl md:text-4xl sm:text-3xl text-[22px] text-main-foreground mb-12">
-            Let's Talk Some FE!Nance
+            Let&apos;s Talk Some FE!Nance
           </h2>
+          </AnimatedSection>
 
+          <AnimatedSection delay={0.15}>
           <Link
             className="flex items-center gap-2.5 w-max text-foreground rounded-base border-2 border-border bg-background dark:bg-secondary-background md:px-10 px-4 md:py-3 py-2 md:text-[22px] text-base shadow-shadow transition-all hover:translate-x-boxShadowX hover:translate-y-boxShadowY hover:shadow-none"
-            href={"/docs"}
+            href={"/contactus"}
           >
             Contact Us
             <ArrowUpRight className="md:size-[30px] size-5" />
           </Link>
+          </AnimatedSection>
 
           {/* <Tabs defaultValue="pnpm" className="max-w-[650px] w-full h-max">
             <TabsList className="grid w-full grid-cols-4">
@@ -388,7 +392,7 @@ export default function Home() {
         </a>
         .
       </footer> */}
-      <section className="border-b-4 border-t-4 border-black bg-background py-16 lg:py-[100px]">
+      <section className="border-b-4 border-t-4 border-border bg-background py-16 lg:py-[100px]">
         <Footer />
       </section>
     </div>
