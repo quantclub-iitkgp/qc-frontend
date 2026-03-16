@@ -5,6 +5,8 @@ import Link from "next/link"
 import { BLOGS } from "@/data/blogs"
 import { BlogCard } from "@/components/app/blog-card"
 import { Footer } from "@/components/app/footer"
+import { AnimatedBlogHeader, AnimatedBlogBadge } from "@/components/app/blog-header-animations"
+import { FadeIn } from "@/components/app/fade-in"
 
 export const metadata: Metadata = {
   title: "Blog",
@@ -22,21 +24,25 @@ export default function BlogsPage() {
         <div className="mx-auto max-w-container px-5 py-16 md:py-20">
           <div className="flex items-start justify-between gap-6 flex-wrap">
             <div>
-              <div className="flex items-center gap-3 mb-4">
-                <span className="inline-flex items-center gap-2 border-4 border-border bg-main px-3 py-1.5 text-sm font-heading font-bold text-main-foreground shadow-shadow">
-                  <BookOpen className="size-4" />
-                  The Quant Blog
-                </span>
-              </div>
-              <h1 className="text-4xl md:text-5xl font-heading font-bold leading-tight">
-                Ideas, Research &amp;
-                <br className="hidden sm:block" /> Market Insights
-              </h1>
-              <p className="mt-4 text-lg text-foreground/70 max-w-xl">
-                Deep dives into quantitative finance, portfolio theory, algorithmic
-                trading, and risk management by the researchers at Quant Club IIT
-                Kharagpur.
-              </p>
+              <AnimatedBlogBadge>
+                <div className="flex items-center gap-3 mb-4">
+                  <span className="inline-flex items-center gap-2 border-4 border-border bg-main px-3 py-1.5 text-sm font-heading font-bold text-main-foreground shadow-shadow">
+                    <BookOpen className="size-4" />
+                    The Quant Blog
+                  </span>
+                </div>
+              </AnimatedBlogBadge>
+              <AnimatedBlogHeader>
+                <h1 className="text-4xl md:text-5xl font-heading font-bold leading-tight">
+                  Ideas, Research &amp;
+                  <br className="hidden sm:block" /> Market Insights
+                </h1>
+                <p className="mt-4 text-lg text-foreground/70 max-w-xl">
+                  Deep dives into quantitative finance, portfolio theory, algorithmic
+                  trading, and risk management by the researchers at Quant Club IIT
+                  Kharagpur.
+                </p>
+              </AnimatedBlogHeader>
             </div>
             <Link
               href="/docs"
@@ -53,9 +59,11 @@ export default function BlogsPage() {
         {/* Featured blog */}
         {featuredBlog && (
           <section className="mb-12">
-            <h2 className="text-xs font-heading font-bold uppercase tracking-widest text-foreground/50 mb-5 border-l-4 border-main pl-3">
-              Latest Article
-            </h2>
+            <FadeIn>
+              <h2 className="text-xs font-heading font-bold uppercase tracking-widest text-foreground/50 mb-5 border-l-4 border-main pl-3">
+                Latest Article
+              </h2>
+            </FadeIn>
             <BlogCard blog={featuredBlog} featured />
           </section>
         )}
@@ -66,10 +74,12 @@ export default function BlogsPage() {
         {/* Grid of remaining blogs */}
         {restBlogs.length > 0 && (
           <section>
-            <h2 className="text-xs font-heading font-bold uppercase tracking-widest text-foreground/50 mb-5 border-l-4 border-main pl-3">
-              More Articles
-            </h2>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            <FadeIn>
+              <h2 className="text-xs font-heading font-bold uppercase tracking-widest text-foreground/50 mb-5 border-l-4 border-main pl-3">
+                More Articles
+              </h2>
+            </FadeIn>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 items-stretch">
               {restBlogs.map((blog) => (
                 <BlogCard key={blog.slug} blog={blog} />
               ))}
