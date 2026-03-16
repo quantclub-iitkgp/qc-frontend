@@ -10,7 +10,6 @@ import reviews from "@/data/reviews"
 import HeroComponents from "@/components/app/hero-components"
 import { sharedComponents } from "@/components/app/mdx-components"
 import { Pre } from "@/components/app/pre"
-import StylingCustomizer from "@/components/app/styling-customizer"
 import { HeroHeading, HeroSubtitle, HeroCTA, AnimatedSection } from "@/components/app/home-animations"
 import { FadeIn, FadeInStagger, FadeInItem } from "@/components/app/fade-in"
 import Star8 from "@/components/stars/s8"
@@ -37,6 +36,45 @@ import Star28 from "@/components/stars/s28"
 import Star30 from "@/components/stars/s30"
 import Star31 from "@/components/stars/s31"
 import SensexChart, { type SensexDataPoint } from "@/components/app/sensex-chart"
+import MarketTicker, { type MarketQuote } from "@/components/app/market-ticker"
+
+const MARKET_SYMBOLS = [
+  { symbol: "^BSESN", name: "SENSEX" },
+  { symbol: "^NSEI", name: "NIFTY 50" },
+  { symbol: "^NSEBANK", name: "BANK NIFTY" },
+  { symbol: "^CNXIT", name: "NIFTY IT" },
+  { symbol: "USDINR=X", name: "USD/INR" },
+]
+
+async function getMarketQuotes(): Promise<MarketQuote[]> {
+  try {
+    const symbols = MARKET_SYMBOLS.map((s) => s.symbol).join(",")
+    const res = await fetch(
+      `https://query1.finance.yahoo.com/v7/finance/quote?symbols=${symbols}`,
+      { next: { revalidate: 300 }, headers: { "User-Agent": "Mozilla/5.0" } }
+    )
+    const json = (await res.json()) as {
+      quoteResponse?: {
+        result?: Array<{
+          symbol: string
+          regularMarketPrice: number
+          regularMarketChange: number
+          regularMarketChangePercent: number
+        }>
+      }
+    }
+    const results = json?.quoteResponse?.result ?? []
+    return results.map((q) => ({
+      symbol: q.symbol,
+      name: MARKET_SYMBOLS.find((s) => s.symbol === q.symbol)?.name ?? q.symbol,
+      price: q.regularMarketPrice,
+      change: q.regularMarketChange,
+      changePct: q.regularMarketChangePercent,
+    }))
+  } catch {
+    return []
+  }
+}
 
 async function getSensexData(): Promise<SensexDataPoint[]> {
   try {
@@ -64,7 +102,11 @@ async function getSensexData(): Promise<SensexDataPoint[]> {
 }
 
 export default async function Home() {
-  const [events, sensexData] = await Promise.all([getEvents(), getSensexData()])
+  const [events, sensexData, marketQuotes] = await Promise.all([
+    getEvents(),
+    getSensexData(),
+    getMarketQuotes(),
+  ])
   const { Tabs, TabsContent, TabsList, TabsTrigger } = sharedComponents
 
   return (
@@ -138,6 +180,7 @@ export default async function Home() {
             )
           })}
         </Marquee>
+        <MarketTicker quotes={marketQuotes} />
         <FadeIn>
         <div className="grid grid-cols-1 md:grid-cols-2 border-b-4 border-t-4 border-border">
           <section className="border-b-4 md:border-r-4 border-border md:bg-background 2xl:p-14 2xl:py-16 xl:p-10 xl:py-10 lg:p-8 lg:py-10 p-5 py-7 border-r-0 bg-main md:text-foreground text-main-foreground">
@@ -224,24 +267,34 @@ export default async function Home() {
                   href={event.link || "#"}
                   target={event.link ? "_blank" : undefined}
                   rel="noopener noreferrer"
-                  className="border-4 border-border bg-secondary-background shadow-shadow p-5 flex flex-col gap-3 hover:translate-x-boxShadowX hover:translate-y-boxShadowY hover:shadow-none transition-all"
+                  className="group border-4 border-border bg-secondary-background shadow-shadow flex flex-col hover:translate-x-boxShadowX hover:translate-y-boxShadowY hover:shadow-none transition-all overflow-hidden"
                 >
-                  <div className="flex items-center gap-2 text-xs text-foreground/50 font-heading font-bold uppercase tracking-wide">
-                    <CalendarDays className="size-4" />
-                    {new Date(event.date).toLocaleDateString("en-US", {
-                      year: "numeric",
-                      month: "long",
-                      day: "numeric",
-                    })}
+                  {event.image && (
+                    <div className="relative w-full h-44 border-b-4 border-border overflow-hidden flex-shrink-0">
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img
+                        src={event.image}
+                        alt={event.title}
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                      />
+                    </div>
+                  )}
+                  <div className="p-5 flex flex-col gap-3 flex-1">
+                    <div className="flex items-center gap-2 text-xs text-foreground/50 font-heading font-bold uppercase tracking-wide">
+                      <CalendarDays className="size-4" />
+                      {new Date(event.date).toLocaleDateString("en-US", {
+                        year: "numeric",
+                        month: "long",
+                        day: "numeric",
+                      })}
+                    </div>
+                    <h3 className="font-heading font-bold text-lg leading-snug group-hover:text-main transition-colors">{event.title}</h3>
+                    <p className="text-sm text-foreground/60 leading-relaxed flex-1">{event.description}</p>
                   </div>
-                  <h3 className="font-heading font-bold text-lg leading-snug">{event.title}</h3>
-                  <p className="text-sm text-foreground/60 leading-relaxed flex-1">{event.description}</p>
                 </Link>
               ))}
             </div>
           )}
-
-          <StylingCustomizer />
 
         </section>
         </AnimatedSection>
@@ -266,7 +319,28 @@ export default async function Home() {
               size={250}
               className="absolute bottom-[120px] lg:block hidden -right-[125px] -z-10"
             />
-            <div className="mx-auto w-container max-w-full py-16">
+            {marketQuotes.length > 0 && (
+              <div className="mx-auto w-container max-w-full pt-16 grid grid-cols-2 lg:grid-cols-5 gap-4">
+                {marketQuotes.map((q) => {
+                  const isPos = q.change >= 0
+                  const isUSD = q.symbol === "USDINR=X"
+                  const fmt = (v: number) =>
+                    isUSD
+                      ? `₹${v.toFixed(2)}`
+                      : `₹${new Intl.NumberFormat("en-IN", { maximumFractionDigits: 0 }).format(v)}`
+                  return (
+                    <div key={q.symbol} className="border-4 border-border bg-background p-4 shadow-shadow">
+                      <p className="text-xs font-heading font-bold uppercase tracking-widest text-foreground/50 mb-1">{q.name}</p>
+                      <p className="text-lg font-heading font-bold leading-tight">{fmt(q.price)}</p>
+                      <p className={`text-sm font-heading font-bold mt-1 ${isPos ? "text-main" : "text-red-500"}`}>
+                        {isPos ? "▲" : "▼"} {Math.abs(q.changePct).toFixed(2)}%
+                      </p>
+                    </div>
+                  )
+                })}
+              </div>
+            )}
+            <div className="mx-auto w-container max-w-full py-10">
               <h2 className="mb-8 text-center">
                 <span className="relative px-6 sm:mr-2 mr-0 md:[&_svg]:size-[45px] sm:[&_svg]:size-7 bg-main/50 rounded-base border-2 border-border/40 dark:border-border/70">
                   MARKET PULSE
