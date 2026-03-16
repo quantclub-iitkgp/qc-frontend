@@ -1,4 +1,4 @@
-import { supabase } from "@/lib/supabase"
+import { getSupabaseClient } from "@/lib/supabase"
 import type { Blog } from "@/data/blogs"
 import type { Whitepaper } from "@/data/whitepaper/paper"
 
@@ -79,7 +79,7 @@ function teamFromRow(row: any): TeamMember {
 }
 
 export async function getBlogs(): Promise<Blog[]> {
-  const { data, error } = await supabase
+  const { data, error } = await getSupabaseClient()
     .from("blogs")
     .select("*")
     .order("created_at", { ascending: false })
@@ -88,7 +88,7 @@ export async function getBlogs(): Promise<Blog[]> {
 }
 
 export async function getWhitepapers(): Promise<Whitepaper[]> {
-  const { data, error } = await supabase
+  const { data, error } = await getSupabaseClient()
     .from("whitepapers")
     .select("*")
     .order("created_at", { ascending: false })
@@ -97,7 +97,7 @@ export async function getWhitepapers(): Promise<Whitepaper[]> {
 }
 
 export async function getEvents(): Promise<Event[]> {
-  const { data, error } = await supabase
+  const { data, error } = await getSupabaseClient()
     .from("events")
     .select("*")
     .order("created_at", { ascending: false })
@@ -106,7 +106,7 @@ export async function getEvents(): Promise<Event[]> {
 }
 
 export async function getTeam(): Promise<TeamMember[]> {
-  const { data, error } = await supabase
+  const { data, error } = await getSupabaseClient()
     .from("team")
     .select("*")
     .order("created_at", { ascending: false })
