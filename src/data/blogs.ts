@@ -6,6 +6,7 @@ export type Blog = {
   date?: string
   coverImage?: string
   author?: string
+  readTime?: string
   tags?: string[]
 }
 
@@ -18,6 +19,7 @@ export const BLOGS: Blog[] = [
     date: "2025-09-01",
     coverImage: "/showcase-previews/projects.webp",
     author: "Quant Club IIT Kharagpur",
+    readTime: "8 min read",
     tags: ["basics", "overview", "quant"],
   },
   {
@@ -28,6 +30,7 @@ export const BLOGS: Blog[] = [
     date: "2025-08-22",
     coverImage: "/template-previews/portfolio.webp",
     author: "Team QC",
+    readTime: "12 min read",
     tags: ["portfolio", "optimization"],
   },
   {
@@ -38,6 +41,7 @@ export const BLOGS: Blog[] = [
     date: "2025-07-15",
     coverImage: "/template-previews/blog.webp",
     author: "Research Wing",
+    readTime: "10 min read",
     tags: ["trading", "algorithms", "backtesting"],
   },
   {
@@ -48,6 +52,7 @@ export const BLOGS: Blog[] = [
     date: "2025-06-10",
     coverImage: "/template-previews/bento.webp",
     author: "Quant Club",
+    readTime: "9 min read",
     tags: ["factors", "equities"],
   },
   {
@@ -58,6 +63,7 @@ export const BLOGS: Blog[] = [
     date: "2025-05-02",
     coverImage: "/showcase-previews/jukebox.webp",
     author: "Team QC",
+    readTime: "11 min read",
     tags: ["risk", "portfolio"],
   },
 ]

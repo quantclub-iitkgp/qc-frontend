@@ -1,0 +1,147 @@
+---
+title: "What Is Factor Investing?"
+description: "A quick tour of value, momentum, quality, size, and low-vol."
+---
+
+## The Idea Behind Factor Investing
+
+Factor investing is a systematic approach that explains asset returns through exposure to fundamental, economic, or behavioral characteristics — called **factors**. Rather than picking stocks based on qualitative analysis, factor investors construct portfolios with targeted, diversified exposures to these systematic return drivers.
+
+The intellectual foundation dates to the **Fama-French three-factor model** (1993):
+
+$$
+R_i - R_f = \alpha_i + \beta_i^{\text{MKT}}(R_m - R_f) + \beta_i^{\text{SMB}} \cdot \text{SMB} + \beta_i^{\text{HML}} \cdot \text{HML} + \varepsilon_i
+$$
+
+where SMB is "Small Minus Big" (size premium) and HML is "High Minus Low" (value premium). Since then, the factor zoo has expanded to hundreds of documented anomalies.
+
+---
+
+## The Core Factors
+
+### Value
+
+**Definition:** Buy cheap assets, short expensive ones.
+
+**Measure:** Price-to-Book (P/B), Earnings Yield ($E/P$), Enterprise Value to EBITDA (EV/EBITDA)
+
+**Economic rationale:** Cheap stocks are often distressed. Investors demand a risk premium to hold them. Alternatively, markets overly extrapolate past growth and underprice mean reversion.
+
+$$
+\text{Value Score}_i = \frac{1}{\text{P/B}_i}
+$$
+
+### Momentum
+
+**Definition:** Recent winners continue to outperform, recent losers continue to underperform.
+
+**Measure:** Past 12-1 month return (skipping the most recent month to avoid short-term reversal)
+
+$$
+\text{MOM}_{t,i} = R_{i, t-252 : t-21}
+$$
+
+**Economic rationale:** Behavioral (investors under-react to news, then over-react) and risk-based (momentum stocks carry crisis risk).
+
+### Quality
+
+**Definition:** High-profitability, low-leverage, stable-earnings firms outperform.
+
+**Measures:** Return on Equity (ROE), Gross Profitability ($= \text{GP}/\text{Total Assets}$), Accruals
+
+$$
+\text{Quality Score}_i = \frac{\text{Gross Profit}_i}{\text{Total Assets}_i}
+$$
+
+### Size
+
+**Definition:** Small-cap stocks earn higher returns than large-caps on a risk-adjusted basis.
+
+**Measure:** Market capitalization (log scale)
+
+**Caveat:** The size premium has weakened significantly post-1980 and is sensitive to microcap and illiquid stocks.
+
+### Low Volatility
+
+**Definition:** Low-volatility stocks earn higher *risk-adjusted* returns despite lower absolute returns.
+
+**Measure:** Realized 12-month daily return volatility, Beta to market
+
+**Economic rationale:** The anomaly contradicts CAPM ($R = r_f + \beta(R_m - r_f)$ predicts high beta earns more). Behavioral explanations: investor preference for lottery-like payoffs and benchmark-relative mandates create systematic mispricing.
+
+---
+
+## Factor Summary Table
+
+| Factor | Signal | Why It Works |
+|---|---|---|
+| **Value** | E/P, B/P, CF/P | Risk premium for distressed firms |
+| **Momentum** | 12-1 month return | Behavioral under/over-reaction |
+| **Quality** | Gross profitability, ROE | Mispricing of durable competitive advantage |
+| **Size** | Log market cap | Illiquidity premium, neglect |
+| **Low Vol** | 12M realized vol, Beta | Leverage constraints, benchmark mandates |
+| **Carry** | Dividend yield, bond yield | Compensation for holding risk assets |
+
+---
+
+## Building a Multi-Factor Portfolio
+
+```python
+import pandas as pd
+import numpy as np
+
+def z_score(series: pd.Series) -> pd.Series:
+    """Cross-sectionally standardize a factor."""
+    return (series - series.mean()) / series.std()
+
+def build_composite_factor(df: pd.DataFrame, factor_cols: list) -> pd.Series:
+    """
+    Equal-weight composite of z-scored factors.
+    df columns: each factor_col is a raw factor value per stock.
+    """
+    z_factors = pd.DataFrame({col: z_score(df[col]) for col in factor_cols})
+    composite = z_factors.mean(axis=1)
+    return composite
+
+# Example: combine value, momentum, and quality
+factor_data = pd.DataFrame({
+    "value":    [1.2, 0.8, 2.1, 0.5, 1.8],   # earnings yield (%)
+    "momentum": [0.12, -0.05, 0.22, -0.15, 0.08],  # 12-1M return
+    "quality":  [0.15, 0.08, 0.21, 0.05, 0.18],    # gross profitability
+}, index=["AAPL", "MSFT", "META", "GM", "JPM"])
+
+composite_score = build_composite_factor(factor_data, ["value", "momentum", "quality"])
+print("Factor Scores:\n", composite_score.sort_values(ascending=False))
+```
+
+---
+
+## Implementation Pitfalls
+
+> "Factors are not free alpha — they are risks that have been identified, named, and commoditized."
+
+### 1. Factor Crowding
+
+When too many investors chase the same factor, valuations compress and the premium disappears. Monitor crowding via cross-sectional valuation of the factor portfolio.
+
+### 2. Turnover and Transaction Costs
+
+Momentum requires frequent rebalancing (monthly). Transaction costs eat into gross alpha. Target factors with either **high gross alpha** or **low turnover** (value, quality).
+
+### 3. Factor Timing vs. Strategic Exposure
+
+Attempting to time factors (rotate into value when it's "cheap") is extremely difficult. Most evidence supports **strategic, diversified, multi-factor** exposure.
+
+### 4. Neutralization
+
+A value portfolio that is accidentally long small-caps and short large-caps will load on the size factor. Always **neutralize** unintended factor exposures:
+
+$$
+\mathbf{w}^* = \arg\min_w \left(\sigma_p^2 + \lambda_1 \|\beta_{\text{size}}\|^2 + \lambda_2 \|\beta_{\text{sector}}\|^2 \right)
+$$
+
+---
+
+## The Future of Factor Investing
+
+Machine learning is beginning to challenge classical factor models. Rather than hand-engineering factors, neural networks learn latent representations directly from return data. But the core tension remains: **complexity vs. interpretability vs. overfitting risk**. The smartest practitioners combine economic theory with modern ML, using factors as priors to regularize learned representations.

@@ -1,0 +1,142 @@
+---
+title: "Mean-Variance Optimization Explained"
+description: "Understanding Markowitz portfolios with intuition and simple math."
+---
+
+## The Core Idea
+
+In 1952, Harry Markowitz published a paper that changed finance forever. His key insight: **investors care about two things — return and risk** — and both can be captured in the mean and variance of portfolio returns. This gave birth to Modern Portfolio Theory (MPT).
+
+> "Diversification is the only free lunch in finance."
+> — Harry Markowitz
+
+The goal of mean-variance optimization is to find portfolio weights $\mathbf{w}$ that maximize expected return for a given level of risk, or equivalently, minimize risk for a given expected return.
+
+---
+
+## Mathematical Formulation
+
+### Portfolio Statistics
+
+Given $n$ assets with expected return vector $\boldsymbol{\mu} \in \mathbb{R}^n$ and covariance matrix $\boldsymbol{\Sigma} \in \mathbb{R}^{n \times n}$, a portfolio with weight vector $\mathbf{w}$ (where $\sum_i w_i = 1$) has:
+
+$$
+\mu_p = \mathbf{w}^\top \boldsymbol{\mu}
+$$
+
+$$
+\sigma_p^2 = \mathbf{w}^\top \boldsymbol{\Sigma} \mathbf{w}
+$$
+
+### The Optimization Problem
+
+The minimum-variance frontier is traced by solving:
+
+$$
+\min_{\mathbf{w}} \quad \mathbf{w}^\top \boldsymbol{\Sigma} \mathbf{w}
+\quad \text{s.t.} \quad \mathbf{w}^\top \boldsymbol{\mu} = \mu^*, \quad \mathbf{1}^\top \mathbf{w} = 1
+$$
+
+for varying target returns $\mu^*$. The **efficient frontier** is the upper portion of this curve — portfolios with the highest return for each risk level.
+
+### The Sharpe-Optimal Portfolio
+
+Among all efficient portfolios, the one with the highest Sharpe ratio $S = (\mu_p - r_f) / \sigma_p$ is the **tangency portfolio**. Its weights are:
+
+$$
+\mathbf{w}^* \propto \boldsymbol{\Sigma}^{-1}(\boldsymbol{\mu} - r_f \mathbf{1})
+$$
+
+---
+
+## Correlation and Diversification
+
+Diversification reduces portfolio variance because assets are not perfectly correlated. For two assets with equal weight $w = 0.5$, equal volatility $\sigma$, and correlation $\rho$:
+
+$$
+\sigma_p = \sigma \sqrt{\frac{1 + \rho}{2}}
+$$
+
+| Correlation $\rho$ | Portfolio Vol |
+|---|---|
+| 1.0 (perfect positive) | $\sigma$ (no diversification) |
+| 0.5 | $0.866\,\sigma$ |
+| 0.0 (uncorrelated) | $0.707\,\sigma$ |
+| -0.5 | $0.5\,\sigma$ |
+| -1.0 (perfect negative) | $0$ (perfect hedge!) |
+
+---
+
+## Implementation in Python
+
+Here is a complete mean-variance optimizer using `scipy`:
+
+```python
+import numpy as np
+from scipy.optimize import minimize
+
+def portfolio_stats(weights, mu, Sigma):
+    ret = weights @ mu
+    vol = np.sqrt(weights @ Sigma @ weights)
+    return ret, vol
+
+def neg_sharpe(weights, mu, Sigma, rf=0.02/252):
+    ret, vol = portfolio_stats(weights, mu, Sigma)
+    return -(ret - rf) / vol
+
+def max_sharpe_portfolio(mu, Sigma, rf=0.02/252):
+    n = len(mu)
+    constraints = [{"type": "eq", "fun": lambda w: w.sum() - 1}]
+    bounds = [(0, 1)] * n  # long-only
+    w0 = np.ones(n) / n
+
+    result = minimize(
+        neg_sharpe, w0, args=(mu, Sigma, rf),
+        method="SLSQP", bounds=bounds, constraints=constraints,
+    )
+    return result.x
+
+# Example: 3-asset universe
+mu = np.array([0.10, 0.14, 0.08]) / 252
+Sigma = np.array([
+    [0.04,  0.02,  0.01],
+    [0.02,  0.09,  0.015],
+    [0.01,  0.015, 0.025]
+]) / 252
+
+optimal_weights = max_sharpe_portfolio(mu, Sigma)
+ret, vol = portfolio_stats(optimal_weights, mu, Sigma)
+print("Optimal Weights:", np.round(optimal_weights, 3))
+print(f"Annual Return:  {ret*252:.2%}")
+print(f"Annual Vol:     {vol*np.sqrt(252):.2%}")
+print(f"Sharpe Ratio:   {ret/vol:.2f}")
+```
+
+---
+
+## Pitfalls and Practical Notes
+
+Mean-variance optimization is **notoriously sensitive** to input estimates:
+
+1. **Estimation Error** — Small changes in $\boldsymbol{\mu}$ lead to wildly different portfolios
+2. **The Curse of Dimensionality** — With $n$ assets you need to estimate $n(n+1)/2$ covariance parameters
+3. **Solutions:**
+   - **Shrinkage Estimators** — Ledoit-Wolf shrinks $\boldsymbol{\Sigma}$ toward a structured target
+   - **Factor Models** — Decompose $\boldsymbol{\Sigma} = \mathbf{B}\mathbf{F}\mathbf{B}^\top + \boldsymbol{\Delta}$
+   - **Robust Optimization** — Optimize over uncertainty sets for $\boldsymbol{\mu}$ and $\boldsymbol{\Sigma}$
+   - **Constraints** — Long-only, leverage, and sector constraints stabilize allocations
+
+> **Rule of thumb:** Never trust a mean-variance optimized portfolio out-of-sample without significant regularization. Equal-weight often beats unconstrained MVO on real data.
+
+---
+
+## Beyond Mean-Variance
+
+Modern extensions include:
+
+- **Black-Litterman** — Bayesian framework combining market equilibrium with manager views
+- **Risk Parity** — Equalize risk contributions rather than capital weights
+- **CVaR Optimization** — Replace variance with Conditional Value at Risk for tail-aware portfolios
+- **Hierarchical Risk Parity (HRP)** — Cluster-based allocation that avoids matrix inversion
+
+The Markowitz framework remains the foundational language of quantitative portfolio management. Master it, then thoughtfully extend it.

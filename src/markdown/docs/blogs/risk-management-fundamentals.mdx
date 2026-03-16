@@ -3,19 +3,190 @@ title: "Risk Management Fundamentals"
 description: "Volatility, drawdowns, position sizing, and risk-parity basics."
 ---
 
-## Why Risk Management?
+## Why Risk Management Comes First
 
-Survivability matters. Risk frameworks limit losses, stabilize returns, and support compounding.
+In quantitative finance, **survivability is the prerequisite for compounding**. A strategy that earns 20% per year for three years before blowing up has a negative terminal wealth compared to a strategy earning 8% consistently. The mathematics of compounding rewards consistency and punishes catastrophic losses.
 
-## Core Concepts
+If $r_t$ is the return in period $t$, then:
 
-- Volatility and drawdowns
-- Position sizing and leverage
-- Stop-losses and exposure caps
-- Risk parity and diversification
+$$
+W_T = W_0 \prod_{t=1}^{T}(1 + r_t) \approx W_0 \cdot e^{T\left(\mu - \frac{\sigma^2}{2}\right)}
+$$
 
-## Practical Tips
+The term $-\sigma^2/2$ is the **volatility drag** — it shows that higher variance destroys long-run wealth even if the arithmetic mean return is unchanged.
 
-Stress test scenarios, track realized vs. forecast risk, and keep assumptions explicit.
+> "Risk management is not about avoiding risk — it is about understanding and controlling it."
 
+---
 
+## Measuring Risk
+
+### Volatility
+
+The simplest risk measure is **realized volatility** (annualized standard deviation of returns):
+
+$$
+\sigma = \sqrt{\frac{252}{T-1} \sum_{t=1}^{T}(r_t - \bar{r})^2}
+$$
+
+A more robust measure uses **exponentially weighted** variance to give more weight to recent observations:
+
+$$
+\sigma_t^2 = (1-\lambda)\sigma_{t-1}^2 + \lambda r_t^2, \quad \lambda \in [0.9, 0.99]
+$$
+
+### Value at Risk (VaR)
+
+VaR at confidence level $\alpha$ is the loss not exceeded with probability $\alpha$:
+
+$$
+\Pr[R_p < -\text{VaR}_\alpha] = 1 - \alpha
+$$
+
+Under normality:
+
+$$
+\text{VaR}_\alpha = \mu_p - z_\alpha \cdot \sigma_p
+$$
+
+For a portfolio with $\mu_p = 0$ and $\sigma_p = 1\%/\text{day}$:
+
+| Confidence | $z_\alpha$ | Daily VaR |
+|---|---|---|
+| 90% | 1.282 | 1.28% |
+| 95% | 1.645 | 1.65% |
+| 99% | 2.326 | 2.33% |
+| 99.9% | 3.090 | 3.09% |
+
+### Conditional VaR (CVaR / Expected Shortfall)
+
+VaR tells you the threshold but not what happens beyond it. **CVaR** (also called Expected Shortfall) is the expected loss *given* that VaR is breached:
+
+$$
+\text{CVaR}_\alpha = \mathbb{E}\left[R_p \mid R_p < -\text{VaR}_\alpha\right]
+$$
+
+CVaR is coherent (satisfies subadditivity), makes it more suitable for optimization than VaR.
+
+### Maximum Drawdown
+
+The peak-to-trough decline of portfolio value:
+
+$$
+\text{MDD} = \max_{0 \le s \le t \le T}\left(V_s - V_t\right) / V_s
+$$
+
+```python
+import numpy as np
+import pandas as pd
+
+def max_drawdown(returns: pd.Series) -> float:
+    """Compute maximum drawdown from a returns series."""
+    cum = (1 + returns).cumprod()
+    rolling_max = cum.cummax()
+    drawdown = (cum - rolling_max) / rolling_max
+    return drawdown.min()
+
+def calmar_ratio(returns: pd.Series) -> float:
+    """Annual return / |Max Drawdown|."""
+    annual_return = returns.mean() * 252
+    mdd = abs(max_drawdown(returns))
+    return annual_return / mdd if mdd > 0 else np.inf
+```
+
+---
+
+## Position Sizing
+
+### Kelly Criterion
+
+The Kelly criterion maximizes the long-run geometric growth rate. For a strategy with edge $\mu$ and variance $\sigma^2$:
+
+$$
+f^* = \frac{\mu}{\sigma^2}
+$$
+
+In practice, traders use **fractional Kelly** (typically $f^*/2$ to $f^*/4$) to reduce variance and drawdown at the cost of some compounding efficiency.
+
+### Risk Budgeting
+
+Rather than allocating by dollar amounts, allocate by **risk contribution**. For a portfolio with weights $\mathbf{w}$ and covariance $\boldsymbol{\Sigma}$, the marginal risk contribution of asset $i$ is:
+
+$$
+\text{MRC}_i = \frac{(\boldsymbol{\Sigma}\mathbf{w})_i}{\sqrt{\mathbf{w}^\top\boldsymbol{\Sigma}\mathbf{w}}}
+$$
+
+The total risk contribution of asset $i$ is $\text{RC}_i = w_i \cdot \text{MRC}_i$, and $\sum_i \text{RC}_i = \sigma_p$.
+
+**Risk parity** targets equal risk contributions: $\text{RC}_i = \sigma_p / n$ for all $i$.
+
+---
+
+## A Complete Risk Dashboard
+
+```python
+def risk_dashboard(returns: pd.Series, rf: float = 0.0) -> dict:
+    ann = 252
+    excess = returns - rf / ann
+
+    annual_return = returns.mean() * ann
+    annual_vol = returns.std() * np.sqrt(ann)
+    sharpe = excess.mean() / excess.std() * np.sqrt(ann)
+    mdd = max_drawdown(returns)
+    calmar = calmar_ratio(returns)
+
+    # Historical VaR and CVaR (95%)
+    var_95 = -np.percentile(returns, 5)
+    cvar_95 = -returns[returns < -var_95].mean()
+
+    # Skewness and excess kurtosis
+    skew = returns.skew()
+    kurt = returns.kurtosis()  # excess kurtosis
+
+    return {
+        "Annual Return":   f"{annual_return:.2%}",
+        "Annual Vol":      f"{annual_vol:.2%}",
+        "Sharpe Ratio":    f"{sharpe:.2f}",
+        "Max Drawdown":    f"{mdd:.2%}",
+        "Calmar Ratio":    f"{calmar:.2f}",
+        "95% Daily VaR":   f"{var_95:.2%}",
+        "95% Daily CVaR":  f"{cvar_95:.2%}",
+        "Skewness":        f"{skew:.2f}",
+        "Excess Kurtosis": f"{kurt:.2f}",
+    }
+```
+
+---
+
+## Risk Frameworks in Practice
+
+### Stop-Losses
+
+A **portfolio-level stop-loss** halts trading if cumulative drawdown exceeds a threshold (e.g., 10%). Position-level stop-losses limit loss per trade. The challenge: stop-losses can force you to exit at the worst time. Use them as risk governors, not as the primary risk model.
+
+### Stress Testing
+
+Always test your portfolio against historical crises:
+
+| Event | S&P 500 Peak-to-Trough |
+|---|---|
+| Black Monday (1987) | -34% in 1 day |
+| Dot-com crash (2000-2002) | -49% over 2.5 years |
+| Global Financial Crisis (2008-2009) | -57% over 17 months |
+| COVID crash (Feb-Mar 2020) | -34% in 33 days |
+
+A well-managed quant portfolio should survive any single of these events and remain tradeable through the recovery.
+
+### Regime Awareness
+
+No risk model is stationary. Volatility clusters, correlations spike in crises, and liquidity evaporates. Build regime detectors using:
+
+- **GARCH models** for volatility regimes
+- **Hidden Markov Models** for bull/bear classification
+- **VIX levels** as a real-time risk-on/risk-off signal
+
+---
+
+## Summary
+
+Risk management is not a constraint on returns — it is the engine of sustainable compounding. Keep your risk model explicit, your parameters parsimonious, and your assumptions tested regularly. The quant who survives is the one who respects the randomness of markets and builds systems that adapt to it.
