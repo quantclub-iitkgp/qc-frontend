@@ -6,6 +6,15 @@ const withMDX = createMDX({
 
 /** @type {import('next').NextConfig} */
 const nextConfig = withMDX({
+  images: {
+    remotePatterns: [
+      {
+        protocol: "https",
+        hostname: "fvwehoxqnfruwgfjmope.supabase.co",
+        pathname: "/storage/v1/object/public/**",
+      },
+    ],
+  },
   pageExtensions: ["js", "jsx", "ts", "tsx", "md", "mdx"],
   webpack: (config) => {
     config.externals = [...(config.externals ?? []), { canvas: "canvas" }]
