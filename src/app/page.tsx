@@ -32,16 +32,39 @@ import {
 } from "@/components/ui/accordion"
 import { Footer } from "@/components/app/footer"
 import { getEvents } from "@/lib/api"
-import ChartAreaInteractive from "@/examples/ui/chart/chart-area-interactive"
-import ChartPieDonut from "@/examples/ui/chart/chart-pie-donut"
 import Star24 from "@/components/stars/s24"
 import Star28 from "@/components/stars/s28"
 import Star30 from "@/components/stars/s30"
 import Star31 from "@/components/stars/s31"
-import ChartBarNegative from "@/examples/ui/chart/chart-bar-negative"
+import SensexChart, { type SensexDataPoint } from "@/components/app/sensex-chart"
+
+async function getSensexData(): Promise<SensexDataPoint[]> {
+  try {
+    const res = await fetch(
+      "https://query1.finance.yahoo.com/v8/finance/chart/%5EBSESN?range=1y&interval=1d",
+      {
+        next: { revalidate: 3600 },
+        headers: { "User-Agent": "Mozilla/5.0" },
+      }
+    )
+    const json = await res.json()
+    const result = json?.chart?.result?.[0]
+    if (!result) return []
+    const timestamps: number[] = result.timestamp
+    const closes: number[] = result.indicators.quote[0].close
+    return timestamps
+      .map((ts, i) => ({
+        date: new Date(ts * 1000).toISOString().split("T")[0],
+        close: Math.round(closes[i]),
+      }))
+      .filter((d) => d.close !== null && !isNaN(d.close))
+  } catch {
+    return []
+  }
+}
 
 export default async function Home() {
-  const events = await getEvents()
+  const [events, sensexData] = await Promise.all([getEvents(), getSensexData()])
   const { Tabs, TabsContent, TabsList, TabsTrigger } = sharedComponents
 
   return (
@@ -226,37 +249,44 @@ export default async function Home() {
 
         {/* CHARTS SECTION */}
 
-
-
-        <AnimatedSection>
-        <section className="inset-0 flex relative overflow-hidden w-full px-5 flex-col items-center justify-center bg-secondary-background bg-[linear-gradient(to_right,#80808033_1px,transparent_1px),linear-gradient(to_bottom,#80808033_1px,transparent_1px)] bg-[size:70px_70px] z-0">
-          <Star20
-            color="var(--main)"
-            stroke="black"
-            strokeWidth={3}
-            size={250}
-            className="absolute top-[120px] lg:block hidden -left-[125px] -z-10"
-          />
-          <Star14
-            color="var(--main)"
-            stroke="black"
-            strokeWidth={3}
-            size={250}
-            className="absolute bottom-[120px] lg:block hidden -right-[125px] -z-10"
-          />
-          <div className="mx-auto w-container max-w-full py-16 gap-10 grid lg:grid-cols-2 md:grid-cols-1 grid-cols-1">
-
-            <ChartPieDonut />
-            <ChartBarNegative />
-          </div>
-          <div className="mx-auto w-container max-w-full py-8">
-
-            <ChartAreaInteractive />
-
-          </div>
-
-        </section>
-        </AnimatedSection>
+        {sensexData.length > 0 && (
+          <AnimatedSection>
+          <section className="inset-0 flex relative overflow-hidden w-full px-5 flex-col items-center justify-center bg-secondary-background bg-[linear-gradient(to_right,#80808033_1px,transparent_1px),linear-gradient(to_bottom,#80808033_1px,transparent_1px)] bg-[size:70px_70px] z-0">
+            <Star20
+              color="var(--main)"
+              stroke="black"
+              strokeWidth={3}
+              size={250}
+              className="absolute top-[120px] lg:block hidden -left-[125px] -z-10"
+            />
+            <Star14
+              color="var(--main)"
+              stroke="black"
+              strokeWidth={3}
+              size={250}
+              className="absolute bottom-[120px] lg:block hidden -right-[125px] -z-10"
+            />
+            <div className="mx-auto w-container max-w-full py-16">
+              <h2 className="mb-8 text-center">
+                <span className="relative px-6 sm:mr-2 mr-0 md:[&_svg]:size-[45px] sm:[&_svg]:size-7 bg-main/50 rounded-base border-2 border-border/40 dark:border-border/70">
+                  MARKET PULSE
+                  <Star9
+                    className="absolute sm:block hidden md:-bottom-4 md:-right-5 -bottom-2.5 -right-2.5"
+                    color="var(--main)"
+                    pathClassName="stroke-5 dark:stroke-3.5 stroke-black dark:stroke-black/70"
+                  />
+                  <Star9
+                    className="absolute sm:block hidden md:-top-4 md:-left-5 -top-2.5 -left-2.5"
+                    color="var(--main)"
+                    pathClassName="stroke-5 dark:stroke-3.5 stroke-black dark:stroke-black/70"
+                  />
+                </span>
+              </h2>
+              <SensexChart data={sensexData} />
+            </div>
+          </section>
+          </AnimatedSection>
+        )}
 
         {/* FAQ SECTION */}
 
