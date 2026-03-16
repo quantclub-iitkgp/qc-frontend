@@ -1,9 +1,11 @@
 import fs from "fs"
 import rehypeToc from "@stefanprobst/rehype-extract-toc"
 import rehypeTocExtract from "@stefanprobst/rehype-extract-toc/mdx"
+import rehypeKatex from "rehype-katex"
 import rehypePrettyCode from "rehype-pretty-code"
 import rehypeSlug from "rehype-slug"
 import codeImport from "remark-code-import"
+import remarkMath from "remark-math"
 import { visit } from "unist-util-visit"
 import { defineCollection, defineConfig, s } from "velite"
 
@@ -43,6 +45,7 @@ export default defineConfig({
       rehypeSlug,
       rehypeToc,
       [rehypeTocExtract, { name: "toc" }],
+      rehypeKatex,
       () => (tree) => {
         visit(tree, (node) => {
           if (node?.type === "element" && node?.tagName === "pre") {
@@ -84,6 +87,6 @@ export default defineConfig({
         })
       },
     ],
-    remarkPlugins: [[codeImport, { removeRedundantIndentations: true }]],
+    remarkPlugins: [[codeImport, { removeRedundantIndentations: true }], remarkMath],
   },
 })

@@ -122,7 +122,8 @@ const useMDXComponent = (code: string) => {
 
 interface MDXProps {
   code: string
-  components?: Record<string, React.ComponentType>
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  components?: Record<string, React.ComponentType<any>>
 }
 
 export const MDXContent = ({ code, components }: MDXProps) => {

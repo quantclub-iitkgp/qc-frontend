@@ -5,17 +5,147 @@ description: "A beginner-friendly overview of quantitative finance and its core 
 
 ## What is Quantitative Finance?
 
-Quantitative finance applies mathematics, statistics, and programming to model markets, value securities, manage risk, and design trading strategies.
+Quantitative finance is the discipline that applies **mathematics, statistics, and computation** to model financial markets, value securities, manage risk, and design trading strategies. Unlike traditional finance, which relies heavily on intuition and qualitative judgment, quant finance demands precision—every assumption must be stated, every model must be tested.
+
+> "In God we trust. All others must bring data."
+> — W. Edwards Deming
+
+Quant finance underpins the derivatives desks of global banks, the risk engines of hedge funds, and the execution algorithms of market makers. Understanding it means understanding the machinery of modern markets.
+
+---
+
+## The Core Mathematical Toolkit
+
+### Expected Return and Variance
+
+The most fundamental quantities in portfolio theory are the **expected return** and **variance** of an asset. If $R_i$ is the return of asset $i$, then:
+
+$$
+\mathbb{E}[R_i] = \mu_i = \sum_{s} p_s \cdot R_{i,s}
+$$
+
+where $p_s$ is the probability of state $s$. The variance measures dispersion:
+
+$$
+\sigma_i^2 = \mathbb{E}\left[(R_i - \mu_i)^2\right] = \sum_s p_s (R_{i,s} - \mu_i)^2
+$$
+
+For a two-asset portfolio with weights $w_1$ and $w_2 = 1 - w_1$:
+
+$$
+\sigma_p^2 = w_1^2 \sigma_1^2 + w_2^2 \sigma_2^2 + 2 w_1 w_2 \sigma_{12}
+$$
+
+where $\sigma_{12} = \rho_{12} \sigma_1 \sigma_2$ is the covariance and $\rho_{12}$ is the correlation.
+
+### The Sharpe Ratio
+
+Perhaps the single most-used metric in quantitative finance, the Sharpe ratio measures risk-adjusted return:
+
+$$
+\text{Sharpe} = \frac{\mu_p - r_f}{\sigma_p}
+$$
+
+where $r_f$ is the risk-free rate. A Sharpe ratio above 1.0 is generally considered good; above 2.0 is exceptional for a live strategy.
+
+---
 
 ## Core Building Blocks
 
-- Probability and statistics for modeling uncertainty
-- Linear algebra and optimization for portfolios
-- Time series analysis for forecasting and signal design
-- Risk management for drawdowns and volatility control
+| Area | Tools | Applications |
+|---|---|---|
+| Probability & Statistics | Distributions, Hypothesis Tests | Return modeling, Signal testing |
+| Linear Algebra | Matrices, Eigendecomposition | Portfolio optimization, PCA |
+| Time Series Analysis | ARIMA, GARCH, Kalman Filter | Volatility forecasting, Signal design |
+| Stochastic Calculus | Itô's Lemma, SDEs | Options pricing, Rate models |
+| Optimization | Convex, LP, QP | Portfolio construction, Execution |
+
+---
+
+## A Simple Return Series in Python
+
+Here is how you might compute basic portfolio statistics using NumPy:
+
+```python
+import numpy as np
+
+# Daily log returns for two assets (simulated)
+np.random.seed(42)
+returns = np.random.multivariate_normal(
+    mean=[0.0005, 0.0008],
+    cov=[[0.0001, 0.00005], [0.00005, 0.00015]],
+    size=252
+)
+
+weights = np.array([0.6, 0.4])
+
+# Portfolio return and volatility
+port_return = returns @ weights
+annual_return = port_return.mean() * 252
+annual_vol = port_return.std() * np.sqrt(252)
+sharpe = annual_return / annual_vol
+
+print(f"Annual Return: {annual_return:.2%}")
+print(f"Annual Volatility: {annual_vol:.2%}")
+print(f"Sharpe Ratio: {sharpe:.2f}")
+```
+
+---
+
+## The Quantitative Research Process
+
+A typical quant research cycle looks like this:
+
+1. **Hypothesis** — Form an economic or behavioral intuition (e.g., "momentum persists over 3–12 months")
+2. **Data** — Acquire clean, survivorship-bias-free data
+3. **Signal Design** — Transform raw data into a predictive signal
+4. **Backtest** — Simulate the strategy on historical data
+5. **Analysis** — Check Sharpe, drawdown, turnover, capacity
+6. **Live Deployment** — Paper-trade, then scale with careful risk controls
+7. **Monitoring** — Continuous performance attribution and regime detection
+
+> **Warning:** Most backtests overfit. Be extremely skeptical of in-sample Sharpe ratios above 3.0. The true test is out-of-sample and live performance.
+
+---
+
+## Key Risk Concepts
+
+### Value at Risk (VaR)
+
+VaR estimates the maximum loss at a given confidence level $\alpha$ over a horizon $h$:
+
+$$
+\Pr\left[R_p < -\text{VaR}_\alpha\right] = 1 - \alpha
+$$
+
+For example, a 1-day 95% VaR of 2% means there is a 5% chance of losing more than 2% in a day. Under normality:
+
+$$
+\text{VaR}_\alpha = \mu - z_\alpha \sigma
+$$
+
+where $z_\alpha$ is the $\alpha$-th quantile of the standard normal.
+
+### Maximum Drawdown
+
+Drawdown measures the peak-to-trough decline of a portfolio's value:
+
+$$
+\text{MDD} = \max_{0 \le t \le T} \left(\max_{0 \le s \le t} V_s - V_t\right)
+$$
+
+A strategy with a high Sharpe but catastrophic drawdown is often uninvestable. Always pair Sharpe with drawdown analysis.
+
+---
 
 ## Where to Go Next
 
-If you are new, start with statistics, Python/NumPy, and a small backtesting project. Build intuition before complexity.
+If you're new to quant finance, here's a structured learning path:
 
+- **Mathematics:** Linear algebra (Gilbert Strang), Probability (Sheldon Ross)
+- **Programming:** Python, NumPy, pandas, scikit-learn
+- **Finance:** Hull's *Options, Futures & Other Derivatives*, Tsay's *Analysis of Financial Time Series*
+- **Practice:** Build a small backtester from scratch — it forces clarity of thought
+- **Community:** Join our Discord and contribute to club projects
 
+Build intuition before complexity. Start simple, stay skeptical, and always look at the data.

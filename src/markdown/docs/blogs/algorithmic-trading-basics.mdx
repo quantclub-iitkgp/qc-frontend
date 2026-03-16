@@ -1,0 +1,143 @@
+---
+title: "Algorithmic Trading: The Basics"
+description: "Data pipelines, signal generation, backtesting, and execution 101."
+---
+
+## What is Algorithmic Trading?
+
+Algorithmic trading is the process of using computer programs to execute trading decisions automatically, based on predefined rules derived from quantitative analysis. At its core, every algo strategy follows the same pipeline:
+
+$$
+\text{Data} \longrightarrow \text{Signal} \longrightarrow \text{Portfolio} \longrightarrow \text{Execution}
+$$
+
+Understanding each stage deeply is the difference between a backtested fantasy and a deployed, profitable system.
+
+---
+
+## Stage 1: Data Ingestion and Cleaning
+
+Raw market data is messy. Before building any signal, you must handle:
+
+- **Corporate actions** — Dividends, stock splits, and mergers corrupt raw price series. Always use *adjusted* prices
+- **Survivorship bias** — If you backtest on today's S&P 500 constituents, you're excluding all the companies that failed. Always use point-in-time universe data
+- **Look-ahead bias** — Accidentally using future data in your model. This is the most common and damaging backtest error
+- **Outliers and gaps** — Markets occasionally print erroneous ticks that need filtering
+
+```python
+import pandas as pd
+import numpy as np
+
+def clean_price_series(prices: pd.Series) -> pd.Series:
+    """Remove outliers defined as returns > 5 std devs from mean."""
+    returns = prices.pct_change()
+    z_scores = (returns - returns.mean()) / returns.std()
+    # Mask extreme outliers
+    cleaned = returns.copy()
+    cleaned[np.abs(z_scores) > 5] = np.nan
+    cleaned = cleaned.fillna(method="ffill")
+    # Reconstruct price series
+    return (1 + cleaned).cumprod() * prices.iloc[0]
+```
+
+---
+
+## Stage 2: Signal Generation
+
+A signal is a numeric score that predicts future returns. The three main signal families are:
+
+| Signal Type | Examples | Typical Horizon |
+|---|---|---|
+| **Momentum** | 12-1 month return, RSI | Weeks to months |
+| **Mean Reversion** | Z-score vs. 20-day MA, RSI extremes | Days to weeks |
+| **Fundamental** | P/E ratio, earnings revision, earnings yield | Months to years |
+| **Alternative Data** | Satellite imagery, credit card spend | Days to months |
+| **Technical** | Moving average crossovers, MACD | Minutes to days |
+
+A simple **cross-sectional momentum** signal ranks assets by their past 12-1 month return $R_{t-252:t-21}$ and goes long the top decile, short the bottom decile.
+
+The **information coefficient (IC)** measures signal quality:
+
+$$
+\text{IC}_t = \text{corr}(s_t, r_{t+1})
+$$
+
+where $s_t$ is the signal value and $r_{t+1}$ is the forward return. An IC of even 0.05 is useful in a diversified cross-sectional strategy. The annualized **Information Ratio** is:
+
+$$
+\text{IR} = \frac{\overline{\text{IC}}}{\sigma_{\text{IC}}} \cdot \sqrt{252}
+$$
+
+---
+
+## Stage 3: Backtesting
+
+Backtesting simulates your strategy on historical data. A minimal but honest backtest needs:
+
+```python
+class SimpleBacktest:
+    def __init__(self, signal, returns, transaction_cost=0.001):
+        self.signal = signal          # T x N matrix of signals
+        self.returns = returns        # T x N matrix of returns
+        self.tc = transaction_cost    # One-way cost as fraction
+
+    def run(self):
+        # Normalize signals to portfolio weights
+        weights = self.signal.div(self.signal.abs().sum(axis=1), axis=0)
+
+        # Portfolio returns before costs
+        gross_returns = (weights.shift(1) * self.returns).sum(axis=1)
+
+        # Transaction costs = TC * abs(change in weights)
+        turnover = weights.diff().abs().sum(axis=1)
+        cost = self.tc * turnover
+
+        # Net portfolio returns
+        net_returns = gross_returns - cost
+        return net_returns
+
+    def stats(self, net_returns):
+        ann = 252
+        sr = net_returns.mean() / net_returns.std() * np.sqrt(ann)
+        cum = (1 + net_returns).cumprod()
+        drawdown = (cum / cum.cummax() - 1).min()
+        return {"Sharpe": sr, "Max Drawdown": drawdown}
+```
+
+> **Critical principle:** Always separate your in-sample estimation period from your out-of-sample evaluation period. If you tune your model on data from 2010–2020, evaluate it only on 2020–2025.
+
+---
+
+## Stage 4: Execution
+
+Even a perfect signal can be destroyed by poor execution:
+
+- **Market impact** — Your order moves the price against you. For large positions, this is the dominant cost
+- **Latency** — In high-frequency strategies, microseconds matter
+- **Slippage** — Difference between the expected price and actual fill price
+- **Timing** — Many alpha signals decay rapidly; execution delay erodes returns
+
+The **implementation shortfall** framework models total execution cost as:
+
+$$
+\text{IS} = \underbrace{(\bar{P} - P_0) \cdot Q}_{\text{market impact}} + \underbrace{(P_0 - P^*) \cdot Q}_{\text{delay cost}}
+$$
+
+where $\bar{P}$ is the average fill price, $P_0$ is the decision price, $P^*$ is the arrival price, and $Q$ is shares traded.
+
+---
+
+## Common Pitfalls
+
+1. **Overfitting** — Too many parameters, too little data. A strategy with 50 parameters fitted on 3 years of data is almost certainly overfit
+2. **Data snooping bias** — Testing hundreds of strategy variations inflates the apparent Sharpe. Apply a Bonferroni correction or use walk-forward validation
+3. **Regime blindness** — A strategy that worked in low-volatility bull markets may collapse in a crisis
+4. **Ignoring costs** — Transaction costs, financing costs, and market impact often exceed the alpha
+
+---
+
+## A Note on Research Hygiene
+
+> "You should be much more skeptical of your backtests than of live results. A live Sharpe of 0.5 is worth more than a backtested Sharpe of 3.0."
+
+Keep a research log. Document every decision, every hypothesis tested, and every parameter tried. This prevents accidental data snooping and builds intellectual honesty into your process.
