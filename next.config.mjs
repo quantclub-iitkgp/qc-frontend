@@ -7,6 +7,10 @@ const withMDX = createMDX({
 /** @type {import('next').NextConfig} */
 const nextConfig = withMDX({
   pageExtensions: ["js", "jsx", "ts", "tsx", "md", "mdx"],
+  webpack: (config) => {
+    config.externals = [...(config.externals ?? []), { canvas: "canvas" }]
+    return config
+  },
   async redirects() {
     return [
       {

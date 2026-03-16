@@ -57,7 +57,9 @@ export default async function WhitepaperPage(props: WhitepaperPageProps) {
           <PageHeading>Whitepapers</PageHeading>
           <div className="mt-10">
             <div className="w-full grid lg:grid-cols-3 sm:grid-cols-2 grid-cols-1 gap-6">
-              {WHITEPAPERS.map((wp) => (
+              {[...WHITEPAPERS]
+                .sort((a, b) => new Date(b.publishedAt).getTime() - new Date(a.publishedAt).getTime())
+                .map((wp) => (
                 <Link key={wp.id} href={`/docs/whitepapers/${wp.slug}`}>
                   <ImageCard
                     className="w-full"

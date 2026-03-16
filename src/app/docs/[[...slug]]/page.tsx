@@ -4,13 +4,14 @@ import { docs } from "@docs"
 import { ExternalLink } from "lucide-react"
 
 import { notFound } from "next/navigation"
-
 import { MAIN_SIDEBAR } from "@/data/sidebar-links"
+import { WHITEPAPERS } from "@/data/whitepaper/paper"
 
 import { MDXContent, MDXTableOfContents } from "@/components/app/mdx-components"
 import Pagination from "@/components/app/pagination"
 import { TableOfContents } from "@/components/app/toc"
 import { Badge } from "@/components/ui/badge"
+import PDFViewerWrapper from "@/components/app/pdf-viewer-wrapper"
 
 interface DocPageProps {
   params: Promise<{
@@ -75,6 +76,14 @@ export default async function DocPage(props: DocPageProps) {
 
   const { description, title, body, shadcnDocsLink, slug, slugAsParams } = doc
 
+  // Check if this is a whitepaper with a PDF
+  const isWhitepaper = slugAsParams.startsWith("whitepapers/")
+  const whitepaperSlug = isWhitepaper ? slugAsParams.replace("whitepapers/", "") : null
+  const whitepaperData = whitepaperSlug
+    ? WHITEPAPERS.find((wp) => wp.slug === whitepaperSlug)
+    : null
+  const pdfUrl = whitepaperData?.pdfUrl ?? null
+
   const filteredSidebar = MAIN_SIDEBAR.filter(
     (item): item is { href: string; text: string } => typeof item === "object",
   )
@@ -95,8 +104,6 @@ export default async function DocPage(props: DocPageProps) {
   const rawTableOfContents = MDXTableOfContents({ code: body })
   const tableOfContents = transformTableOfContents(rawTableOfContents)
 
-  
-
   const paginationProps = {
     prev: prevItem ? { name: prevItem.text, path: prevItem.href } : undefined,
     next: nextItem ? { name: nextItem.text, path: nextItem.href } : undefined,
@@ -116,6 +123,16 @@ export default async function DocPage(props: DocPageProps) {
                   {description}
                 </p>
               )}
+              {whitepaperData?.publishedAt && (
+                <p className="mt-0 mb-4 not-prose text-sm font-base text-foreground/60">
+                  Published:{" "}
+                  {new Date(whitepaperData.publishedAt).toLocaleDateString("en-US", {
+                    year: "numeric",
+                    month: "long",
+                    day: "numeric",
+                  })}
+                </p>
+              )}
               {shadcnDocsLink && (
                 <a href={shadcnDocsLink} target="_blank">
                   <Badge className="gap-2">
@@ -125,13 +142,20 @@ export default async function DocPage(props: DocPageProps) {
                 </a>
               )}
             </div>
-            <MDXContent code={body} />
+
+            {pdfUrl ? (
+              <div className="not-prose">
+                <PDFViewerWrapper url={pdfUrl} />
+              </div>
+            ) : (
+              <MDXContent code={body} />
+            )}
 
             <div className="mt-14">
               <Pagination {...paginationProps} />
             </div>
           </article>
-          {!isTocEmpty && (
+          {!isTocEmpty && !pdfUrl && (
             <aside className="fixed bg-secondary-background border-l-4 not-prose border-l-border overflow-hidden top-[70px] xl:flex hidden flex-col justify-between right-0 w-[250px] h-[calc(100svh-70px)] overflow-y-auto">
               <TableOfContents items={tableOfContents} />
             </aside>
