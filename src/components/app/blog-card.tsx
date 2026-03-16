@@ -37,6 +37,7 @@ export function BlogCard({ blog, featured = false }: BlogCardProps) {
                   src={blog.coverImage}
                   alt={blog.title}
                   fill
+                  unoptimized
                   className="object-cover group-hover:scale-105 transition-transform duration-500"
                   priority
                 />
@@ -110,6 +111,7 @@ export function BlogCard({ blog, featured = false }: BlogCardProps) {
                 src={blog.coverImage}
                 alt={blog.title}
                 fill
+                unoptimized
                 className="object-cover group-hover:scale-105 transition-transform duration-500"
               />
             </div>

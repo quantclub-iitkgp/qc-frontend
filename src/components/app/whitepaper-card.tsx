@@ -35,6 +35,7 @@ export function WhitepaperCard({ whitepaper, featured = false }: WhitepaperCardP
                   src={whitepaper.imageUrl}
                   alt={whitepaper.title}
                   fill
+                  unoptimized
                   className="object-cover group-hover:scale-105 transition-transform duration-500"
                   priority
                 />
@@ -92,6 +93,7 @@ export function WhitepaperCard({ whitepaper, featured = false }: WhitepaperCardP
                 src={whitepaper.imageUrl}
                 alt={whitepaper.title}
                 fill
+                unoptimized
                 className="object-cover group-hover:scale-105 transition-transform duration-500"
               />
             </div>
