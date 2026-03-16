@@ -1,7 +1,4 @@
-"use client"
-
 import Link from "next/link"
-import { motion } from "framer-motion"
 import { Github, Twitter, Linkedin, ExternalLink } from "lucide-react"
 
 import {
@@ -11,67 +8,24 @@ import {
   PageWrapper,
 } from "@/components/app/page"
 import { FadeIn, FadeInStagger, FadeInItem } from "@/components/app/fade-in"
+import { getTeam, type TeamMember } from "@/lib/api"
 
-const teamMembers = [
-  {
-    name: "Dr. Alexandra Chen",
-    role: "Chief Quantitative Strategist",
-    initials: "AC",
-    bio: "Ph.D. in Financial Mathematics from MIT with 12+ years of experience in algorithmic trading systems and market microstructure analysis.",
-    github: "https://github.com/alexchen",
-    linkedin: "https://linkedin.com/in/alexchen",
-    twitter: "https://twitter.com/alexchen",
-  },
-  {
-    name: "Michael Wei",
-    role: "Head of Research",
-    initials: "MW",
-    bio: "Former lead researcher at Renaissance Technologies with expertise in statistical arbitrage and machine learning for financial time series forecasting.",
-    github: "https://github.com/michaelwei",
-    linkedin: "https://linkedin.com/in/michaelwei",
-    twitter: "https://twitter.com/michaelwei",
-  },
-  {
-    name: "Sophia Rodriguez",
-    role: "ML Engineer",
-    initials: "SR",
-    bio: "Specialized in deep reinforcement learning for trading strategies. Published author on neural network applications in market prediction.",
-    github: "https://github.com/sophiarod",
-    linkedin: "https://linkedin.com/in/sophiarod",
-  },
-  {
-    name: "James Harrison",
-    role: "Risk Management Specialist",
-    initials: "JH",
-    bio: "CFA charterholder with expertise in quantitative risk models and stress testing methodologies for algorithmic trading systems.",
-    linkedin: "https://linkedin.com/in/jharrison",
-  },
-  {
-    name: "Anika Patel",
-    role: "Data Scientist",
-    initials: "AP",
-    bio: "Expert in alternative data analysis and NLP for market sentiment extraction. Previously led data science initiatives at Goldman Sachs.",
-    github: "https://github.com/anikapatel",
-    linkedin: "https://linkedin.com/in/anikapatel",
-    twitter: "https://twitter.com/anikapatel",
-  },
-  {
-    name: "David Kim",
-    role: "Financial Engineering Lead",
-    initials: "DK",
-    bio: "Ph.D. in Computer Science specializing in high-frequency trading algorithms and market impact modeling.",
-    github: "https://github.com/davidkim",
-    linkedin: "https://linkedin.com/in/davidkim",
-  },
-]
+function getInitials(name: string): string {
+  return name
+    .split(" ")
+    .map((part) => part[0])
+    .join("")
+    .toUpperCase()
+    .slice(0, 2)
+}
 
-const TeamMemberCard = ({ member }: { member: (typeof teamMembers)[0] }) => {
+const TeamMemberCard = ({ member }: { member: TeamMember }) => {
   return (
     <div className="border-4 border-border bg-secondary-background shadow-shadow overflow-hidden flex flex-col h-full">
       {/* Initials avatar */}
       <div className="w-full aspect-square bg-main flex items-center justify-center border-b-4 border-border">
         <span className="text-4xl font-heading font-bold text-main-foreground">
-          {member.initials}
+          {getInitials(member.name)}
         </span>
       </div>
       <div className="p-5 flex flex-col flex-1">
@@ -118,7 +72,9 @@ const TeamMemberCard = ({ member }: { member: (typeof teamMembers)[0] }) => {
   )
 }
 
-export default function AboutUsPage() {
+export default async function AboutUsPage() {
+  const teamMembers = await getTeam()
+
   return (
     <PageWrapper>
       <PageHeader>
@@ -161,8 +117,8 @@ export default function AboutUsPage() {
         <h2 className="text-2xl font-heading font-bold mb-6">Meet The Team</h2>
       </FadeIn>
       <FadeInStagger className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 mb-16">
-        {teamMembers.map((member, index) => (
-          <FadeInItem key={index}>
+        {teamMembers.map((member) => (
+          <FadeInItem key={member.id}>
             <TeamMemberCard member={member} />
           </FadeInItem>
         ))}

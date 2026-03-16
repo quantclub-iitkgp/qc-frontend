@@ -9,7 +9,7 @@ import { ArrowLeft, Calendar, Clock, User } from "lucide-react"
 
 import { docs } from "@docs"
 
-import { BLOGS } from "@/data/blogs"
+import { getBlogs } from "@/lib/api"
 import { MDXContent, MDXTableOfContents } from "@/components/app/mdx-components"
 import { TableOfContents } from "@/components/app/toc"
 import { Badge } from "@/components/ui/badge"
@@ -22,7 +22,8 @@ interface BlogPageProps {
 
 export async function generateMetadata(props: BlogPageProps): Promise<Metadata> {
   const { slug } = await props.params
-  const blog = BLOGS.find((b) => b.slug === `/blogs/${slug}`)
+  const blogs = await getBlogs()
+  const blog = blogs.find((b) => b.slug === `/blogs/${slug}`)
   if (!blog) return {}
   return {
     title: blog.title,
@@ -31,7 +32,8 @@ export async function generateMetadata(props: BlogPageProps): Promise<Metadata> 
 }
 
 export async function generateStaticParams() {
-  return BLOGS.map((blog) => ({
+  const blogs = await getBlogs()
+  return blogs.map((blog) => ({
     slug: blog.slug.replace("/blogs/", ""),
   }))
 }
@@ -57,7 +59,8 @@ export default async function BlogArticlePage(props: BlogPageProps) {
   const { slug } = await props.params
 
   // Find blog metadata
-  const blog = BLOGS.find((b) => b.slug === `/blogs/${slug}`)
+  const blogs = await getBlogs()
+  const blog = blogs.find((b) => b.slug === `/blogs/${slug}`)
   if (!blog) notFound()
 
   // Find MDX document from Velite

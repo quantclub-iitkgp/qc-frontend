@@ -2,7 +2,7 @@ import type { Metadata } from "next"
 import { ArrowUpRight, BookOpen } from "lucide-react"
 import Link from "next/link"
 
-import { BLOGS } from "@/data/blogs"
+import { getBlogs } from "@/lib/api"
 import { BlogCard } from "@/components/app/blog-card"
 import { Footer } from "@/components/app/footer"
 import { AnimatedBlogHeader, AnimatedBlogBadge } from "@/components/app/blog-header-animations"
@@ -14,8 +14,9 @@ export const metadata: Metadata = {
     "Explore articles on quantitative finance, algorithmic trading, portfolio theory, and risk management from Quant Club IIT Kharagpur.",
 }
 
-export default function BlogsPage() {
-  const [featuredBlog, ...restBlogs] = BLOGS
+export default async function BlogsPage() {
+  const blogs = await getBlogs()
+  const [featuredBlog, ...restBlogs] = blogs
 
   return (
     <div className="min-h-dvh bg-background pt-[70px]">

@@ -5,7 +5,7 @@ import { ExternalLink } from "lucide-react"
 
 import { notFound } from "next/navigation"
 import { MAIN_SIDEBAR } from "@/data/sidebar-links"
-import { WHITEPAPERS } from "@/data/whitepaper/paper"
+import { getWhitepapers } from "@/lib/api"
 
 import { MDXContent, MDXTableOfContents } from "@/components/app/mdx-components"
 import Pagination from "@/components/app/pagination"
@@ -80,8 +80,9 @@ export default async function DocPage(props: DocPageProps) {
   // Check if this is a whitepaper with a PDF
   const isWhitepaper = slugAsParams.startsWith("whitepapers/")
   const whitepaperSlug = isWhitepaper ? slugAsParams.replace("whitepapers/", "") : null
+  const whitepapers = whitepaperSlug ? await getWhitepapers() : []
   const whitepaperData = whitepaperSlug
-    ? WHITEPAPERS.find((wp) => wp.slug === whitepaperSlug)
+    ? whitepapers.find((wp) => wp.slug === whitepaperSlug)
     : null
   const pdfUrl = whitepaperData?.pdfUrl ?? null
 

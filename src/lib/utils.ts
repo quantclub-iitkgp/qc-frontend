@@ -26,3 +26,12 @@ export function transformToPascalCase(input: string): string {
     .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
     .join("")
 }
+
+export function formatDate(dateString: string | undefined | null): string | null {
+  if (!dateString) return null
+  return new Date(dateString).toLocaleDateString("en-US", {
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+  })
+}

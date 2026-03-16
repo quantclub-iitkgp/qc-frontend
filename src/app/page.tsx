@@ -1,5 +1,5 @@
 import { Marquee } from "@devnomic/marquee"
-import { ArrowUpRight } from "lucide-react"
+import { ArrowUpRight, CalendarDays } from "lucide-react"
 
 import "@/styling/marquee.css"
 
@@ -31,6 +31,7 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion"
 import { Footer } from "@/components/app/footer"
+import { getEvents } from "@/lib/api"
 import ChartAreaInteractive from "@/examples/ui/chart/chart-area-interactive"
 import ChartPieDonut from "@/examples/ui/chart/chart-pie-donut"
 import Star24 from "@/components/stars/s24"
@@ -39,7 +40,8 @@ import Star30 from "@/components/stars/s30"
 import Star31 from "@/components/stars/s31"
 import ChartBarNegative from "@/examples/ui/chart/chart-bar-negative"
 
-export default function Home() {
+export default async function Home() {
+  const events = await getEvents()
   const { Tabs, TabsContent, TabsList, TabsTrigger } = sharedComponents
 
   return (
@@ -190,6 +192,31 @@ export default function Home() {
           <p className="text-center px-5 xl:text-2xl md:text-lg sm:text-base text-sm">
             Check out our recent events and workshops in quantitative finance
           </p>
+
+          {events.length > 0 && (
+            <div className="mx-auto w-container max-w-full px-5 mt-12 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+              {events.map((event) => (
+                <Link
+                  key={event.id}
+                  href={event.link || "#"}
+                  target={event.link ? "_blank" : undefined}
+                  rel="noopener noreferrer"
+                  className="border-4 border-border bg-secondary-background shadow-shadow p-5 flex flex-col gap-3 hover:translate-x-boxShadowX hover:translate-y-boxShadowY hover:shadow-none transition-all"
+                >
+                  <div className="flex items-center gap-2 text-xs text-foreground/50 font-heading font-bold uppercase tracking-wide">
+                    <CalendarDays className="size-4" />
+                    {new Date(event.date).toLocaleDateString("en-US", {
+                      year: "numeric",
+                      month: "long",
+                      day: "numeric",
+                    })}
+                  </div>
+                  <h3 className="font-heading font-bold text-lg leading-snug">{event.title}</h3>
+                  <p className="text-sm text-foreground/60 leading-relaxed flex-1">{event.description}</p>
+                </Link>
+              ))}
+            </div>
+          )}
 
           <StylingCustomizer />
 

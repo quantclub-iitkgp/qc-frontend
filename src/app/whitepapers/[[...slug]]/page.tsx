@@ -1,19 +1,14 @@
-import "@/styling/code.css"
-
-import { docs } from "@docs"
+import type { Metadata } from "next"
+import { ArrowUpRight, FileText } from "lucide-react"
+import Link from "next/link"
 import { notFound } from "next/navigation"
 
-import { MDXContent, MDXTableOfContents } from "@/components/app/mdx-components"
-import { TableOfContents } from "@/components/app/toc"
-import {
-  PageHeader,
-  PageHeading,
-  PageWrapper,
-} from "@/components/app/page"
-import Link from "next/link"
-import ImageCard from "@/components/ui/image-card"
-import { WHITEPAPERS } from "@/data/whitepaper/paper"
-import { FadeInStagger, FadeInItem } from "@/components/app/fade-in"
+import { getWhitepapers } from "@/lib/api"
+import { WhitepaperCard } from "@/components/app/whitepaper-card"
+import { Footer } from "@/components/app/footer"
+import { AnimatedBlogHeader, AnimatedBlogBadge } from "@/components/app/blog-header-animations"
+import { FadeIn } from "@/components/app/fade-in"
+import PDFViewerWrapper from "@/components/app/pdf-viewer-wrapper"
 
 interface WhitepaperPageProps {
   params: Promise<{
@@ -21,100 +16,143 @@ interface WhitepaperPageProps {
   }>
 }
 
-export async function generateStaticParams(): Promise<
-  {
-    slug: string[]
-  }[]
-> {
-  const whitepaperSlugs = docs
-    .filter((doc) => doc.slug.startsWith("/whitepapers"))
-    .map((doc) => ({
-      slug: doc.slugAsParams.split("/"),
-    }))
-
-  // Include the base "/whitepapers" route for the optional catch-all
-  return [{ slug: [] }, ...whitepaperSlugs]
+export async function generateStaticParams(): Promise<{ slug: string[] }[]> {
+  const wps = await getWhitepapers()
+  return [{ slug: [] }, ...wps.map((wp) => ({ slug: [wp.slug] }))]
 }
 
-async function getDocFromParams({ params }: WhitepaperPageProps) {
-  const slug = (await params).slug?.join("/") || ""
-  const doc = docs.find((doc) => doc.slugAsParams === slug)
+export async function generateMetadata(props: WhitepaperPageProps): Promise<Metadata> {
+  const { slug: slugParts = [] } = await props.params
 
-  if (!doc || !doc.slug.startsWith("/whitepapers")) {
-    return null
+  if (slugParts.length === 0) {
+    return {
+      title: "Whitepapers",
+      description:
+        "Research papers on quantitative finance, algorithmic trading, and portfolio construction from Quant Club IIT Kharagpur.",
+    }
   }
 
-  return doc
+  const wps = await getWhitepapers()
+  const wp = wps.find((w) => w.slug === slugParts.join("/"))
+  if (!wp) return { title: "Not Found" }
+
+  return {
+    title: wp.title,
+    description: wp.description,
+  }
 }
 
 export default async function WhitepaperPage(props: WhitepaperPageProps) {
   const { slug: slugParts = [] } = await props.params
 
-  // Render the whitepapers listing for the base route
+  // ── Listing page ──────────────────────────────────────────────────────────
   if (slugParts.length === 0) {
+    const wps = await getWhitepapers()
+    const sorted = [...wps].sort(
+      (a, b) => new Date(b.publishedAt).getTime() - new Date(a.publishedAt).getTime(),
+    )
+    const [featuredPaper, ...restPapers] = sorted
+
     return (
-      <PageWrapper>
-        <PageHeader>
-          <PageHeading>Whitepapers</PageHeading>
-          <div className="mt-10">
-            <FadeInStagger className="w-full grid lg:grid-cols-3 sm:grid-cols-2 grid-cols-1 gap-6">
-              {[...WHITEPAPERS]
-                .sort((a, b) => new Date(b.publishedAt).getTime() - new Date(a.publishedAt).getTime())
-                .map((wp) => (
-                  <FadeInItem key={wp.id}>
-                    <Link href={`/docs/whitepapers/${wp.slug}`} className="block hover:-translate-y-1 transition-transform duration-200">
-                      <ImageCard
-                        className="w-full"
-                        imageUrl={wp.imageUrl}
-                        caption={wp.title}
-                      />
-                    </Link>
-                  </FadeInItem>
-                ))}
-            </FadeInStagger>
+      <div className="min-h-dvh bg-background pt-[70px]">
+        {/* Page header */}
+        <header className="border-b-4 border-border bg-secondary-background bg-[linear-gradient(to_right,#80808015_1px,transparent_1px),linear-gradient(to_bottom,#80808015_1px,transparent_1px)] bg-[size:40px_40px]">
+          <div className="mx-auto max-w-container px-5 py-16 md:py-20">
+            <div className="flex items-start justify-between gap-6 flex-wrap">
+              <div>
+                <AnimatedBlogBadge>
+                  <div className="flex items-center gap-3 mb-4">
+                    <span className="inline-flex items-center gap-2 border-4 border-border bg-main px-3 py-1.5 text-sm font-heading font-bold text-main-foreground shadow-shadow">
+                      <FileText className="size-4" />
+                      Quant Research
+                    </span>
+                  </div>
+                </AnimatedBlogBadge>
+                <AnimatedBlogHeader>
+                  <h1 className="text-4xl md:text-5xl font-heading font-bold leading-tight">
+                    Research Papers &amp;
+                    <br className="hidden sm:block" /> Whitepapers
+                  </h1>
+                  <p className="mt-4 text-lg text-foreground/70 max-w-xl">
+                    Academic research on quantitative finance, algorithmic trading, and
+                    portfolio construction by the researchers at Quant Club IIT Kharagpur.
+                  </p>
+                </AnimatedBlogHeader>
+              </div>
+              <Link
+                href="/blogs"
+                className="flex items-center gap-2 border-4 border-border bg-main px-5 py-3 font-heading font-bold text-main-foreground shadow-shadow hover:translate-x-boxShadowX hover:translate-y-boxShadowY hover:shadow-none transition-all self-end"
+              >
+                View Blog
+                <ArrowUpRight className="size-5" />
+              </Link>
+            </div>
           </div>
-        </PageHeader>
-      </PageWrapper>
+        </header>
+
+        <main className="mx-auto max-w-container px-5 py-12 md:py-16">
+          {/* Featured paper */}
+          {featuredPaper && (
+            <section className="mb-12">
+              <FadeIn>
+                <h2 className="text-xs font-heading font-bold uppercase tracking-widest text-foreground/50 mb-5 border-l-4 border-main pl-3">
+                  Latest Paper
+                </h2>
+              </FadeIn>
+              <WhitepaperCard whitepaper={featuredPaper} featured />
+            </section>
+          )}
+
+          {/* Divider */}
+          <div className="border-t-4 border-border mb-12" />
+
+          {/* Grid of remaining papers */}
+          {restPapers.length > 0 && (
+            <section>
+              <FadeIn>
+                <h2 className="text-xs font-heading font-bold uppercase tracking-widest text-foreground/50 mb-5 border-l-4 border-main pl-3">
+                  More Papers
+                </h2>
+              </FadeIn>
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 items-stretch">
+                {restPapers.map((wp) => (
+                  <WhitepaperCard key={wp.id} whitepaper={wp} />
+                ))}
+              </div>
+            </section>
+          )}
+        </main>
+
+        <Footer />
+      </div>
     )
   }
 
-  const doc = await getDocFromParams(props)
-  if (doc == null) notFound()
+  // ── Detail page ───────────────────────────────────────────────────────────
+  const allWps = await getWhitepapers()
+  const wp = allWps.find((w) => w.slug === slugParts.join("/"))
+  if (!wp) notFound()
 
-  const { description, title, body } = doc
+  if (wp.pdfUrl) {
+    return (
+      <div className="min-h-dvh bg-background pt-[70px]">
+        <PDFViewerWrapper url={wp.pdfUrl} />
+      </div>
+    )
+  }
 
-  const rawTableOfContents = MDXTableOfContents({ code: body })
-  const tableOfContents = rawTableOfContents
-    .filter((item) => typeof item.id === "string")
-    .map((item) => ({
-      depth: item.depth,
-      value: item.value,
-      id: item.id as string,
-    }))
-
-  const isTocEmpty = tableOfContents.length < 2
-
+  // No PDF yet — show placeholder
   return (
-    <div className="min-h-[100dvh] w-full bg-background pt-[70px]">
-      <div className="lg:ml-[250px] xl:mr-[250px] mr-0 ml-0 prose-p:text-foreground prose-p:mt-6 prose-headings:scroll-mt-32 prose-h1:mb-4 prose-ul:pl-5 prose-ul:list-disc prose-li:font-base sm:prose-li:text-base prose-li:text-sm prose-li:mt-2 lg:py-20 sm:py-16 py-12 leading-relaxed prose-h2:mt-10 prose-h2:mb-6 prose-h3:mt-8 prose-headings:font-heading sm:prose-h1:text-3xl prose-h1:text-2xl sm:prose-h2:text-2xl prose-h2:text-xl prose-h3:mb-6 sm:prose-h3:text-xl prose-h3:text-lg prose-p:leading-7 sm:prose-p:text-base prose-p:text-sm prose-p:font-base prose-code:px-[5px] prose-code:py-[3px] prose-a:underline prose-a:font-heading prose-code:rounded-base prose-code:font-bold prose-code:border prose-code:text-main-foreground prose-code:break-normal prose-code:text-sm prose-code:mx-0.5 prose-code:border-border prose-code:bg-main">
-        <div className="2xl:max-w-[750px] max-w-[650px] w-full px-5 mx-auto">
-          <article>
-            <div className="mb-8">
-              <h1>{title}</h1>
-              {description && (
-                <p className="mt-0 mb-4 not-prose sm:text-lg text-base font-base text-foreground">
-                  {description}
-                </p>
-              )}
-            </div>
-            <MDXContent code={body} />
-          </article>
-          {!isTocEmpty && (
-            <aside className="fixed bg-secondary-background border-l-4 not-prose border-border overflow-hidden top-[70px] xl:flex hidden flex-col justify-between right-0 w-[250px] h-[calc(100svh-70px)] overflow-y-auto">
-              <TableOfContents items={tableOfContents} />
-            </aside>
-          )}
-        </div>
+    <div className="min-h-dvh bg-background pt-[70px] flex flex-col items-center justify-center px-5">
+      <div className="border-4 border-border bg-secondary-background shadow-shadow p-12 max-w-lg w-full text-center">
+        <FileText className="size-12 mx-auto mb-6 text-foreground/40" />
+        <h1 className="text-2xl font-heading font-bold mb-3">{wp.title}</h1>
+        {wp.description && (
+          <p className="text-base text-foreground/60 mb-6">{wp.description}</p>
+        )}
+        <p className="text-sm font-heading font-bold uppercase tracking-widest text-foreground/40">
+          PDF coming soon
+        </p>
       </div>
     </div>
   )

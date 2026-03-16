@@ -11,7 +11,7 @@ import { ThemeSwitcher } from "@/components/app/theme-switcher"
 import { cn } from "@/lib/utils"
 
 const navLinks = [
-  { href: "/docs/Introduction", label: "Blogs" },
+  { href: "/blogs", label: "Blogs" },
   { href: "/whitepapers", label: "WhitePaper" },
   { href: "/aboutus", label: "About Us" },
   { href: "/contactus", label: "Contact Us" },
@@ -24,7 +24,7 @@ function NavLinks({ mobile = false, onClose }: { mobile?: boolean; onClose?: () 
     return (
       <nav className="flex flex-col gap-1 px-4 py-6">
         {navLinks.map((link) => {
-          const isActive = pathname === link.href || pathname.startsWith(link.href.replace("/Introduction", ""))
+          const isActive = pathname === link.href || pathname.startsWith(link.href + "/")
           return (
             <Link
               key={link.href}
@@ -50,7 +50,7 @@ function NavLinks({ mobile = false, onClose }: { mobile?: boolean; onClose?: () 
       {navLinks.map((link) => {
         const isActive =
           pathname === link.href ||
-          pathname.startsWith(link.href.replace("/Introduction", ""))
+          pathname.startsWith(link.href + "/")
         return (
           <Link
             key={link.href}

@@ -45,6 +45,7 @@
     "@radix-ui/react-tooltip": "^1.1.8",
     "@shikijs/compat": "^2.5.0",
     "@stefanprobst/rehype-extract-toc": "^2.2.1",
+    "@supabase/supabase-js": "^2.99.2",
     "@tailwindcss/postcss": "^4.0.9",
     "@tailwindcss/typography": "^0.5.11",
     "@tanstack/react-table": "^8.15.3",
