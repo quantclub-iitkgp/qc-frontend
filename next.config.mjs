@@ -21,15 +21,6 @@ const nextConfig = withMDX({
     config.externals = [...(config.externals ?? []), { canvas: "canvas" }]
     return config
   },
-  async redirects() {
-    return [
-      {
-        source: "/components/:slug*",
-        destination: "/docs/:slug*",
-        permanent: true,
-      },
-    ]
-  },
   async rewrites() {
     return [
       {

@@ -407,7 +407,7 @@ export default async function Home() {
                   How can I get involved or collaborate?
                 </AccordionTrigger>
                 <AccordionContent className="text-sm sm:text-base">
-                  You can reach out to us through the Contact page or join our community forums. We welcome collaboration on research projects, workshop proposals, and contributions to our open knowledge base.
+                  You can join our community forums or reach out via our social channels. We welcome collaboration on research projects, workshop proposals, and contributions to our open knowledge base.
                 </AccordionContent>
               </AccordionItem>
             </Accordion>
@@ -437,80 +437,6 @@ export default async function Home() {
             )
           })}
         </Marquee>
-        <section className="inset-0 w-full flex flex-col items-center justify-center bg-main  bg-[linear-gradient(to_right,#00000033_1px,transparent_1px),linear-gradient(to_bottom,#00000033_1px,transparent_1px)] bg-[size:70px_70px] px-5 lg:py-[200px] md:py-[150px] sm:py-[100px] py-[100px]">
-          <AnimatedSection>
-          <h2 className="text-center font-heading not-prose 2xl:text-5xl xl:text-5xl md:text-4xl sm:text-3xl text-[22px] text-main-foreground mb-12">
-            Let&apos;s Talk Some FE!Nance
-          </h2>
-          </AnimatedSection>
-
-          <AnimatedSection delay={0.15}>
-          <Link
-            className="flex items-center gap-2.5 w-max text-foreground rounded-base border-2 border-border bg-background dark:bg-secondary-background md:px-10 px-4 md:py-3 py-2 md:text-[22px] text-base shadow-shadow transition-all hover:translate-x-boxShadowX hover:translate-y-boxShadowY hover:shadow-none"
-            href={"/contactus"}
-          >
-            Contact Us
-            <ArrowUpRight className="md:size-[30px] size-5" />
-          </Link>
-          </AnimatedSection>
-
-          {/* <Tabs defaultValue="pnpm" className="max-w-[650px] w-full h-max">
-            <TabsList className="grid w-full grid-cols-4">
-              <TabsTrigger value="pnpm">pnpm</TabsTrigger>
-              <TabsTrigger value="npm">npm</TabsTrigger>
-              <TabsTrigger value="yarn">yarn</TabsTrigger>
-              <TabsTrigger value="bun">bun</TabsTrigger>
-            </TabsList>
-            <TabsContent value="pnpm">
-              <Pre
-                __rawstring__="pnpm dlx shadcn@latest init https://neobrutalism.dev/r/styling/blue.json"
-                data-language="bash"
-                wrapperClassName="mb-0!"
-              >
-                <code>
-                  <span className="text-white font-bold">pnpm</span>
-                  <span className="text-white/[0.53] ">{` dlx shadcn@latest init https://neobrutalism.dev/r/styling/blue.json`}</span>
-                </code>
-              </Pre>
-            </TabsContent>
-            <TabsContent className="**:data-avatar:mb-0" value="npm">
-              <Pre
-                __rawstring__="npx shadcn@latest init https://neobrutalism.dev/r/styling/blue.json"
-                data-language="bash"
-                wrapperClassName="mb-0!"
-              >
-                <code>
-                  <span className="text-white font-bold">npx</span>
-                  <span className="text-white/[0.53] ">{` shadcn@latest init https://neobrutalism.dev/r/styling/blue.json`}</span>
-                </code>
-              </Pre>
-            </TabsContent>
-            <TabsContent value="yarn">
-              <Pre
-                __rawstring__="npx shadcn@latest init https://neobrutalism.dev/r/styling/blue.json"
-                data-language="bash"
-                wrapperClassName="mb-0!"
-              >
-                <code>
-                  <span className="text-white font-bold">npx</span>
-                  <span className="text-white/[0.53] ">{` shadcn@latest init https://neobrutalism.dev/r/styling/blue.json`}</span>
-                </code>
-              </Pre>
-            </TabsContent>
-            <TabsContent value="bun">
-              <Pre
-                __rawstring__="bunx shadcn@latest init https://neobrutalism.dev/r/styling/blue.json"
-                data-language="bash"
-                wrapperClassName="mb-0!"
-              >
-                <code>
-                  <span className="text-white font-bold">bunx</span>
-                  <span className="text-white/[0.53] ">{` --bun shadcn@latest init https://neobrutalism.dev/r/styling/blue.json`}</span>
-                </code>
-              </Pre>
-            </TabsContent>
-          </Tabs> */}
-        </section>
       </div>
       {/* <footer className="z-30 border-t-4 border-border bg-secondary-background px-5 py-5 text-center sm:text-base text-sm">
         Released under MIT License. The source code is available on{" "}
