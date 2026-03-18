@@ -15,6 +15,7 @@
   },
   "dependencies": {
     "@devnomic/marquee": "^1.0.2",
+    "@fontsource-variable/dm-sans": "^5.2.8",
     "@hookform/resolvers": "^3.3.4",
     "@ianvs/prettier-plugin-sort-imports": "^4.2.1",
     "@mdx-js/loader": "^3.1.0",
@@ -45,6 +46,7 @@
     "@radix-ui/react-tooltip": "^1.1.8",
     "@shikijs/compat": "^2.5.0",
     "@stefanprobst/rehype-extract-toc": "^2.2.1",
+    "@supabase/ssr": "^0.9.0",
     "@supabase/supabase-js": "^2.99.2",
     "@tailwindcss/postcss": "^4.0.9",
     "@tailwindcss/typography": "^0.5.11",

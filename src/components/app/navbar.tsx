@@ -2,13 +2,14 @@
 
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { Menu, X } from "lucide-react"
+import { Menu, X, Sun } from "lucide-react"
 import { useState } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 
 import Search from "@/components/app/search"
 import { ThemeSwitcher } from "@/components/app/theme-switcher"
 import { cn } from "@/lib/utils"
+import { useFeatureFlag } from "@/hooks/useFeatureFlag"
 
 const navLinks = [
   { href: "/blogs", label: "Blogs" },
@@ -73,6 +74,48 @@ function NavLinks({ mobile = false, onClose }: { mobile?: boolean; onClose?: () 
   )
 }
 
+function SoQButton({ mobile = false }: { mobile?: boolean }) {
+  const waitlist = useFeatureFlag("soq-waitlist")
+  const program = useFeatureFlag("soq-program")
+
+  if (!waitlist && !program) return null
+
+  if (mobile) {
+    return (
+      <div className="px-4 pb-4">
+        <Link
+          href="/soq"
+          className="flex items-center gap-2 px-4 py-3 font-heading border-4 border-border bg-main text-main-foreground shadow-shadow hover:translate-x-boxShadowX hover:translate-y-boxShadowY hover:shadow-none transition-all"
+        >
+          <Sun className="size-4 shrink-0" />
+          Summer of Quant
+          {waitlist && !program && (
+            <span className="ml-auto text-xs bg-main-foreground/20 px-1.5 py-0.5 rounded-base">
+              Waitlist
+            </span>
+          )}
+        </Link>
+      </div>
+    )
+  }
+
+  return (
+    <Link
+      href="/soq"
+      className="relative flex items-center gap-1.5 px-3 h-9 font-heading text-sm border-4 border-border bg-main text-main-foreground shadow-shadow hover:translate-x-boxShadowX hover:translate-y-boxShadowY hover:shadow-none transition-all shrink-0"
+    >
+      <Sun className="size-3.5" />
+      SoQ
+      {waitlist && !program && (
+        <span className="relative flex size-2 ml-0.5">
+          <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-main-foreground opacity-60" />
+          <span className="relative inline-flex rounded-full size-2 bg-main-foreground" />
+        </span>
+      )}
+    </Link>
+  )
+}
+
 function MobileMenu() {
   const [open, setOpen] = useState(false)
 
@@ -119,6 +162,7 @@ function MobileMenu() {
               </div>
 
               <NavLinks mobile onClose={() => setOpen(false)} />
+              <SoQButton mobile />
             </motion.div>
           </>
         )}
@@ -153,6 +197,7 @@ function Navbar() {
 
         {/* Right side */}
         <div className="flex items-center gap-3">
+          <SoQButton />
           <Search />
 
           <a
