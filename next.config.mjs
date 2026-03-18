@@ -1,4 +1,12 @@
 import createMDX from "@next/mdx"
+import { readFileSync } from "fs"
+import { fileURLToPath } from "url"
+import { dirname, join } from "path"
+
+const __dirname = dirname(fileURLToPath(import.meta.url))
+const featureFlags = JSON.parse(
+  readFileSync(join(__dirname, "config/feature-flags.json"), "utf-8")
+)
 
 const withMDX = createMDX({
   extension: /\.mdx?$/,
@@ -6,6 +14,9 @@ const withMDX = createMDX({
 
 /** @type {import('next').NextConfig} */
 const nextConfig = withMDX({
+  env: {
+    NEXT_PUBLIC_FEATURE_FLAGS: JSON.stringify(featureFlags),
+  },
   images: {
     remotePatterns: [
       {

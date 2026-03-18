@@ -1,7 +1,7 @@
 import "@/styling/globals.css"
 
 import type { Metadata } from "next"
-import { DM_Sans } from "next/font/google"
+import localFont from "next/font/local"
 
 import Navbar from "@/components/app/navbar"
 import ScrollToTop from "@/components/app/scroll-to-top"
@@ -9,10 +9,21 @@ import SetStylingPref from "@/components/app/set-styling-pref"
 import { ThemeProvider } from "@/components/app/theme-provider"
 import { Toaster } from "@/components/ui/sonner"
 
-const dmSans = DM_Sans({
-  subsets: ["latin"],
+const dmSans = localFont({
+  src: [
+    {
+      path: "../../node_modules/@fontsource-variable/dm-sans/files/dm-sans-latin-standard-normal.woff2",
+      weight: "100 900",
+      style: "normal",
+    },
+    {
+      path: "../../node_modules/@fontsource-variable/dm-sans/files/dm-sans-latin-standard-italic.woff2",
+      weight: "100 900",
+      style: "italic",
+    },
+  ],
   display: "swap",
-  adjustFontFallback: false,
+  variable: "--font-dm-sans",
 })
 
 export const metadata: Metadata = {
