@@ -1,6 +1,6 @@
 const GETTING_STARTED_LINKS = [
   {
-    href: "/docs",
+    href: "/blogs",
     text: "Blogs",
   },
   {
@@ -15,21 +15,13 @@ const GETTING_STARTED_LINKS = [
     href: "/aboutus",
     text: "About Us",
   },
-  {
-    href: "/contactus",
-    text: "Contact Us",
-  },
 ]
 
 const MAIN_SIDEBAR = [
   "Getting started",
 
   {
-    href: "/docs/Introduction",
-    text: "Introduction",
-  },
-  {
-    href: "/docs/installation",
+    href: "/blogs",
     text: "All Blogs",
   },
 ]

@@ -1,5 +1,5 @@
 import Link from "next/link"
-import { Github, Twitter, Linkedin, ExternalLink } from "lucide-react"
+import { Github, Twitter, Linkedin } from "lucide-react"
 
 import {
   PageDescription,
@@ -124,26 +124,6 @@ export default async function AboutUsPage() {
         ))}
       </FadeInStagger>
 
-      {/* Join the team CTA */}
-      <FadeIn>
-        <div className="border-4 border-border bg-secondary-background shadow-shadow p-6">
-          <h3 className="font-heading font-bold text-xl mb-2">Join Our Team</h3>
-          <p className="text-foreground/60 text-sm mb-4">
-            We&apos;re always looking for talented individuals passionate about quantitative finance
-          </p>
-          <p className="text-foreground/60 text-sm mb-6">
-            If you&apos;re excited about applying mathematical models to financial markets and
-            building the next generation of trading algorithms, we want to hear from you.
-          </p>
-          <Link
-            href="/contactus"
-            className="inline-flex items-center gap-2 border-4 border-border bg-main px-5 py-2.5 font-heading font-bold text-main-foreground shadow-shadow hover:translate-x-boxShadowX hover:translate-y-boxShadowY hover:shadow-none transition-all"
-          >
-            <ExternalLink className="h-4 w-4" />
-            Get In Touch
-          </Link>
-        </div>
-      </FadeIn>
     </PageWrapper>
   )
 }
