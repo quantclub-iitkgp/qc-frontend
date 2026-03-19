@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { Suspense, useState } from "react"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { z } from "zod"
@@ -26,7 +26,7 @@ const schema = z
   })
 type FormValues = z.infer<typeof schema>
 
-export default function SoQSignupPage() {
+function SignupForm() {
   const searchParams = useSearchParams()
   const next = searchParams.get("next") ?? "/soq"
   const [serverError, setServerError] = useState<string | null>(null)
@@ -192,5 +192,13 @@ export default function SoQSignupPage() {
         </Card>
       </motion.div>
     </div>
+  )
+}
+
+export default function SoQSignupPage() {
+  return (
+    <Suspense>
+      <SignupForm />
+    </Suspense>
   )
 }

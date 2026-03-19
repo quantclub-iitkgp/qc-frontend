@@ -15,6 +15,7 @@ const navLinks = [
   { href: "/blogs", label: "Blogs" },
   { href: "/whitepapers", label: "WhitePaper" },
   { href: "/aboutus", label: "About Us" },
+  { href: "/contactus", label: "Contact" },
 ]
 
 function NavLinks({ mobile = false, onClose }: { mobile?: boolean; onClose?: () => void }) {

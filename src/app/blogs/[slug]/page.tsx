@@ -1,4 +1,4 @@
-export const dynamic = "force-dynamic"
+export const revalidate = 3600 // revalidate every hour
 
 import "@/styling/code.css"
 import "katex/dist/katex.min.css"
@@ -32,6 +32,22 @@ export async function generateMetadata(props: BlogPageProps): Promise<Metadata> 
   return {
     title: blog.title,
     description: blog.description,
+    openGraph: {
+      title: blog.title,
+      description: blog.description ?? undefined,
+      type: "article",
+      publishedTime: blog.date ?? undefined,
+      authors: blog.author ? [blog.author] : undefined,
+      images: blog.coverImage
+        ? [{ url: blog.coverImage }]
+        : [{ url: "/quant_club_iit_kharagpur_logo.jpg" }],
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: blog.title,
+      description: blog.description ?? undefined,
+      images: blog.coverImage ? [blog.coverImage] : ["/quant_club_iit_kharagpur_logo.jpg"],
+    },
   }
 }
 

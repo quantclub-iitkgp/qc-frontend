@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { Suspense, useState } from "react"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { z } from "zod"
@@ -20,7 +20,7 @@ const schema = z.object({
 })
 type FormValues = z.infer<typeof schema>
 
-export default function SoQLoginPage() {
+function LoginForm() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const next = searchParams.get("next") ?? "/soq"
@@ -50,6 +50,7 @@ export default function SoQLoginPage() {
   return (
     <div className="min-h-dvh pt-[70px] bg-background bg-[linear-gradient(to_right,#80808033_1px,transparent_1px),linear-gradient(to_bottom,#80808033_1px,transparent_1px)] bg-[size:70px_70px] flex items-center justify-center px-5">
       <motion.div
+
         initial={{ opacity: 0, y: 24 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
@@ -139,5 +140,13 @@ export default function SoQLoginPage() {
         </Card>
       </motion.div>
     </div>
+  )
+}
+
+export default function SoQLoginPage() {
+  return (
+    <Suspense>
+      <LoginForm />
+    </Suspense>
   )
 }

@@ -28,22 +28,41 @@ const dmSans = localFont({
 
 export const metadata: Metadata = {
   title: {
-    default:
-      "Quant Club",
-    template: "%s | Quant Club",
+    default: "Quant Club IIT Kharagpur",
+    template: "%s | Quant Club IIT Kharagpur",
   },
-  
-  authors: [{ name: "Harsh Bhatt", url: "https://github.com/Harsh-BH" }],
+  description:
+    "Quant Club IIT Kharagpur — advancing quantitative finance through research, education, and open-source tools. Explore blogs, whitepapers, and events.",
+  keywords: [
+    "quantitative finance",
+    "algorithmic trading",
+    "IIT Kharagpur",
+    "quant club",
+    "portfolio theory",
+    "financial research",
+  ],
+  authors: [{ name: "Quant Club IIT Kharagpur", url: "https://quantclub.ai" }],
+  metadataBase: new URL("https://quantclub.ai"),
   openGraph: {
     type: "website",
+    siteName: "Quant Club IIT Kharagpur",
+    title: "Quant Club IIT Kharagpur",
     description:
-      "Official Website of Quant Club, IIT Kharagpur.",
+      "Advancing quantitative finance through research, education, and open-source tools.",
+    url: "https://quantclub.ai",
+    images: [{ url: "/quant_club_iit_kharagpur_logo.jpg", width: 800, height: 800 }],
+  },
+  twitter: {
+    card: "summary",
+    title: "Quant Club IIT Kharagpur",
+    description:
+      "Advancing quantitative finance through research, education, and open-source tools.",
+    images: ["/quant_club_iit_kharagpur_logo.jpg"],
   },
   icons: {
     icon: "/quant_club_iit_kharagpur_logo.jpg",
     apple: "/quant_club_iit_kharagpur_logo.jpg",
   },
-  
 }
 
 export default function RootLayout({

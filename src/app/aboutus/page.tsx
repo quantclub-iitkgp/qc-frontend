@@ -120,13 +120,19 @@ export default async function AboutUsPage() {
           <h2 className="text-2xl font-heading font-bold">Meet The Team</h2>
         </div>
       </FadeIn>
-      <FadeInStagger className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 mb-16">
-        {teamMembers.map((member) => (
-          <FadeInItem key={member.id}>
-            <TeamMemberCard member={member} />
-          </FadeInItem>
-        ))}
-      </FadeInStagger>
+      {teamMembers.length === 0 ? (
+        <div className="flex flex-col items-center gap-4 py-16 mb-16 border-4 border-border border-dashed text-foreground/50">
+          <p className="font-heading font-bold text-lg">Team profiles coming soon!</p>
+        </div>
+      ) : (
+        <FadeInStagger className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 mb-16">
+          {teamMembers.map((member) => (
+            <FadeInItem key={member.id}>
+              <TeamMemberCard member={member} />
+            </FadeInItem>
+          ))}
+        </FadeInStagger>
+      )}
 
     </PageWrapper>
   )
