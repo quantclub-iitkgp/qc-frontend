@@ -19,19 +19,10 @@ export default function QuantaThink({ size = 130, className, ...props }: QuantaP
       className={className}
       {...props}
     >
-      {/* Thought bubbles (upper-right) — pulse in sequence */}
-      <circle cx="122" cy="44" fill="var(--main)" stroke="black" strokeWidth="2">
-        <animate attributeName="r" values="5;7;5" dur="2.4s" begin="0s" repeatCount="indefinite" calcMode="spline" keySplines="0.4 0 0.6 1; 0.4 0 0.6 1" />
-        <animate attributeName="opacity" values="0.5;1;0.5" dur="2.4s" begin="0s" repeatCount="indefinite" calcMode="spline" keySplines="0.4 0 0.6 1; 0.4 0 0.6 1" />
-      </circle>
-      <circle cx="136" cy="28" fill="var(--main)" stroke="black" strokeWidth="2">
-        <animate attributeName="r" values="7;10;7" dur="2.4s" begin="0.55s" repeatCount="indefinite" calcMode="spline" keySplines="0.4 0 0.6 1; 0.4 0 0.6 1" />
-        <animate attributeName="opacity" values="0.5;1;0.5" dur="2.4s" begin="0.55s" repeatCount="indefinite" calcMode="spline" keySplines="0.4 0 0.6 1; 0.4 0 0.6 1" />
-      </circle>
-      <circle cx="150" cy="12" fill="var(--main)" stroke="black" strokeWidth="2">
-        <animate attributeName="r" values="10;13;10" dur="2.4s" begin="1.1s" repeatCount="indefinite" calcMode="spline" keySplines="0.4 0 0.6 1; 0.4 0 0.6 1" />
-        <animate attributeName="opacity" values="0.5;1;0.5" dur="2.4s" begin="1.1s" repeatCount="indefinite" calcMode="spline" keySplines="0.4 0 0.6 1; 0.4 0 0.6 1" />
-      </circle>
+      {/* Thought bubbles (upper-right) — GPU-accelerated CSS pulse */}
+      <circle cx="122" cy="44" r="6" fill="var(--main)" stroke="black" strokeWidth="2" className="quanta-bubble" />
+      <circle cx="136" cy="28" r="9" fill="var(--main)" stroke="black" strokeWidth="2" className="quanta-bubble quanta-bubble-d1" />
+      <circle cx="150" cy="12" r="12" fill="var(--main)" stroke="black" strokeWidth="2" className="quanta-bubble quanta-bubble-d2" />
       <text x="150" y="16" textAnchor="middle" fontFamily="sans-serif" fontSize="12" fontWeight="900" fill="black">
         ?
       </text>

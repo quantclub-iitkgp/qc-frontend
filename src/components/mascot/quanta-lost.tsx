@@ -19,22 +19,16 @@ export default function QuantaLost({ size = 160, className, ...props }: QuantaPr
       className={className}
       {...props}
     >
-      {/* Floating ? marks — drift up and fade */}
-      <text x="14" y="36" fontFamily="sans-serif" fontSize="22" fontWeight="900" fill="var(--main)" stroke="black" strokeWidth="0.5">
-        ?
-        <animateTransform attributeName="transform" type="translate" values="0 0; -2 -8; 0 0" dur="2.6s" begin="0s" repeatCount="indefinite" calcMode="spline" keySplines="0.4 0 0.6 1; 0.4 0 0.6 1" />
-        <animate attributeName="opacity" values="1;0.5;1" dur="2.6s" begin="0s" repeatCount="indefinite" calcMode="spline" keySplines="0.4 0 0.6 1; 0.4 0 0.6 1" />
-      </text>
-      <text x="152" y="50" fontFamily="sans-serif" fontSize="16" fontWeight="900" fill="var(--main)" stroke="black" strokeWidth="0.5" opacity="0.85">
-        ?
-        <animateTransform attributeName="transform" type="translate" values="0 0; 2 -6; 0 0" dur="2.2s" begin="0.6s" repeatCount="indefinite" calcMode="spline" keySplines="0.4 0 0.6 1; 0.4 0 0.6 1" />
-        <animate attributeName="opacity" values="0.85;0.3;0.85" dur="2.2s" begin="0.6s" repeatCount="indefinite" calcMode="spline" keySplines="0.4 0 0.6 1; 0.4 0 0.6 1" />
-      </text>
-      <text x="24" y="72" fontFamily="sans-serif" fontSize="11" fontWeight="900" fill="var(--main)" stroke="black" strokeWidth="0.5" opacity="0.6">
-        ?
-        <animateTransform attributeName="transform" type="translate" values="0 0; -1 -4; 0 0" dur="2s" begin="1.1s" repeatCount="indefinite" calcMode="spline" keySplines="0.4 0 0.6 1; 0.4 0 0.6 1" />
-        <animate attributeName="opacity" values="0.6;0.2;0.6" dur="2s" begin="1.1s" repeatCount="indefinite" calcMode="spline" keySplines="0.4 0 0.6 1; 0.4 0 0.6 1" />
-      </text>
+      {/* Floating ? marks — GPU-accelerated CSS float */}
+      <g className="quanta-q-float">
+        <text x="14" y="36" fontFamily="sans-serif" fontSize="22" fontWeight="900" fill="var(--main)" stroke="black" strokeWidth="0.5">?</text>
+      </g>
+      <g className="quanta-q-float quanta-q-float-d1">
+        <text x="152" y="50" fontFamily="sans-serif" fontSize="16" fontWeight="900" fill="var(--main)" stroke="black" strokeWidth="0.5" opacity="0.85">?</text>
+      </g>
+      <g className="quanta-q-float quanta-q-float-d2">
+        <text x="24" y="72" fontFamily="sans-serif" fontSize="11" fontWeight="900" fill="var(--main)" stroke="black" strokeWidth="0.5" opacity="0.6">?</text>
+      </g>
 
       {/* Drop shadow */}
       <ellipse cx="90" cy="168" rx="38" ry="8" fill="black" opacity="0.12" />
