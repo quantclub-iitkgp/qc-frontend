@@ -1,5 +1,6 @@
 "use client"
 
+import Link from "next/link"
 import { Locate, Mail } from "lucide-react"
 import { FaLinkedinIn, FaGithub, FaDiscord } from "react-icons/fa"
 import { RiTwitterXLine } from "react-icons/ri"
@@ -13,35 +14,31 @@ const links = [
   {
     name: "info@quantclub.ai",
     logo: Mail,
+    href: "mailto:info@quantclub.ai",
   },
   {
-    name: "IIT Kharagpur",
+    name: "IIT Kharagpur, West Bengal",
     logo: Locate,
+    href: null,
   },
 ]
 
 const footerLinks = [
   {
-    title: "Resources",
-    links: ["Market Data", "Research Papers", "Tutorials", "API Documentation"],
-  },
-  {
-    title: "About Us",
+    title: "Content",
     links: [
-      "Our Mission",
-      "Core Team",
-      "Research Publications",
-      "Academic Partners",
-      "Industry Collaborations",
+      { label: "Blog", href: "/blogs" },
+      { label: "Whitepapers", href: "/whitepapers" },
+      { label: "Docs", href: "/docs" },
     ],
   },
   {
-    title: "Learning Center",
-    links: ["Webinars", "Workshops", "Model Library", "Code Repository"],
-  },
-  {
-    title: "Connect",
-    links: ["Community Forum", "Events Calendar", "Career Opportunities"],
+    title: "About",
+    links: [
+      { label: "Our Team", href: "/aboutus" },
+      { label: "Contact Us", href: "/contactus" },
+      { label: "GitHub", href: "https://github.com/quantclub-iitkgp" },
+    ],
   },
 ]
 
@@ -51,8 +48,6 @@ const links_social = [
   { name: "linkedin", logo: FaLinkedinIn, href: "#" },
   { name: "discord", logo: FaDiscord, href: "#" },
 ]
-
-const conditions = ["Privacy Policy", "Terms of Service", "Data Usage Policy"]
 
 export const Footer = () => {
   const year = new Date().getFullYear()
@@ -85,14 +80,23 @@ export const Footer = () => {
               and quantitative analysis.
             </p>
             <div className="flex flex-col gap-3">
-              {links.map((link, index) => (
-                <div key={index} className="flex items-center gap-2">
-                  <div className="border-4 border-border bg-main/20 p-1 shadow-shadow">
-                    <link.logo size={16} />
+              {links.map((link, index) =>
+                link.href ? (
+                  <a key={index} href={link.href} className="flex items-center gap-2 hover:text-main transition-colors">
+                    <div className="border-4 border-border bg-main/20 p-1 shadow-shadow">
+                      <link.logo size={16} />
+                    </div>
+                    <p className="text-sm">{link.name}</p>
+                  </a>
+                ) : (
+                  <div key={index} className="flex items-center gap-2">
+                    <div className="border-4 border-border bg-main/20 p-1 shadow-shadow">
+                      <link.logo size={16} />
+                    </div>
+                    <p className="text-sm">{link.name}</p>
                   </div>
-                  <p className="text-sm">{link.name}</p>
-                </div>
-              ))}
+                )
+              )}
             </div>
           </motion.div>
 
@@ -109,11 +113,15 @@ export const Footer = () => {
                 <h3 className="font-heading font-semibold text-base">{section.title}</h3>
                 <ul className="space-y-1">
                   {section.links.map((link, linkIndex) => (
-                    <li
-                      key={linkIndex}
-                      className="text-sm text-foreground/60 hover:text-main transition-colors cursor-pointer"
-                    >
-                      {link}
+                    <li key={linkIndex}>
+                      <Link
+                        href={link.href}
+                        target={link.href.startsWith("http") ? "_blank" : undefined}
+                        rel={link.href.startsWith("http") ? "noopener noreferrer" : undefined}
+                        className="text-sm text-foreground/60 hover:text-main transition-colors"
+                      >
+                        {link.label}
+                      </Link>
                     </li>
                   ))}
                 </ul>
@@ -124,36 +132,22 @@ export const Footer = () => {
 
         <div className="border-t-4 border-border" />
 
-        <div className="flex items-center justify-between max-md:flex-col gap-5">
-          <div className="flex items-center gap-5 max-sm:flex-col max-sm:text-xs">
-            {conditions.map((condition, index) => (
-              <p
-                key={index}
-                className="text-sm text-foreground/60 hover:text-main transition-colors cursor-pointer"
-              >
-                {condition}
-              </p>
-            ))}
-          </div>
-
-          {/* Social icons */}
-          <div className="flex items-center gap-3">
-            {links_social.map((link, index) => (
-              <motion.a
-                key={index}
-                href={link.href}
-                target="_blank"
-                rel="noopener noreferrer"
-                aria-label={link.name}
-                className="flex items-center justify-center size-9 border-4 border-border bg-secondary-background shadow-shadow"
-                whileHover={{ y: -3, scale: 1.1 }}
-                whileTap={{ scale: 0.92 }}
-                transition={{ type: "spring", stiffness: 400, damping: 15 }}
-              >
-                <link.logo size={16} />
-              </motion.a>
-            ))}
-          </div>
+        <div className="flex items-center justify-end gap-3">
+          {links_social.map((link, index) => (
+            <motion.a
+              key={index}
+              href={link.href}
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label={link.name}
+              className="flex items-center justify-center size-9 border-4 border-border bg-secondary-background shadow-shadow"
+              whileHover={{ y: -3, scale: 1.1 }}
+              whileTap={{ scale: 0.92 }}
+              transition={{ type: "spring", stiffness: 400, damping: 15 }}
+            >
+              <link.logo size={16} />
+            </motion.a>
+          ))}
         </div>
 
         <div className="border-t-4 border-border" />

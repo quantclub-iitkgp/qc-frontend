@@ -1,4 +1,4 @@
-export const dynamic = "force-dynamic"
+export const revalidate = 3600 // revalidate every hour
 
 import type { Metadata } from "next"
 import { ArrowUpRight, BookOpen } from "lucide-react"
@@ -63,6 +63,14 @@ export default async function BlogsPage() {
       </header>
 
       <main className="mx-auto max-w-container px-5 py-12 md:py-16">
+        {blogs.length === 0 && (
+          <div className="flex flex-col items-center gap-4 py-24 text-foreground/50">
+            <BookOpen className="size-12 opacity-40" />
+            <p className="font-heading font-bold text-xl">No articles yet — check back soon!</p>
+            <p className="text-sm">The team is working on something great.</p>
+          </div>
+        )}
+
         {/* Featured blog */}
         {featuredBlog && (
           <section className="mb-12">
