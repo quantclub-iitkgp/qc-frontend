@@ -7,6 +7,7 @@ import { motion } from "framer-motion"
 
 import { staggerContainer, cardItem, slideInLeft } from "@/lib/motion"
 import MaxWidthWrapperNavbar from "./MaxWidthWrapperNavbar"
+import QuantaWave from "@/components/mascot/quanta-wave"
 
 const links = [
   {
@@ -157,9 +158,20 @@ export const Footer = () => {
 
         <div className="border-t-4 border-border" />
 
-        <p className="text-center text-foreground/60 pb-2 max-sm:text-xs text-sm">
-          Copyright © {year} Quant Club IIT Kharagpur. All rights reserved.
-        </p>
+        <div className="flex items-center justify-between gap-4">
+          <p className="text-foreground/60 max-sm:text-xs text-sm">
+            Copyright © {year} Quant Club IIT Kharagpur. All rights reserved.
+          </p>
+          <motion.div
+            initial={{ y: 10, opacity: 0 }}
+            whileInView={{ y: 0, opacity: 1 }}
+            viewport={{ once: true }}
+            transition={{ delay: 0.3, duration: 0.5 }}
+            className="flex-shrink-0"
+          >
+            <QuantaWave size={52} />
+          </motion.div>
+        </div>
       </div>
     </MaxWidthWrapperNavbar>
   )

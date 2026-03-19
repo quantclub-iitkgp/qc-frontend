@@ -9,6 +9,7 @@ import { BlogCard } from "@/components/app/blog-card"
 import { Footer } from "@/components/app/footer"
 import { AnimatedBlogHeader, AnimatedBlogBadge } from "@/components/app/blog-header-animations"
 import { FadeIn } from "@/components/app/fade-in"
+import QuantaRead from "@/components/mascot/quanta-read"
 
 export const metadata: Metadata = {
   title: "Blog",
@@ -47,13 +48,16 @@ export default async function BlogsPage() {
                 </p>
               </AnimatedBlogHeader>
             </div>
-            <Link
-              href="/docs"
-              className="flex items-center gap-2 border-4 border-border bg-main px-5 py-3 font-heading font-bold text-main-foreground shadow-shadow hover:translate-x-boxShadowX hover:translate-y-boxShadowY hover:shadow-none transition-all self-end"
-            >
-              All Docs
-              <ArrowUpRight className="size-5" />
-            </Link>
+            <div className="flex items-end gap-6">
+              <QuantaRead size={85} className="hidden sm:block flex-shrink-0" />
+              <Link
+                href="/docs"
+                className="flex items-center gap-2 border-4 border-border bg-main px-5 py-3 font-heading font-bold text-main-foreground shadow-shadow hover:translate-x-boxShadowX hover:translate-y-boxShadowY hover:shadow-none transition-all self-end"
+              >
+                All Docs
+                <ArrowUpRight className="size-5" />
+              </Link>
+            </div>
           </div>
         </div>
       </header>
