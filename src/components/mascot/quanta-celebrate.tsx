@@ -19,19 +19,19 @@ export default function QuantaCelebrate({ size = 140, className, ...props }: Qua
       className={className}
       {...props}
     >
-      {/* Confetti / stars */}
-      <polygon points="22,20 25,30 22,40 19,30" fill="var(--main)" stroke="black" strokeWidth="1.5" />
-      <polygon points="138,14 141,24 138,34 135,24" fill="var(--main)" stroke="black" strokeWidth="1.5" />
-      <polygon points="8,60 10,68 8,76 6,68" fill="var(--main)" stroke="black" strokeWidth="1" opacity="0.8" />
-      <polygon points="152,55 154,63 152,71 150,63" fill="var(--main)" stroke="black" strokeWidth="1" opacity="0.8" />
+      {/* Confetti / stars — GPU-accelerated CSS drift */}
+      <polygon points="22,20 25,30 22,40 19,30" fill="var(--main)" stroke="black" strokeWidth="1.5" className="quanta-drift-left" />
+      <polygon points="138,14 141,24 138,34 135,24" fill="var(--main)" stroke="black" strokeWidth="1.5" className="quanta-drift-right" />
+      <polygon points="8,60 10,68 8,76 6,68" fill="var(--main)" stroke="black" strokeWidth="1" opacity="0.8" className="quanta-drift-left-d" />
+      <polygon points="152,55 154,63 152,71 150,63" fill="var(--main)" stroke="black" strokeWidth="1" opacity="0.8" className="quanta-drift-right-d" />
       {/* Confetti rects */}
-      <rect x="30" y="44" width="10" height="10" rx="2" fill="var(--main)" stroke="black" strokeWidth="1.5" transform="rotate(25, 35, 49)" />
-      <rect x="120" y="38" width="10" height="10" rx="2" fill="var(--main)" stroke="black" strokeWidth="1.5" transform="rotate(-20, 125, 43)" />
-      <rect x="12" y="88" width="8" height="8" rx="2" fill="var(--main)" stroke="black" strokeWidth="1" opacity="0.7" transform="rotate(15, 16, 92)" />
-      <rect x="140" y="84" width="8" height="8" rx="2" fill="var(--main)" stroke="black" strokeWidth="1" opacity="0.7" transform="rotate(-15, 144, 88)" />
+      <rect x="30" y="44" width="10" height="10" rx="2" fill="var(--main)" stroke="black" strokeWidth="1.5" className="quanta-spin-cw" />
+      <rect x="120" y="38" width="10" height="10" rx="2" fill="var(--main)" stroke="black" strokeWidth="1.5" className="quanta-spin-ccw" />
+      <rect x="12" y="88" width="8" height="8" rx="2" fill="var(--main)" stroke="black" strokeWidth="1" opacity="0.7" className="quanta-spin-cw" />
+      <rect x="140" y="84" width="8" height="8" rx="2" fill="var(--main)" stroke="black" strokeWidth="1" opacity="0.7" className="quanta-spin-ccw" />
       {/* Small dots */}
-      <circle cx="18" cy="44" r="4" fill="var(--main)" stroke="black" strokeWidth="1" opacity="0.6" />
-      <circle cx="142" cy="44" r="4" fill="var(--main)" stroke="black" strokeWidth="1" opacity="0.6" />
+      <circle cx="18" cy="44" r="4" fill="var(--main)" stroke="black" strokeWidth="1" className="quanta-dot-pulse" />
+      <circle cx="142" cy="44" r="4" fill="var(--main)" stroke="black" strokeWidth="1" className="quanta-dot-pulse-d" />
 
       {/* Drop shadow */}
       <ellipse cx="80" cy="178" rx="38" ry="8" fill="black" opacity="0.12" />

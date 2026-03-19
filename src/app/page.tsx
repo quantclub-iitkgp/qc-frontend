@@ -158,7 +158,7 @@ export default async function Home() {
             </HeroCTA>
 
             {/* Quanta mascot — hero greeting */}
-            <div className="mt-10 md:mt-14 flex flex-col items-center gap-3">
+            <div className="mt-10 md:mt-14 flex flex-col items-center gap-3 quanta-float">
               <QuantaWave size={110} className="drop-shadow-lg" />
               <div className="border-4 border-border bg-secondary-background px-4 py-2 shadow-shadow text-sm font-heading font-bold relative">
                 <span className="absolute -top-2 left-1/2 -translate-x-1/2 border-l-4 border-r-4 border-t-4 border-border w-0 h-0 border-l-transparent border-r-transparent border-t-secondary-background rotate-180" />
@@ -390,7 +390,7 @@ export default async function Home() {
 
         <AnimatedSection>
         <section className="border-t-4 z-0 border-t-border border-b-4 border-b-border bg-background py-16 lg:py-[100px]">
-          <div className="flex flex-col items-center mb-6">
+          <div className="flex flex-col items-center mb-6 quanta-bob">
             <QuantaThink size={90} />
           </div>
           <h2 className="sm:mb-20 mb-14 px-5 text-center">

@@ -19,10 +19,10 @@ export default function QuantaThink({ size = 130, className, ...props }: QuantaP
       className={className}
       {...props}
     >
-      {/* Thought bubbles (upper-right) */}
-      <circle cx="122" cy="44" r="6" fill="var(--main)" stroke="black" strokeWidth="2" />
-      <circle cx="136" cy="28" r="9" fill="var(--main)" stroke="black" strokeWidth="2" />
-      <circle cx="150" cy="12" r="12" fill="var(--main)" stroke="black" strokeWidth="2" />
+      {/* Thought bubbles (upper-right) — GPU-accelerated CSS pulse */}
+      <circle cx="122" cy="44" r="6" fill="var(--main)" stroke="black" strokeWidth="2" className="quanta-bubble" />
+      <circle cx="136" cy="28" r="9" fill="var(--main)" stroke="black" strokeWidth="2" className="quanta-bubble quanta-bubble-d1" />
+      <circle cx="150" cy="12" r="12" fill="var(--main)" stroke="black" strokeWidth="2" className="quanta-bubble quanta-bubble-d2" />
       <text x="150" y="16" textAnchor="middle" fontFamily="sans-serif" fontSize="12" fontWeight="900" fill="black">
         ?
       </text>

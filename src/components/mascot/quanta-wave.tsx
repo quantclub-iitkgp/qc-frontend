@@ -66,19 +66,21 @@ export default function QuantaWave({ size = 130, className, ...props }: QuantaPr
       </text>
 
       {/* LEFT WING — raised (waving), curving upward */}
-      <path
-        d="M 36,100 C 20,90 6,70 8,50 C 10,34 22,34 26,44 C 30,54 32,76 36,100 Z"
-        fill="var(--main)"
-        stroke="black"
-        strokeWidth="4"
-        strokeLinejoin="round"
-      />
-      {/* Wing feather detail */}
-      <path d="M 18,60 Q 28,55 36,68" fill="none" stroke="black" strokeWidth="1.5" opacity="0.4" />
-      <path d="M 14,72 Q 24,67 34,80" fill="none" stroke="black" strokeWidth="1.5" opacity="0.4" />
+      <g className="quanta-wing-wave">
+        <path
+          d="M 36,100 C 20,90 6,70 8,50 C 10,34 22,34 26,44 C 30,54 32,76 36,100 Z"
+          fill="var(--main)"
+          stroke="black"
+          strokeWidth="4"
+          strokeLinejoin="round"
+        />
+        {/* Wing feather detail */}
+        <path d="M 18,60 Q 28,55 36,68" fill="none" stroke="black" strokeWidth="1.5" opacity="0.4" />
+        <path d="M 14,72 Q 24,67 34,80" fill="none" stroke="black" strokeWidth="1.5" opacity="0.4" />
 
-      {/* Small waving "tip" of the wing */}
-      <ellipse cx="10" cy="42" rx="8" ry="12" fill="var(--main)" stroke="black" strokeWidth="3" transform="rotate(-25, 10, 42)" />
+        {/* Small waving "tip" of the wing */}
+        <ellipse cx="10" cy="42" rx="8" ry="12" fill="var(--main)" stroke="black" strokeWidth="3" transform="rotate(-25, 10, 42)" />
+      </g>
 
       {/* RIGHT WING — relaxed, down */}
       <path
