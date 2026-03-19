@@ -19,19 +19,41 @@ export default function QuantaCelebrate({ size = 140, className, ...props }: Qua
       className={className}
       {...props}
     >
-      {/* Confetti / stars */}
-      <polygon points="22,20 25,30 22,40 19,30" fill="var(--main)" stroke="black" strokeWidth="1.5" />
-      <polygon points="138,14 141,24 138,34 135,24" fill="var(--main)" stroke="black" strokeWidth="1.5" />
-      <polygon points="8,60 10,68 8,76 6,68" fill="var(--main)" stroke="black" strokeWidth="1" opacity="0.8" />
-      <polygon points="152,55 154,63 152,71 150,63" fill="var(--main)" stroke="black" strokeWidth="1" opacity="0.8" />
+      {/* Confetti / stars — float and fade */}
+      <g>
+        <polygon points="22,20 25,30 22,40 19,30" fill="var(--main)" stroke="black" strokeWidth="1.5" />
+        <animateTransform attributeName="transform" type="translate" values="0 0; -3 -6; 0 0" dur="2s" begin="0s" repeatCount="indefinite" calcMode="spline" keySplines="0.4 0 0.6 1; 0.4 0 0.6 1" />
+      </g>
+      <g>
+        <polygon points="138,14 141,24 138,34 135,24" fill="var(--main)" stroke="black" strokeWidth="1.5" />
+        <animateTransform attributeName="transform" type="translate" values="0 0; 3 -6; 0 0" dur="2s" begin="0.3s" repeatCount="indefinite" calcMode="spline" keySplines="0.4 0 0.6 1; 0.4 0 0.6 1" />
+      </g>
+      <g>
+        <polygon points="8,60 10,68 8,76 6,68" fill="var(--main)" stroke="black" strokeWidth="1" opacity="0.8" />
+        <animateTransform attributeName="transform" type="translate" values="0 0; -2 -4; 0 0" dur="2.2s" begin="0.6s" repeatCount="indefinite" calcMode="spline" keySplines="0.4 0 0.6 1; 0.4 0 0.6 1" />
+      </g>
+      <g>
+        <polygon points="152,55 154,63 152,71 150,63" fill="var(--main)" stroke="black" strokeWidth="1" opacity="0.8" />
+        <animateTransform attributeName="transform" type="translate" values="0 0; 2 -4; 0 0" dur="2.2s" begin="0.9s" repeatCount="indefinite" calcMode="spline" keySplines="0.4 0 0.6 1; 0.4 0 0.6 1" />
+      </g>
       {/* Confetti rects */}
-      <rect x="30" y="44" width="10" height="10" rx="2" fill="var(--main)" stroke="black" strokeWidth="1.5" transform="rotate(25, 35, 49)" />
-      <rect x="120" y="38" width="10" height="10" rx="2" fill="var(--main)" stroke="black" strokeWidth="1.5" transform="rotate(-20, 125, 43)" />
+      <g>
+        <rect x="30" y="44" width="10" height="10" rx="2" fill="var(--main)" stroke="black" strokeWidth="1.5" transform="rotate(25, 35, 49)" />
+        <animateTransform attributeName="transform" type="rotate" values="25 35 49; 55 35 49; 25 35 49" dur="3s" begin="0s" repeatCount="indefinite" calcMode="spline" keySplines="0.4 0 0.6 1; 0.4 0 0.6 1" additive="sum" />
+      </g>
+      <g>
+        <rect x="120" y="38" width="10" height="10" rx="2" fill="var(--main)" stroke="black" strokeWidth="1.5" transform="rotate(-20, 125, 43)" />
+        <animateTransform attributeName="transform" type="rotate" values="-20 125 43; -50 125 43; -20 125 43" dur="3s" begin="0.4s" repeatCount="indefinite" calcMode="spline" keySplines="0.4 0 0.6 1; 0.4 0 0.6 1" additive="sum" />
+      </g>
       <rect x="12" y="88" width="8" height="8" rx="2" fill="var(--main)" stroke="black" strokeWidth="1" opacity="0.7" transform="rotate(15, 16, 92)" />
       <rect x="140" y="84" width="8" height="8" rx="2" fill="var(--main)" stroke="black" strokeWidth="1" opacity="0.7" transform="rotate(-15, 144, 88)" />
       {/* Small dots */}
-      <circle cx="18" cy="44" r="4" fill="var(--main)" stroke="black" strokeWidth="1" opacity="0.6" />
-      <circle cx="142" cy="44" r="4" fill="var(--main)" stroke="black" strokeWidth="1" opacity="0.6" />
+      <circle cx="18" cy="44" r="4" fill="var(--main)" stroke="black" strokeWidth="1">
+        <animate attributeName="opacity" values="0.3;0.8;0.3" dur="1.8s" begin="0.2s" repeatCount="indefinite" calcMode="spline" keySplines="0.4 0 0.6 1; 0.4 0 0.6 1" />
+      </circle>
+      <circle cx="142" cy="44" r="4" fill="var(--main)" stroke="black" strokeWidth="1">
+        <animate attributeName="opacity" values="0.3;0.8;0.3" dur="1.8s" begin="0.7s" repeatCount="indefinite" calcMode="spline" keySplines="0.4 0 0.6 1; 0.4 0 0.6 1" />
+      </circle>
 
       {/* Drop shadow */}
       <ellipse cx="80" cy="178" rx="38" ry="8" fill="black" opacity="0.12" />

@@ -7,7 +7,7 @@ export default function NotFound() {
   return (
     <div className="text-foreground max-h-[100dvh] h-[100dvh] portrait:max-h-[100dvh] portrait:h-[100dvh] w-full flex items-center justify-center bg-background prose-headings:font-heading prose-h1:md:text-5xl prose-h1:text-3xl bg-[linear-gradient(to_right,#80808033_1px,transparent_1px),linear-gradient(to_bottom,#80808033_1px,transparent_1px)] bg-[size:70px_70px]">
       <div className="flex flex-col items-center text-center max-w-(--breakpoint-xl) px-5">
-        <QuantaLost size={160} className="mb-4" />
+        <QuantaLost size={160} className="mb-4 animate-[quanta-bob_2.8s_ease-in-out_infinite]" />
 
         <h1 className="leading-normal">404 Not Found</h1>
 
