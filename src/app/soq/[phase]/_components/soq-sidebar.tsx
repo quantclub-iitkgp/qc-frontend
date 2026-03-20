@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import Link from "next/link"
 import { useParams } from "next/navigation"
 import { Search, Menu, Lock, BookOpen, ChevronDown, ChevronRight, LogOut, CheckCircle2 } from "lucide-react"
@@ -20,9 +20,28 @@ function SidebarContent({ phases, enrolled, userEmail }: Props) {
   const params = useParams<{ phase: string; topic?: string }>()
   const [searchQuery, setSearchQuery] = useState("")
   const { visited } = useSoQProgress()
-  const [openPhases, setOpenPhases] = useState<Set<string>>(
-    () => new Set(params.phase ? [params.phase] : phases.slice(0, 1).map((p) => p.slug)),
-  )
+
+  const PHASES_KEY = "soq-open-phases"
+  const [openPhases, setOpenPhases] = useState<Set<string>>(() => {
+    if (typeof window !== "undefined") {
+      try {
+        const raw = localStorage.getItem(PHASES_KEY)
+        if (raw) return new Set(JSON.parse(raw))
+      } catch {}
+    }
+    return new Set(params.phase ? [params.phase] : phases.slice(0, 1).map((p) => p.slug))
+  })
+
+  useEffect(() => {
+    if (!params.phase) return
+    setOpenPhases((prev) => {
+      if (prev.has(params.phase)) return prev
+      const next = new Set(prev)
+      next.add(params.phase)
+      try { localStorage.setItem(PHASES_KEY, JSON.stringify(Array.from(next))) } catch {}
+      return next
+    })
+  }, [params.phase])
 
   const isSearching = searchQuery.trim().length > 0
 
@@ -42,6 +61,7 @@ function SidebarContent({ phases, enrolled, userEmail }: Props) {
       const next = new Set(prev)
       if (next.has(slug)) next.delete(slug)
       else next.add(slug)
+      try { localStorage.setItem(PHASES_KEY, JSON.stringify(Array.from(next))) } catch {}
       return next
     })
   }
@@ -82,6 +102,7 @@ function SidebarContent({ phases, enrolled, userEmail }: Props) {
             <div key={phase.id}>
               {/* Phase header — clickable to collapse/expand */}
               <button
+                aria-expanded={isOpen}
                 onClick={() => togglePhase(phase.slug)}
                 className={`w-full flex items-center justify-between px-2 py-2 rounded-base text-left transition-colors border-2 ${
                   isActivePhase
@@ -113,6 +134,7 @@ function SidebarContent({ phases, enrolled, userEmail }: Props) {
                     return (
                       <li key={topic.id}>
                         <Link
+                          aria-current={isActive ? "page" : undefined}
                           href={`/soq/${phase.slug}/${topic.slug}`}
                           className={`flex items-center gap-2 px-2.5 py-1.5 text-sm rounded-base transition-all duration-150 border-2 ${
                             isActive
@@ -149,15 +171,22 @@ function SidebarContent({ phases, enrolled, userEmail }: Props) {
               <p className="text-[10px] text-foreground/40 leading-none mb-0.5">Signed in as</p>
               <p className="text-xs font-medium truncate">{userEmail}</p>
             </div>
-            <form action="/soq/logout" method="POST">
-              <button
-                type="submit"
-                title="Sign out"
-                className="text-foreground/40 hover:text-foreground transition-colors p-1"
-              >
-                <LogOut className="h-3.5 w-3.5" />
-              </button>
-            </form>
+            <button
+              type="button"
+              title="Sign out"
+              className="text-foreground/40 hover:text-foreground transition-colors p-1"
+              onClick={() => {
+                try {
+                  localStorage.removeItem("soq-visited-topics")
+                  localStorage.removeItem(PHASES_KEY)
+                } catch {}
+                fetch("/soq/logout", { method: "POST" }).then(() => {
+                  window.location.href = "/soq"
+                })
+              }}
+            >
+              <LogOut className="h-3.5 w-3.5" />
+            </button>
           </div>
         </div>
       ) : !enrolled ? (

@@ -1,8 +1,19 @@
 import { notFound, redirect } from "next/navigation"
+import type { Metadata } from "next"
 import { getPhaseWithTopics } from "@/lib/soq-api"
 
 interface Props {
   params: Promise<{ phase: string }>
+}
+
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const { phase: phaseSlug } = await params
+  const result = await getPhaseWithTopics(phaseSlug)
+  if (!result) return {}
+  return {
+    title: `${result.phase.title} | Summer of Quant`,
+    description: result.phase.description ?? "Summer of Quant program by Quant Club IIT Kharagpur.",
+  }
 }
 
 export default async function PhasePage({ params }: Props) {

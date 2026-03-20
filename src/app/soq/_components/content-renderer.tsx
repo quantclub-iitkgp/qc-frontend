@@ -2,6 +2,7 @@
 
 import ReactMarkdown from "react-markdown"
 import remarkGfm from "remark-gfm"
+import rehypeSlug from "rehype-slug"
 
 export function ContentRenderer({ body }: { body: string }) {
   return (
@@ -33,7 +34,7 @@ export function ContentRenderer({ body }: { body: string }) {
       // Strong
       "prose-strong:font-heading",
     ].join(" ")}>
-      <ReactMarkdown remarkPlugins={[remarkGfm]}>{body}</ReactMarkdown>
+      <ReactMarkdown remarkPlugins={[remarkGfm]} rehypePlugins={[rehypeSlug]}>{body}</ReactMarkdown>
     </div>
   )
 }

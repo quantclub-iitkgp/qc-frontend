@@ -92,7 +92,7 @@ export function SoQProgramLanding({ phases, userEmail }: Props) {
         <div className="relative z-10 flex items-start justify-between mb-12">
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}>
             <div className="inline-flex items-center gap-2 mb-4 px-3 py-1 bg-main text-main-foreground border-2 border-border shadow-shadow text-xs font-heading rounded-base">
-              Program Active · Summer 2025
+              Program Active · Summer 2026
             </div>
             <h1 className="text-4xl md:text-6xl font-heading font-bold tracking-tight mb-3">
               Summer of Quant
