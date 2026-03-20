@@ -21,7 +21,14 @@ export function ReadingProgressBar() {
   }, [])
 
   return (
-    <div className="fixed top-[70px] left-0 right-0 z-50 h-[3px] bg-border pointer-events-none">
+    <div
+      role="progressbar"
+      aria-valuenow={Math.round(progress)}
+      aria-valuemin={0}
+      aria-valuemax={100}
+      aria-label="Reading progress"
+      className="fixed top-[70px] left-0 right-0 z-50 h-[3px] bg-border pointer-events-none"
+    >
       <div
         className="h-full bg-main transition-[width] duration-75"
         style={{ width: `${progress}%` }}

@@ -61,7 +61,7 @@ export function WaitlistForm() {
           </motion.div>
           <h3 className="text-2xl font-heading">You&apos;re on the list!</h3>
           <p className="text-foreground/60 max-w-xs">
-            We&apos;ll reach out when applications open for Summer of Quant 2025. Stay sharp.
+            We&apos;ll reach out when applications open for Summer of Quant 2026. Stay sharp.
           </p>
         </motion.div>
       ) : (
