@@ -1,6 +1,7 @@
 "use client"
 
 import Link from "next/link"
+import Image from "next/image"
 import { usePathname } from "next/navigation"
 import { Menu, X, Sun } from "lucide-react"
 import { useState } from "react"
@@ -187,6 +188,13 @@ function Navbar() {
             className="text-[18px] px-4 h-9 rounded-base flex bg-main text-main-foreground border-4 border-border items-center justify-center font-heading font-bold gap-2 shadow-shadow hover:translate-x-boxShadowX hover:translate-y-boxShadowY hover:shadow-none transition-all"
             href="/"
           >
+            <Image
+              src="/quant_club_iit_kharagpur_logo.jpg"
+              alt="Quant Club"
+              width={24}
+              height={24}
+              className="rounded-sm"
+            />
             Quant Club
           </Link>
         </div>
