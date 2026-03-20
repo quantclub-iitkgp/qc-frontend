@@ -1,7 +1,7 @@
 import { notFound } from "next/navigation"
 import Link from "next/link"
-import { Lock } from "lucide-react"
-import { getTopicContent, checkEnrollment } from "@/lib/soq-api"
+import { Lock, ChevronRight } from "lucide-react"
+import { getTopicContent, checkEnrollment, getPhaseWithTopics } from "@/lib/soq-api"
 import { ContentRenderer } from "../../_components/content-renderer"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
@@ -12,14 +12,28 @@ interface Props {
 
 export default async function TopicPage({ params }: Props) {
   const { phase: phaseSlug, topic: topicSlug } = await params
-  const result = await getTopicContent(phaseSlug, topicSlug)
+  const [result, phaseResult, enrolled] = await Promise.all([
+    getTopicContent(phaseSlug, topicSlug),
+    getPhaseWithTopics(phaseSlug),
+    checkEnrollment(),
+  ])
   if (!result) notFound()
 
   const { topic, content } = result
-  const enrolled = await checkEnrollment()
 
   return (
-    <div className="px-6 md:px-10 py-10 max-w-3xl mx-auto">
+    <div className="px-6 md:px-10 py-8 max-w-3xl mx-auto">
+      {/* Breadcrumb */}
+      {phaseResult && (
+        <nav className="flex items-center gap-1 text-xs text-foreground/50 mb-6 font-base">
+          <Link href="/soq" className="hover:text-foreground transition-colors">SoQ</Link>
+          <ChevronRight className="h-3 w-3" />
+          <span className="text-foreground/70">{phaseResult.phase.title}</span>
+          <ChevronRight className="h-3 w-3" />
+          <span className="text-foreground">{topic.title}</span>
+        </nav>
+      )}
+
       {!enrolled ? (
         <div className="flex items-center justify-center min-h-[50vh]">
           <Card className="border-4 border-border shadow-shadow max-w-md w-full text-center">
@@ -43,26 +57,24 @@ export default async function TopicPage({ params }: Props) {
         </div>
       ) : (
         <>
-          <div className="mb-8">
-            <h1 className="text-3xl md:text-4xl font-heading font-bold tracking-tight mb-3">
+          {/* Topic header */}
+          <div className="mb-8 pb-6 border-b-2 border-border">
+            <h1 className="text-3xl md:text-4xl font-heading font-bold tracking-tight mb-2">
               {topic.title}
             </h1>
             {topic.description && (
-              <p className="text-lg text-foreground/60 leading-relaxed">{topic.description}</p>
+              <p className="text-base text-foreground/60 leading-relaxed">{topic.description}</p>
             )}
           </div>
 
-          <Card className="border-4 border-border shadow-shadow">
-            <CardContent className="pt-8 pb-8 px-6 md:px-8">
-              {content ? (
-                <ContentRenderer body={content.body} />
-              ) : (
-                <div className="py-12 text-center text-foreground/40 font-base">
-                  Content for this topic is being prepared. Check back soon.
-                </div>
-              )}
-            </CardContent>
-          </Card>
+          {/* Content */}
+          {content ? (
+            <ContentRenderer body={content.body} />
+          ) : (
+            <div className="py-16 text-center border-2 border-dashed border-border rounded-base text-foreground/40 font-base">
+              Content for this topic is being prepared. Check back soon.
+            </div>
+          )}
         </>
       )}
     </div>
