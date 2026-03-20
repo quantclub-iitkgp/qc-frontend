@@ -4,6 +4,7 @@ import { ChevronRight, ArrowLeft, ArrowRight, Clock, Lock } from "lucide-react"
 import { getTopicContent, checkEnrollment, getAllPhasesWithTopics } from "@/lib/soq-api"
 import type { SoQPhaseWithTopics } from "@/lib/soq-api"
 import { ContentRenderer } from "../../_components/content-renderer"
+import { TopicVisitTracker } from "../../_components/topic-visit-tracker"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 
@@ -80,10 +81,13 @@ export default async function TopicPage({ params }: Props) {
               </div>
               <CardTitle className="text-xl font-heading">Enrollment Required</CardTitle>
               <CardDescription className="text-foreground/60">
-                This content is available to enrolled SoQ participants only.
+                This content is for enrolled SoQ participants. Sign up for an account, then wait for enrollment confirmation from the Quant Club team.
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-3">
+              <Link href="/soq/signup">
+                <Button className="w-full">Create Account</Button>
+              </Link>
               <Link href="/soq/login">
                 <Button variant="neutral" className="w-full">Sign In</Button>
               </Link>
@@ -120,6 +124,8 @@ export default async function TopicPage({ params }: Props) {
               Content for this topic is being prepared. Check back soon.
             </div>
           )}
+
+          <TopicVisitTracker topicId={topic.id} />
 
           {/* Prev / Next navigation */}
           <div className="mt-12 pt-6 border-t-2 border-border grid grid-cols-2 gap-3">

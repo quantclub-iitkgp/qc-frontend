@@ -9,7 +9,8 @@ export async function middleware(request: NextRequest) {
   if (
     pathname === "/soq" ||
     pathname.startsWith("/soq/login") ||
-    pathname.startsWith("/soq/signup")
+    pathname.startsWith("/soq/signup") ||
+    pathname.startsWith("/soq/forgot-password")
   ) {
     return NextResponse.next()
   }

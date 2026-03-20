@@ -146,10 +146,10 @@ const features = [
 
 // ---- Timeline ----
 const timeline = [
-  { date: "June 2025",       label: "Applications open" },
-  { date: "Late June 2025",  label: "Program kickoff" },
-  { date: "July – Aug 2025", label: "Phase sessions" },
-  { date: "August 2025",     label: "Final project & certificates" },
+  { date: "June 2026",       label: "Applications open" },
+  { date: "Late June 2026",  label: "Program kickoff" },
+  { date: "July – Aug 2026", label: "Phase sessions" },
+  { date: "August 2026",     label: "Final project & certificates" },
 ]
 
 export function SoQWaitlistPage() {
@@ -178,7 +178,7 @@ export function SoQWaitlistPage() {
             className="inline-flex items-center gap-2 mb-6 px-4 py-1.5 bg-main text-main-foreground border-2 border-border shadow-shadow text-sm font-heading rounded-base"
           >
             <CalendarDays className="h-3.5 w-3.5" />
-            Applications Opening Soon · Summer 2025
+            Applications Opening Soon · Summer 2026
           </motion.div>
 
           <h1 className="text-5xl md:text-7xl font-heading font-bold tracking-tight mb-6 leading-none">
