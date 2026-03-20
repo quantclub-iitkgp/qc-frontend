@@ -5,7 +5,7 @@ import { SoQSidebar, MobileSidebarToggle } from "./_components/soq-sidebar"
 import { SoQProgressProvider } from "../_components/soq-progress-provider"
 import { ReadingProgressBar } from "../_components/reading-progress-bar"
 import { SoQScrollToTop } from "../_components/soq-scroll-to-top"
-import { Footer } from "@/components/app/footer"
+
 
 export default async function PhaseLayout({ children }: { children: React.ReactNode }) {
   if (!isFeatureEnabled("soq-program")) notFound()
@@ -33,7 +33,6 @@ export default async function PhaseLayout({ children }: { children: React.ReactN
           <ReadingProgressBar />
           <SoQScrollToTop />
           {children}
-          <Footer />
         </main>
       </div>
     </SoQProgressProvider>
