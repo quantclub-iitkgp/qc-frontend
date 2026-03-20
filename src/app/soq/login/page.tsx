@@ -43,6 +43,10 @@ function LoginForm() {
       setServerError(error.message)
       return
     }
+    // Auto-enroll on login (idempotent)
+    await supabase
+      .from("soq_enrollments")
+      .upsert({ user_id: (await supabase.auth.getUser()).data.user!.id }, { onConflict: "user_id", ignoreDuplicates: true })
     router.push(next)
     router.refresh()
   }

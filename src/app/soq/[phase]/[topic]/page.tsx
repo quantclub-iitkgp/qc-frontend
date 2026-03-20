@@ -8,6 +8,7 @@ import type { SoQPhaseWithTopics } from "@/lib/soq-api"
 import { ContentRenderer } from "../../_components/content-renderer"
 import { TopicVisitTracker } from "../../_components/topic-visit-tracker"
 import { TableOfContents } from "@/components/app/toc"
+import { KeyboardNav } from "../../_components/keyboard-nav"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 
@@ -78,12 +79,21 @@ export default async function TopicPage({ params }: Props) {
     getAllPhasesWithTopics(),
     checkEnrollment(),
   ])
+
+  // Auto-mark as complete when user views the topic
+  if (enrolled && result) {
+    const { markTopicComplete } = await import("@/lib/soq-api")
+    await markTopicComplete(result.topic.id)
+  }
   if (!result) notFound()
 
   const { topic, content } = result
   const currentPhase = allPhases.find((p) => p.slug === phaseSlug)
   const { prev, next, current, total } = getPrevNext(allPhases, phaseSlug, topicSlug)
   const tocItems = content ? extractTOC(content.body) : []
+
+  const prevHref = prev ? `/soq/${prev.phaseSlug}/${prev.topic.slug}` : null
+  const nextHref = next ? `/soq/${next.phaseSlug}/${next.topic.slug}` : null
 
   return (
     <div className="px-6 md:px-10 py-8 max-w-5xl mx-auto">
@@ -170,7 +180,7 @@ export default async function TopicPage({ params }: Props) {
             {/* Prev / Next navigation */}
             <div className="mt-12 pt-6 border-t-2 border-border grid grid-cols-2 gap-3">
               {prev ? (
-                <Link href={`/soq/${prev.phaseSlug}/${prev.topic.slug}`} className="group">
+                <Link href={prevHref!} className="group">
                   <div className="h-full p-3 rounded-base border-2 border-border shadow-shadow cursor-pointer transition-all hover:translate-x-boxShadowX hover:translate-y-boxShadowY hover:shadow-none">
                     <p className="text-xs text-foreground/40 mb-1.5 flex items-center gap-1">
                       <ArrowLeft className="h-3 w-3" />
@@ -186,10 +196,7 @@ export default async function TopicPage({ params }: Props) {
               )}
 
               {next ? (
-                <Link
-                  href={`/soq/${next.phaseSlug}/${next.topic.slug}`}
-                  className="group text-right"
-                >
+                <Link href={nextHref!} className="group text-right">
                   <div className="h-full p-3 rounded-base border-2 border-border shadow-shadow cursor-pointer transition-all hover:translate-x-boxShadowX hover:translate-y-boxShadowY hover:shadow-none">
                     <p className="text-xs text-foreground/40 mb-1.5 flex items-center gap-1 justify-end">
                       Next
@@ -209,6 +216,8 @@ export default async function TopicPage({ params }: Props) {
                 </div>
               )}
             </div>
+
+            <KeyboardNav prevHref={prevHref} nextHref={nextHref} />
           </div>
 
           {tocItems.length > 2 && (

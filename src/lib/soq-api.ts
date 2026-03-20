@@ -16,6 +16,7 @@ export type SoQTopic = {
   title: string
   description?: string
   orderIndex: number
+  readingTimeMinutes: number
 }
 
 export type SoQContent = {
@@ -44,6 +45,7 @@ function topicFromRow(row: any): SoQTopic {
     title: row.title,
     description: row.description ?? undefined,
     orderIndex: row.order_index,
+    readingTimeMinutes: row.reading_time_minutes ?? 10,
   }
 }
 
@@ -151,4 +153,58 @@ export async function getCurrentUser() {
     data: { user },
   } = await supabase.auth.getUser()
   return user
+}
+
+// Returns topic IDs the current user has completed
+export async function getUserProgress(): Promise<number[]> {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return []
+
+  const { data } = await supabase
+    .from("soq_progress")
+    .select("topic_id")
+    .eq("user_id", user.id)
+
+  return (data ?? []).map((r: { topic_id: number }) => r.topic_id)
+}
+
+// Marks a topic as completed for the current user (idempotent)
+export async function markTopicComplete(topicId: number): Promise<void> {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return
+
+  await supabase
+    .from("soq_progress")
+    .upsert({ user_id: user.id, topic_id: topicId }, { onConflict: "user_id,topic_id", ignoreDuplicates: true })
+}
+
+// Returns the most recently visited topic for the current user
+export async function getLastVisitedTopic(): Promise<{
+  phaseSlug: string
+  topicSlug: string
+  topicTitle: string
+} | null> {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return null
+
+  const { data } = await supabase
+    .from("soq_progress")
+    .select("topic_id, soq_topics(slug, title, soq_phases(slug))")
+    .eq("user_id", user.id)
+    .order("topic_id", { ascending: false })
+    .limit(1)
+    .single()
+
+  if (!data) return null
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const topic = data.soq_topics as any
+  if (!topic) return null
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const phase = topic.soq_phases as any
+  if (!phase) return null
+
+  return { phaseSlug: phase.slug, topicSlug: topic.slug, topicTitle: topic.title }
 }

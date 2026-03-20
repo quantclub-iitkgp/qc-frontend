@@ -2,7 +2,7 @@
 
 import { useMemo } from "react"
 import { motion } from "framer-motion"
-import { ArrowRight, TrendingUp, BarChart4, LineChart, Sigma, LogOut } from "lucide-react"
+import { ArrowRight, TrendingUp, BarChart4, LineChart, Sigma, LogOut, Trophy, Clock } from "lucide-react"
 import Link from "next/link"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
@@ -68,9 +68,14 @@ const phaseColors = ["bg-main", "bg-blue-500", "bg-purple-500", "bg-orange-500"]
 interface Props {
   phases: SoQPhaseWithTopics[]
   userEmail: string | null
+  completedTopicIds: number[]
+  lastVisited: { phaseSlug: string; topicSlug: string; topicTitle: string } | null
 }
 
-export function SoQProgramLanding({ phases, userEmail }: Props) {
+export function SoQProgramLanding({ phases, userEmail, completedTopicIds, lastVisited }: Props) {
+  const totalTopics = phases.reduce((sum, p) => sum + p.topics.length, 0)
+  const completedCount = completedTopicIds.length
+  const overallPct = totalTopics > 0 ? Math.round((completedCount / totalTopics) * 100) : 0
   return (
     <div className="pt-[70px] pb-16 bg-background bg-[linear-gradient(to_right,#80808033_1px,transparent_1px),linear-gradient(to_bottom,#80808033_1px,transparent_1px)] bg-[size:70px_70px] min-h-dvh">
       <div className="container max-w-6xl mx-auto relative px-5 py-12">
@@ -105,6 +110,21 @@ export function SoQProgramLanding({ phases, userEmail }: Props) {
                 Signed in as <span className="font-heading text-foreground/70">{userEmail}</span>
               </p>
             )}
+            {lastVisited && (
+              <motion.div
+                className="mt-4"
+                initial={{ opacity: 0, y: 8 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.35, duration: 0.4 }}
+              >
+                <Link href={`/soq/${lastVisited.phaseSlug}/${lastVisited.topicSlug}`}>
+                  <Button variant="default" size="sm" className="gap-2 bg-main text-main-foreground border-2 border-border shadow-shadow hover:translate-x-boxShadowX hover:translate-y-boxShadowY hover:shadow-none transition-all">
+                    Continue: {lastVisited.topicTitle}
+                    <ArrowRight className="h-3.5 w-3.5" />
+                  </Button>
+                </Link>
+              </motion.div>
+            )}
           </motion.div>
 
           {userEmail && (
@@ -118,46 +138,121 @@ export function SoQProgramLanding({ phases, userEmail }: Props) {
           )}
         </div>
 
+        {/* Overall progress bar */}
+        {userEmail && totalTopics > 0 && (
+          <motion.div
+            className="relative z-10 mb-8 p-4 border-4 border-border shadow-shadow rounded-base bg-background"
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.25, duration: 0.4 }}
+          >
+            <div className="flex items-center justify-between mb-2">
+              <span className="text-sm font-heading">Overall Progress</span>
+              <span className="text-sm font-heading tabular-nums">
+                {completedCount} / {totalTopics} topics
+              </span>
+            </div>
+            <div className="h-3 w-full rounded-base border-2 border-border bg-secondary overflow-hidden">
+              <motion.div
+                className="h-full bg-main rounded-base"
+                initial={{ width: 0 }}
+                animate={{ width: `${overallPct}%` }}
+                transition={{ delay: 0.4, duration: 0.8, ease: "easeOut" }}
+              />
+            </div>
+            <p className="text-xs text-foreground/40 mt-1.5">{overallPct}% complete</p>
+          </motion.div>
+        )}
+
+        {/* Certificate of completion */}
+        {userEmail && completedCount === totalTopics && totalTopics > 0 && (
+          <motion.div
+            className="relative z-10 mb-8 p-6 border-4 border-border shadow-shadow rounded-base bg-main/10 text-center print:border-2 print:shadow-none"
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ delay: 0.3, duration: 0.5 }}
+          >
+            <div className="flex justify-center mb-4">
+              <div className="flex h-16 w-16 items-center justify-center rounded-base border-4 border-border bg-main shadow-shadow">
+                <Trophy className="h-8 w-8 text-main-foreground" />
+              </div>
+            </div>
+            <h2 className="text-2xl font-heading font-bold tracking-tight mb-1">You completed Summer of Quant!</h2>
+            <p className="text-sm text-foreground/60 mb-1">{userEmail}</p>
+            <p className="text-xs text-foreground/40 mb-4">{new Date().toLocaleDateString("en-IN", { day: "numeric", month: "long", year: "numeric" })}</p>
+            <Button
+              variant="neutral"
+              size="sm"
+              onClick={() => window.print()}
+              className="border-2 border-border shadow-shadow hover:translate-x-boxShadowX hover:translate-y-boxShadowY hover:shadow-none transition-all"
+            >
+              Print Certificate
+            </Button>
+          </motion.div>
+        )}
+
         {/* Phase grid */}
         <div className="relative z-10 grid sm:grid-cols-2 gap-6">
-          {phases.map((phase, i) => (
-            <motion.div
-              key={phase.id}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.1 + i * 0.1, duration: 0.4 }}
-              whileHover={{ translateX: 4, translateY: 4, boxShadow: "none", transition: { duration: 0.15 } }}
-            >
-              <Link href={`/soq/${phase.slug}`} className="block h-full">
-                <Card className="border-4 border-border shadow-shadow h-full cursor-pointer group">
-                  <CardHeader>
-                    <div className="flex items-center gap-3 mb-2">
-                      <div className={`flex h-10 w-10 items-center justify-center rounded-base border-4 border-border shadow-shadow ${phaseColors[i % phaseColors.length]}`}>
-                        <span className="text-sm font-heading text-white">{i + 1}</span>
+          {phases.map((phase, i) => {
+            const phaseCompleted = phase.topics.filter((t) => completedTopicIds.includes(t.id)).length
+            const phasePct = phase.topics.length > 0 ? Math.round((phaseCompleted / phase.topics.length) * 100) : 0
+            const totalMinutes = phase.topics.reduce((sum, t) => sum + t.readingTimeMinutes, 0)
+            return (
+              <motion.div
+                key={phase.id}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.1 + i * 0.1, duration: 0.4 }}
+                whileHover={{ translateX: 4, translateY: 4, boxShadow: "none", transition: { duration: 0.15 } }}
+              >
+                <Link href={`/soq/${phase.slug}`} className="block h-full">
+                  <Card className="border-4 border-border shadow-shadow h-full cursor-pointer group">
+                    <CardHeader>
+                      <div className="flex items-center gap-3 mb-2">
+                        <div className={`flex h-10 w-10 items-center justify-center rounded-base border-4 border-border shadow-shadow ${phaseColors[i % phaseColors.length]}`}>
+                          <span className="text-sm font-heading text-white">{i + 1}</span>
+                        </div>
+                        <CardTitle className="font-heading text-lg group-hover:text-main transition-colors">
+                          {phase.title}
+                        </CardTitle>
                       </div>
-                      <CardTitle className="font-heading text-lg group-hover:text-main transition-colors">
-                        {phase.title}
-                      </CardTitle>
-                      <span className="text-xs text-foreground/40 font-base">
-                        {phase.topics.length} topic{phase.topics.length !== 1 ? "s" : ""}
-                      </span>
-                    </div>
-                    {phase.description && (
-                      <CardDescription className="text-foreground/60 text-sm leading-relaxed">
-                        {phase.description}
-                      </CardDescription>
-                    )}
-                  </CardHeader>
-                  <CardContent>
-                    <div className="flex items-center gap-1 text-sm font-heading text-main">
-                      Explore topics
-                      <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
-                    </div>
-                  </CardContent>
-                </Card>
-              </Link>
-            </motion.div>
-          ))}
+                      {phase.description && (
+                        <CardDescription className="text-foreground/60 text-sm leading-relaxed">
+                          {phase.description}
+                        </CardDescription>
+                      )}
+                    </CardHeader>
+                    <CardContent className="space-y-3">
+                      <div className="flex items-center gap-1.5 text-xs text-foreground/50">
+                        <Clock className="h-3 w-3" />
+                        <span>~{totalMinutes} min · {phase.topics.length} topics</span>
+                      </div>
+                      {userEmail && phase.topics.length > 0 && (
+                        <div>
+                          <div className="flex items-center justify-between mb-1">
+                            <span className="text-xs text-foreground/50">{phaseCompleted}/{phase.topics.length} topics</span>
+                            <span className="text-xs text-foreground/50">{phasePct}%</span>
+                          </div>
+                          <div className="h-1.5 w-full rounded-base border border-border bg-secondary overflow-hidden">
+                            <motion.div
+                              className="h-full bg-main rounded-base"
+                              initial={{ width: 0 }}
+                              animate={{ width: `${phasePct}%` }}
+                              transition={{ delay: 0.3 + i * 0.1, duration: 0.6, ease: "easeOut" }}
+                            />
+                          </div>
+                        </div>
+                      )}
+                      <div className="flex items-center gap-1 text-sm font-heading text-main">
+                        Explore topics
+                        <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
+                      </div>
+                    </CardContent>
+                  </Card>
+                </Link>
+              </motion.div>
+            )
+          })}
         </div>
       </div>
     </div>

@@ -14,9 +14,10 @@ interface Props {
   phases: SoQPhaseWithTopics[]
   enrolled: boolean
   userEmail?: string
+  completedTopicIds?: number[]
 }
 
-function SidebarContent({ phases, enrolled, userEmail }: Props) {
+function SidebarContent({ phases, enrolled, userEmail, completedTopicIds = [] }: Props) {
   const params = useParams<{ phase: string; topic?: string }>()
   const [searchQuery, setSearchQuery] = useState("")
   const { visited } = useSoQProgress()
@@ -143,8 +144,8 @@ function SidebarContent({ phases, enrolled, userEmail }: Props) {
                           }`}
                         >
                           <span className="truncate flex-1">{topic.title}</span>
-                          {visited.has(topic.id) && (
-                            <CheckCircle2 className="h-3.5 w-3.5 shrink-0 text-main/60" />
+                          {(completedTopicIds.includes(topic.id) || visited.has(topic.id)) && (
+                            <CheckCircle2 className={`h-3.5 w-3.5 shrink-0 ${isActive ? "text-main-foreground/70" : "text-main/70"}`} />
                           )}
                         </Link>
                       </li>
