@@ -6,7 +6,7 @@ import { ArrowRight, TrendingUp, BarChart4, LineChart, Sigma, LogOut } from "luc
 import Link from "next/link"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import type { SoQPhase } from "@/lib/soq-api"
+import type { SoQPhaseWithTopics } from "@/lib/soq-api"
 
 import Star1 from "@/examples/stars/s1"
 import Star6 from "@/examples/stars/s6"
@@ -66,7 +66,7 @@ const ParticleBackground = () => {
 const phaseColors = ["bg-main", "bg-blue-500", "bg-purple-500", "bg-orange-500"]
 
 interface Props {
-  phases: SoQPhase[]
+  phases: SoQPhaseWithTopics[]
   userEmail: string | null
 }
 
@@ -138,6 +138,9 @@ export function SoQProgramLanding({ phases, userEmail }: Props) {
                       <CardTitle className="font-heading text-lg group-hover:text-main transition-colors">
                         {phase.title}
                       </CardTitle>
+                      <span className="text-xs text-foreground/40 font-base">
+                        {phase.topics.length} topic{phase.topics.length !== 1 ? "s" : ""}
+                      </span>
                     </div>
                     {phase.description && (
                       <CardDescription className="text-foreground/60 text-sm leading-relaxed">

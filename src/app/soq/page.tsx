@@ -2,7 +2,7 @@ import { notFound } from "next/navigation"
 import { isFeatureEnabled } from "@/lib/featureFlags"
 import { SoQWaitlistPage } from "./_components/soq-waitlist-page"
 import { SoQProgramLanding } from "./_components/soq-program-landing"
-import { getPublishedPhases, getCurrentUser } from "@/lib/soq-api"
+import { getAllPhasesWithTopics, getCurrentUser } from "@/lib/soq-api"
 
 export const metadata = {
   title: "Summer of Quant | Quant Club IIT KGP",
@@ -17,7 +17,7 @@ export default async function SoQPage() {
   if (!waitlistEnabled && !programEnabled) notFound()
 
   if (programEnabled) {
-    const [phases, user] = await Promise.all([getPublishedPhases(), getCurrentUser()])
+    const [phases, user] = await Promise.all([getAllPhasesWithTopics(), getCurrentUser()])
     return <SoQProgramLanding phases={phases} userEmail={user?.email ?? null} />
   }
 

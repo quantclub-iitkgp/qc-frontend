@@ -3,11 +3,12 @@
 import { useState } from "react"
 import Link from "next/link"
 import { useParams } from "next/navigation"
-import { Search, Menu, Lock, BookOpen, ChevronDown, ChevronRight, LogOut } from "lucide-react"
+import { Search, Menu, Lock, BookOpen, ChevronDown, ChevronRight, LogOut, CheckCircle2 } from "lucide-react"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
 import type { SoQPhaseWithTopics } from "@/lib/soq-api"
+import { useSoQProgress } from "../../_components/soq-progress-provider"
 
 interface Props {
   phases: SoQPhaseWithTopics[]
@@ -18,6 +19,7 @@ interface Props {
 function SidebarContent({ phases, enrolled, userEmail }: Props) {
   const params = useParams<{ phase: string; topic?: string }>()
   const [searchQuery, setSearchQuery] = useState("")
+  const { visited } = useSoQProgress()
   const [openPhases, setOpenPhases] = useState<Set<string>>(
     () => new Set(params.phase ? [params.phase] : phases.slice(0, 1).map((p) => p.slug)),
   )
@@ -118,7 +120,10 @@ function SidebarContent({ phases, enrolled, userEmail }: Props) {
                               : "text-foreground/70 hover:text-foreground hover:bg-secondary-background border-transparent hover:border-border"
                           }`}
                         >
-                          <span className="truncate">{topic.title}</span>
+                          <span className="truncate flex-1">{topic.title}</span>
+                          {visited.has(topic.id) && (
+                            <CheckCircle2 className="h-3.5 w-3.5 shrink-0 text-main/60" />
+                          )}
                         </Link>
                       </li>
                     )

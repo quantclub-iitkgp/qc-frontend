@@ -15,12 +15,12 @@ export function EnrollmentGate() {
           </div>
           <CardTitle className="text-xl font-heading">Enrollment Required</CardTitle>
           <CardDescription className="text-foreground/60">
-            This content is available to enrolled SoQ participants only. Apply for the program to get access.
+            This content is for enrolled SoQ participants. Sign up for an account, then wait for enrollment confirmation from the Quant Club team.
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-3">
-          <Link href="/soq">
-            <Button className="w-full">View Program Details</Button>
+          <Link href="/soq/signup">
+            <Button className="w-full">Create Account</Button>
           </Link>
           <Link href="/soq/login">
             <Button variant="neutral" className="w-full">Sign In</Button>
