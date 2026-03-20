@@ -66,14 +66,14 @@ const ParticleBackground = () => {
 const phaseColors = ["bg-main", "bg-blue-500", "bg-purple-500", "bg-orange-500"]
 
 interface Props {
-  phasesWithTopics: SoQPhaseWithTopics[]
+  phases: SoQPhaseWithTopics[]
   userEmail: string | null
   completedTopicIds: number[]
   lastVisited: { phaseSlug: string; topicSlug: string; topicTitle: string } | null
 }
 
-export function SoQProgramLanding({ phasesWithTopics, userEmail, completedTopicIds, lastVisited }: Props) {
-  const totalTopics = phasesWithTopics.reduce((sum, p) => sum + p.topics.length, 0)
+export function SoQProgramLanding({ phases, userEmail, completedTopicIds, lastVisited }: Props) {
+  const totalTopics = phases.reduce((sum, p) => sum + p.topics.length, 0)
   const completedCount = completedTopicIds.length
   const overallPct = totalTopics > 0 ? Math.round((completedCount / totalTopics) * 100) : 0
   return (
@@ -97,7 +97,7 @@ export function SoQProgramLanding({ phasesWithTopics, userEmail, completedTopicI
         <div className="relative z-10 flex items-start justify-between mb-12">
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}>
             <div className="inline-flex items-center gap-2 mb-4 px-3 py-1 bg-main text-main-foreground border-2 border-border shadow-shadow text-xs font-heading rounded-base">
-              Program Active · Summer 2025
+              Program Active · Summer 2026
             </div>
             <h1 className="text-4xl md:text-6xl font-heading font-bold tracking-tight mb-3">
               Summer of Quant
@@ -193,7 +193,7 @@ export function SoQProgramLanding({ phasesWithTopics, userEmail, completedTopicI
 
         {/* Phase grid */}
         <div className="relative z-10 grid sm:grid-cols-2 gap-6">
-          {phasesWithTopics.map((phase, i) => {
+          {phases.map((phase, i) => {
             const phaseCompleted = phase.topics.filter((t) => completedTopicIds.includes(t.id)).length
             const phasePct = phase.topics.length > 0 ? Math.round((phaseCompleted / phase.topics.length) * 100) : 0
             const totalMinutes = phase.topics.reduce((sum, t) => sum + t.readingTimeMinutes, 0)

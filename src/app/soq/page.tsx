@@ -23,7 +23,7 @@ export default async function SoQPage() {
       : [[], null]
     return (
       <SoQProgramLanding
-        phasesWithTopics={phasesWithTopics}
+        phases={phasesWithTopics}
         userEmail={user?.email ?? null}
         completedTopicIds={completedTopicIds}
         lastVisited={lastVisited}

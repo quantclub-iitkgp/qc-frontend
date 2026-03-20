@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { Suspense, useState } from "react"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { z } from "zod"
@@ -16,11 +16,11 @@ import { createClient } from "@/lib/supabase/client"
 
 const schema = z.object({
   email: z.string().email("Enter a valid email"),
-  password: z.string().min(6, "Password must be at least 6 characters"),
+  password: z.string().min(8, "Password must be at least 8 characters"),
 })
 type FormValues = z.infer<typeof schema>
 
-export default function SoQLoginPage() {
+function LoginForm() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const next = searchParams.get("next") ?? "/soq"
@@ -54,6 +54,7 @@ export default function SoQLoginPage() {
   return (
     <div className="min-h-dvh pt-[70px] bg-background bg-[linear-gradient(to_right,#80808033_1px,transparent_1px),linear-gradient(to_bottom,#80808033_1px,transparent_1px)] bg-[size:70px_70px] flex items-center justify-center px-5">
       <motion.div
+
         initial={{ opacity: 0, y: 24 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
@@ -93,9 +94,17 @@ export default function SoQLoginPage() {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="password" className="flex items-center gap-2 font-heading">
-                  <Lock className="h-4 w-4" /> Password
-                </Label>
+                <div className="flex items-center justify-between">
+                  <Label htmlFor="password" className="flex items-center gap-2 font-heading">
+                    <Lock className="h-4 w-4" /> Password
+                  </Label>
+                  <Link
+                    href="/soq/forgot-password"
+                    className="text-xs text-foreground/50 hover:text-foreground transition-colors"
+                  >
+                    Forgot password?
+                  </Link>
+                </div>
                 <Input
                   id="password"
                   type="password"
@@ -143,5 +152,13 @@ export default function SoQLoginPage() {
         </Card>
       </motion.div>
     </div>
+  )
+}
+
+export default function SoQLoginPage() {
+  return (
+    <Suspense>
+      <LoginForm />
+    </Suspense>
   )
 }

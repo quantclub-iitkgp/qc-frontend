@@ -1,36 +1,26 @@
 "use client"
 
-import { Suspense, useState } from "react"
+import { useState } from "react"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { z } from "zod"
 import { motion, AnimatePresence } from "framer-motion"
-import { UserPlus, Mail, Lock, CheckCircle, TrendingUp } from "lucide-react"
+import { Mail, TrendingUp, ArrowLeft, Send, CheckCircle } from "lucide-react"
 import Link from "next/link"
-import { useSearchParams } from "next/navigation"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { createClient } from "@/lib/supabase/client"
 
-const schema = z
-  .object({
-    email: z.string().email("Enter a valid email"),
-    password: z.string().min(8, "Password must be at least 8 characters"),
-    confirmPassword: z.string(),
-  })
-  .refine((d) => d.password === d.confirmPassword, {
-    message: "Passwords do not match",
-    path: ["confirmPassword"],
-  })
+const schema = z.object({
+  email: z.string().email("Enter a valid email"),
+})
 type FormValues = z.infer<typeof schema>
 
-function SignupForm() {
-  const searchParams = useSearchParams()
-  const next = searchParams.get("next") ?? "/soq"
-  const [serverError, setServerError] = useState<string | null>(null)
+export default function ForgotPasswordPage() {
   const [done, setDone] = useState(false)
+  const [serverError, setServerError] = useState<string | null>(null)
 
   const {
     register,
@@ -41,9 +31,8 @@ function SignupForm() {
   async function onSubmit(values: FormValues) {
     setServerError(null)
     const supabase = createClient()
-    const { error } = await supabase.auth.signUp({
-      email: values.email,
-      password: values.password,
+    const { error } = await supabase.auth.resetPasswordForEmail(values.email, {
+      redirectTo: `${window.location.origin}/soq/login`,
     })
     if (error) {
       setServerError(error.message)
@@ -60,6 +49,7 @@ function SignupForm() {
         transition={{ duration: 0.5 }}
         className="w-full max-w-md"
       >
+        {/* Brand mark */}
         <div className="flex flex-col items-center mb-8">
           <div className="flex h-14 w-14 items-center justify-center rounded-base border-4 border-border bg-main shadow-shadow mb-4">
             <TrendingUp className="h-7 w-7 text-main-foreground" />
@@ -70,9 +60,9 @@ function SignupForm() {
 
         <Card className="border-4 border-border shadow-shadow">
           <CardHeader>
-            <CardTitle className="text-xl font-heading">Create your account</CardTitle>
+            <CardTitle className="text-xl font-heading">Reset your password</CardTitle>
             <CardDescription className="text-foreground/60">
-              Sign up to access SoQ program materials once enrolled
+              Enter your email and we&apos;ll send you a reset link.
             </CardDescription>
           </CardHeader>
 
@@ -95,9 +85,9 @@ function SignupForm() {
                   </motion.div>
                   <h3 className="text-xl font-heading">Check your email</h3>
                   <p className="text-sm text-foreground/60 max-w-xs">
-                    We&apos;ve sent a confirmation link. Once confirmed, an admin will enroll you and you&apos;ll get access to the program.
+                    If an account exists for that email, you&apos;ll receive a password reset link shortly.
                   </p>
-                  <Link href={`/soq/login?next=${encodeURIComponent(next)}`}>
+                  <Link href="/soq/login">
                     <Button variant="neutral" className="mt-2">Back to Sign In</Button>
                   </Link>
                 </motion.div>
@@ -120,35 +110,9 @@ function SignupForm() {
                       {...register("email")}
                       className={errors.email ? "border-red-500" : ""}
                     />
-                    {errors.email && <p className="text-sm text-red-500">{errors.email.message}</p>}
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="password" className="flex items-center gap-2 font-heading">
-                      <Lock className="h-4 w-4" /> Password
-                    </Label>
-                    <Input
-                      id="password"
-                      type="password"
-                      placeholder="Min. 8 characters"
-                      {...register("password")}
-                      className={errors.password ? "border-red-500" : ""}
-                    />
-                    {errors.password && <p className="text-sm text-red-500">{errors.password.message}</p>}
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="confirmPassword" className="flex items-center gap-2 font-heading">
-                      <Lock className="h-4 w-4" /> Confirm Password
-                    </Label>
-                    <Input
-                      id="confirmPassword"
-                      type="password"
-                      placeholder="Repeat password"
-                      {...register("confirmPassword")}
-                      className={errors.confirmPassword ? "border-red-500" : ""}
-                    />
-                    {errors.confirmPassword && <p className="text-sm text-red-500">{errors.confirmPassword.message}</p>}
+                    {errors.email && (
+                      <p className="text-sm text-red-500">{errors.email.message}</p>
+                    )}
                   </div>
 
                   {serverError && (
@@ -165,12 +129,12 @@ function SignupForm() {
                           transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
                           className="inline-block mr-2 h-4 w-4 border-2 border-current border-t-transparent rounded-full"
                         />
-                        Creating account...
+                        Sending...
                       </>
                     ) : (
                       <>
-                        <UserPlus className="mr-2 h-4 w-4" />
-                        Create Account
+                        <Send className="mr-2 h-4 w-4" />
+                        Send Reset Link
                       </>
                     )}
                   </Button>
@@ -181,24 +145,17 @@ function SignupForm() {
 
           {!done && (
             <CardFooter className="flex justify-center border-t-2 border-border/40 pt-4">
-              <p className="text-sm text-foreground/60">
-                Already have an account?{" "}
-                <Link href={`/soq/login${next !== "/soq" ? `?next=${encodeURIComponent(next)}` : ""}`} className="font-heading text-foreground underline underline-offset-2 hover:text-main transition-colors">
-                  Sign in
-                </Link>
-              </p>
+              <Link
+                href="/soq/login"
+                className="flex items-center gap-1.5 text-sm text-foreground/60 hover:text-foreground transition-colors"
+              >
+                <ArrowLeft className="h-3.5 w-3.5" />
+                Back to Sign In
+              </Link>
             </CardFooter>
           )}
         </Card>
       </motion.div>
     </div>
-  )
-}
-
-export default function SoQSignupPage() {
-  return (
-    <Suspense>
-      <SignupForm />
-    </Suspense>
   )
 }

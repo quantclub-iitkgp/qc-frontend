@@ -1,4 +1,4 @@
-export const dynamic = "force-dynamic"
+export const revalidate = 3600 // revalidate every hour
 
 import type { Metadata } from "next"
 import { ArrowUpRight, BookOpen } from "lucide-react"
@@ -9,6 +9,7 @@ import { BlogCard } from "@/components/app/blog-card"
 import { Footer } from "@/components/app/footer"
 import { AnimatedBlogHeader, AnimatedBlogBadge } from "@/components/app/blog-header-animations"
 import { FadeIn } from "@/components/app/fade-in"
+import QuantaRead from "@/components/mascot/quanta-read"
 
 export const metadata: Metadata = {
   title: "Blog",
@@ -47,18 +48,29 @@ export default async function BlogsPage() {
                 </p>
               </AnimatedBlogHeader>
             </div>
-            <Link
-              href="/docs"
-              className="flex items-center gap-2 border-4 border-border bg-main px-5 py-3 font-heading font-bold text-main-foreground shadow-shadow hover:translate-x-boxShadowX hover:translate-y-boxShadowY hover:shadow-none transition-all self-end"
-            >
-              All Docs
-              <ArrowUpRight className="size-5" />
-            </Link>
+            <div className="flex items-end gap-6">
+              <QuantaRead size={85} className="hidden sm:block flex-shrink-0" />
+              <Link
+                href="/docs"
+                className="flex items-center gap-2 border-4 border-border bg-main px-5 py-3 font-heading font-bold text-main-foreground shadow-shadow hover:translate-x-boxShadowX hover:translate-y-boxShadowY hover:shadow-none transition-all self-end"
+              >
+                All Docs
+                <ArrowUpRight className="size-5" />
+              </Link>
+            </div>
           </div>
         </div>
       </header>
 
       <main className="mx-auto max-w-container px-5 py-12 md:py-16">
+        {blogs.length === 0 && (
+          <div className="flex flex-col items-center gap-4 py-24 text-foreground/50">
+            <BookOpen className="size-12 opacity-40" />
+            <p className="font-heading font-bold text-xl">No articles yet — check back soon!</p>
+            <p className="text-sm">The team is working on something great.</p>
+          </div>
+        )}
+
         {/* Featured blog */}
         {featuredBlog && (
           <section className="mb-12">

@@ -5,7 +5,6 @@ import "@/styling/marquee.css"
 
 import Link from "next/link"
 
-import reviews from "@/data/reviews"
 
 import HeroComponents from "@/components/app/hero-components"
 import { sharedComponents } from "@/components/app/mdx-components"
@@ -35,6 +34,9 @@ import Star24 from "@/components/stars/s24"
 import Star28 from "@/components/stars/s28"
 import Star30 from "@/components/stars/s30"
 import Star31 from "@/components/stars/s31"
+import QuantaWave from "@/components/mascot/quanta-wave"
+import QuantaThink from "@/components/mascot/quanta-think"
+import QuantaMini from "@/components/mascot/quanta-mini"
 import SensexChart, { type SensexDataPoint } from "@/components/app/sensex-chart"
 import MarketTicker, { type MarketQuote } from "@/components/app/market-ticker"
 
@@ -154,6 +156,15 @@ export default async function Home() {
                 <ArrowUpRight className="md:size-[30px] size-5" />
               </Link>
             </HeroCTA>
+
+            {/* Quanta mascot — hero greeting */}
+            <div className="mt-10 md:mt-14 flex flex-col items-center gap-3 quanta-float">
+              <QuantaWave size={110} className="drop-shadow-lg" />
+              <div className="border-4 border-border bg-secondary-background px-4 py-2 shadow-shadow text-sm font-heading font-bold relative">
+                <span className="absolute -top-2 left-1/2 -translate-x-1/2 border-l-4 border-r-4 border-t-4 border-border w-0 h-0 border-l-transparent border-r-transparent border-t-secondary-background rotate-180" />
+                Hey! Ready to calculate? 📈
+              </div>
+            </div>
           </div>
         </div>
       </main>
@@ -173,7 +184,7 @@ export default async function Home() {
                 <span>CALCULATE</span>
                 <Star22 stroke="black" strokeWidth={6} color="var(--main)" />
                 <span>CAPITALIZE</span>
-                <Star11 className="text-foreground" />
+                <QuantaMini size={30} />
                 <span>QUANT CLUB</span>
                 <Star26 color="var(--main)" stroke="black" strokeWidth={7} />
               </div>
@@ -259,6 +270,13 @@ export default async function Home() {
             Check out our recent events and workshops in quantitative finance
           </p>
 
+          {events.length === 0 && (
+            <div className="mx-auto w-container max-w-full px-5 mt-12 flex flex-col items-center gap-4 py-12 border-4 border-border border-dashed text-foreground/50">
+              <CalendarDays className="size-10 opacity-40" />
+              <p className="font-heading font-bold text-lg">No events yet — stay tuned!</p>
+            </div>
+          )}
+
           {events.length > 0 && (
             <div className="mx-auto w-container max-w-full px-5 mt-12 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
               {events.map((event) => (
@@ -302,8 +320,7 @@ export default async function Home() {
 
         {/* CHARTS SECTION */}
 
-        {sensexData.length > 0 && (
-          <AnimatedSection>
+        <AnimatedSection>
           <section className="inset-0 flex relative overflow-hidden w-full px-5 flex-col items-center justify-center bg-secondary-background bg-[linear-gradient(to_right,#80808033_1px,transparent_1px),linear-gradient(to_bottom,#80808033_1px,transparent_1px)] bg-[size:70px_70px] z-0">
             <Star20
               color="var(--main)"
@@ -356,11 +373,16 @@ export default async function Home() {
                   />
                 </span>
               </h2>
-              <SensexChart data={sensexData} />
+              {sensexData.length > 0 ? (
+                <SensexChart data={sensexData} />
+              ) : (
+                <div className="flex flex-col items-center gap-3 py-16 border-4 border-border border-dashed text-foreground/50">
+                  <p className="font-heading font-bold">Market data unavailable — check back soon.</p>
+                </div>
+              )}
             </div>
           </section>
           </AnimatedSection>
-        )}
 
         {/* FAQ SECTION */}
 
@@ -368,6 +390,9 @@ export default async function Home() {
 
         <AnimatedSection>
         <section className="border-t-4 z-0 border-t-border border-b-4 border-b-border bg-background py-16 lg:py-[100px]">
+          <div className="flex flex-col items-center mb-6 quanta-bob">
+            <QuantaThink size={90} />
+          </div>
           <h2 className="sm:mb-20 mb-14 px-5 text-center">
             Frequently asked questions
           </h2>
@@ -432,7 +457,7 @@ export default async function Home() {
                 <span>CAPITALIZE</span>
                 <Star11 className="text-foreground" />
                 <span>QUANT CLUB</span>
-                <Star26 color="var(--main)" stroke="black" strokeWidth={7} />
+                <QuantaMini size={30} />
               </div>
             )
           })}

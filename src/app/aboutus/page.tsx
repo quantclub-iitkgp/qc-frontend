@@ -9,6 +9,7 @@ import {
 } from "@/components/app/page"
 import { FadeIn, FadeInStagger, FadeInItem } from "@/components/app/fade-in"
 import { getTeam, type TeamMember } from "@/lib/api"
+import QuantaCelebrate from "@/components/mascot/quanta-celebrate"
 
 function getInitials(name: string): string {
   return name
@@ -114,15 +115,24 @@ export default async function AboutUsPage() {
 
       {/* Team section */}
       <FadeIn>
-        <h2 className="text-2xl font-heading font-bold mb-6">Meet The Team</h2>
+        <div className="flex flex-col sm:flex-row items-center gap-6 mb-6">
+          <QuantaCelebrate size={100} />
+          <h2 className="text-2xl font-heading font-bold">Meet The Team</h2>
+        </div>
       </FadeIn>
-      <FadeInStagger className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 mb-16">
-        {teamMembers.map((member) => (
-          <FadeInItem key={member.id}>
-            <TeamMemberCard member={member} />
-          </FadeInItem>
-        ))}
-      </FadeInStagger>
+      {teamMembers.length === 0 ? (
+        <div className="flex flex-col items-center gap-4 py-16 mb-16 border-4 border-border border-dashed text-foreground/50">
+          <p className="font-heading font-bold text-lg">Team profiles coming soon!</p>
+        </div>
+      ) : (
+        <FadeInStagger className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 mb-16">
+          {teamMembers.map((member) => (
+            <FadeInItem key={member.id}>
+              <TeamMemberCard member={member} />
+            </FadeInItem>
+          ))}
+        </FadeInStagger>
+      )}
 
     </PageWrapper>
   )
