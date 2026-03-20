@@ -2,6 +2,26 @@
 
 import ReactMarkdown from "react-markdown"
 import remarkGfm from "remark-gfm"
+import type { ComponentPropsWithoutRef, ReactNode } from "react"
+
+function slugifyHeading(text: string): string {
+  return text
+    .toLowerCase()
+    .replace(/[^a-z0-9\s-]/g, "")
+    .trim()
+    .replace(/\s+/g, "-")
+}
+
+function headingId(children: ReactNode): string {
+  const text = typeof children === "string"
+    ? children
+    : Array.isArray(children)
+    ? children.map((c) => (typeof c === "string" ? c : "")).join("")
+    : ""
+  return slugifyHeading(text)
+}
+
+type HeadingProps = ComponentPropsWithoutRef<"h1">
 
 export function ContentRenderer({ body }: { body: string }) {
   return (
@@ -33,7 +53,14 @@ export function ContentRenderer({ body }: { body: string }) {
       // Strong
       "prose-strong:font-heading",
     ].join(" ")}>
-      <ReactMarkdown remarkPlugins={[remarkGfm]}>{body}</ReactMarkdown>
+      <ReactMarkdown
+        remarkPlugins={[remarkGfm]}
+        components={{
+          h1: ({ children, ...props }: HeadingProps) => <h1 id={headingId(children)} {...props}>{children}</h1>,
+          h2: ({ children, ...props }: HeadingProps) => <h2 id={headingId(children)} {...props}>{children}</h2>,
+          h3: ({ children, ...props }: HeadingProps) => <h3 id={headingId(children)} {...props}>{children}</h3>,
+        }}
+      >{body}</ReactMarkdown>
     </div>
   )
 }

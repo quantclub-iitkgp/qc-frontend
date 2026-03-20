@@ -1,4 +1,4 @@
 {
-  "soq-waitlist": true,
-  "soq-program": false
+  "soq-waitlist": false,
+  "soq-program": true
 }

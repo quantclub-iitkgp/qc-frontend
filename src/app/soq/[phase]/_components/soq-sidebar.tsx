@@ -3,7 +3,7 @@
 import { useState } from "react"
 import Link from "next/link"
 import { useParams } from "next/navigation"
-import { Search, Menu, Lock, BookOpen, ChevronDown, ChevronRight, LogOut } from "lucide-react"
+import { Search, Menu, Lock, BookOpen, ChevronDown, ChevronRight, LogOut, CheckCircle } from "lucide-react"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
@@ -13,9 +13,10 @@ interface Props {
   phases: SoQPhaseWithTopics[]
   enrolled: boolean
   userEmail?: string
+  completedTopicIds?: number[]
 }
 
-function SidebarContent({ phases, enrolled, userEmail }: Props) {
+function SidebarContent({ phases, enrolled, userEmail, completedTopicIds = [] }: Props) {
   const params = useParams<{ phase: string; topic?: string }>()
   const [searchQuery, setSearchQuery] = useState("")
   const [openPhases, setOpenPhases] = useState<Set<string>>(
@@ -118,7 +119,10 @@ function SidebarContent({ phases, enrolled, userEmail }: Props) {
                               : "text-foreground/70 hover:text-foreground hover:bg-secondary-background border-transparent hover:border-border"
                           }`}
                         >
-                          <span className="truncate">{topic.title}</span>
+                          <span className="truncate flex-1">{topic.title}</span>
+                          {completedTopicIds.includes(topic.id) && (
+                            <CheckCircle className={`h-3.5 w-3.5 shrink-0 ${isActive ? "text-main-foreground/70" : "text-main"}`} />
+                          )}
                         </Link>
                       </li>
                     )
