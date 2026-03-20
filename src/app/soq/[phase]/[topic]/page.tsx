@@ -1,10 +1,10 @@
 import { notFound } from "next/navigation"
 import Link from "next/link"
-import { ArrowLeft } from "lucide-react"
+import { Lock } from "lucide-react"
 import { getTopicContent, checkEnrollment } from "@/lib/soq-api"
 import { ContentRenderer } from "../../_components/content-renderer"
-import { EnrollmentGate } from "../../_components/enrollment-gate"
-import { Card, CardContent } from "@/components/ui/card"
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
+import { Button } from "@/components/ui/button"
 
 interface Props {
   params: Promise<{ phase: string; topic: string }>
@@ -18,38 +18,53 @@ export default async function TopicPage({ params }: Props) {
   const { topic, content } = result
   const enrolled = await checkEnrollment()
 
-  if (!enrolled) return <EnrollmentGate />
-
   return (
-    <div className="pt-[70px] pb-16 bg-background bg-[linear-gradient(to_right,#80808033_1px,transparent_1px),linear-gradient(to_bottom,#80808033_1px,transparent_1px)] bg-[size:70px_70px] min-h-dvh">
-      <div className="container max-w-3xl mx-auto px-5 py-12">
-
-        <Link href={`/soq/${phaseSlug}`} className="inline-flex items-center gap-2 text-sm text-foreground/60 hover:text-foreground mb-8 transition-colors group">
-          <ArrowLeft className="h-4 w-4 transition-transform group-hover:-translate-x-1" />
-          Back to phase
-        </Link>
-
-        <div className="mb-8">
-          <h1 className="text-3xl md:text-4xl font-heading font-bold tracking-tight mb-3">
-            {topic.title}
-          </h1>
-          {topic.description && (
-            <p className="text-lg text-foreground/60 leading-relaxed">{topic.description}</p>
-          )}
-        </div>
-
-        <Card className="border-4 border-border shadow-shadow">
-          <CardContent className="pt-8 pb-8 px-6 md:px-8">
-            {content ? (
-              <ContentRenderer body={content.body} />
-            ) : (
-              <div className="py-12 text-center text-foreground/40 font-base">
-                Content for this topic is being prepared. Check back soon.
+    <div className="px-6 md:px-10 py-10 max-w-3xl mx-auto">
+      {!enrolled ? (
+        <div className="flex items-center justify-center min-h-[50vh]">
+          <Card className="border-4 border-border shadow-shadow max-w-md w-full text-center">
+            <CardHeader>
+              <div className="flex justify-center mb-4">
+                <div className="flex h-14 w-14 items-center justify-center rounded-base border-4 border-border bg-main shadow-shadow">
+                  <Lock className="h-7 w-7 text-main-foreground" />
+                </div>
               </div>
+              <CardTitle className="text-xl font-heading">Enrollment Required</CardTitle>
+              <CardDescription className="text-foreground/60">
+                This content is available to enrolled SoQ participants only.
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              <Link href="/soq/login">
+                <Button variant="neutral" className="w-full">Sign In</Button>
+              </Link>
+            </CardContent>
+          </Card>
+        </div>
+      ) : (
+        <>
+          <div className="mb-8">
+            <h1 className="text-3xl md:text-4xl font-heading font-bold tracking-tight mb-3">
+              {topic.title}
+            </h1>
+            {topic.description && (
+              <p className="text-lg text-foreground/60 leading-relaxed">{topic.description}</p>
             )}
-          </CardContent>
-        </Card>
-      </div>
+          </div>
+
+          <Card className="border-4 border-border shadow-shadow">
+            <CardContent className="pt-8 pb-8 px-6 md:px-8">
+              {content ? (
+                <ContentRenderer body={content.body} />
+              ) : (
+                <div className="py-12 text-center text-foreground/40 font-base">
+                  Content for this topic is being prepared. Check back soon.
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        </>
+      )}
     </div>
   )
 }

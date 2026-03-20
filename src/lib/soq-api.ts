@@ -47,6 +47,24 @@ function topicFromRow(row: any): SoQTopic {
   }
 }
 
+export type SoQPhaseWithTopics = SoQPhase & { topics: SoQTopic[] }
+
+export async function getAllPhasesWithTopics(): Promise<SoQPhaseWithTopics[]> {
+  const { data, error } = await getSupabaseClient()
+    .from("soq_phases")
+    .select("*, soq_topics(*)")
+    .eq("is_published", true)
+    .eq("soq_topics.is_published", true)
+    .order("order_index", { ascending: true })
+    .order("order_index", { referencedTable: "soq_topics", ascending: true })
+  if (error) throw new Error(error.message)
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  return (data ?? []).map((row: any) => ({
+    ...phaseFromRow(row),
+    topics: (row.soq_topics ?? []).map(topicFromRow),
+  }))
+}
+
 // Uses anon client — phases/topics are publicly readable (RLS: is_published = true)
 export async function getPublishedPhases(): Promise<SoQPhase[]> {
   const { data, error } = await getSupabaseClient()
