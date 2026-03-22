@@ -114,12 +114,12 @@ export default async function Home() {
   return (
     <div className="text-foreground font-base prose-headings:font-heading prose-h1:2xl:text-6xl prose-h1:xl:text-5xl prose-h1:md:text-5xl prose-h1:sm:text-[33px] prose-h1:text-2xl prose-h2:2xl:text-4xl prose-h2:lg:text-4xl prose-h2:md:text-3xl prose-h2:text-2xl prose-h3:2xl:text-4xl prose-h3:xl:text-3xl prose-h3:lg:text-3xl prose-h3:md:text-2xl prose-h3:sm:text-xl">
       <main className="relative flex min-h-[100dvh] flex-col overflow-hidden items-center justify-center bg-background px-5 md:py-[200px] py-[100px] bg-[linear-gradient(to_right,#80808033_1px,transparent_1px),linear-gradient(to_bottom,#80808033_1px,transparent_1px)] bg-[size:70px_70px]">
-        <HeroComponents className="xl:-left-[130px] md:-left-[200px] lg:block hidden" />
+        <HeroComponents className="xl:-left-[130px] md:-left-[200px] lg:block hidden z-0" />
         <HeroComponents
-          className="xl:-right-[130px] md:-right-[200px] lg:block hidden"
+          className="xl:-right-[130px] md:-right-[200px] lg:block hidden z-0"
           reverse
         />
-        <div className="mx-auto w-container max-w-full">
+        <div className="mx-auto w-container max-w-full relative z-10">
           <div className="flex flex-col items-center text-center">
             <HeroHeading>
               <h1 className="leading-normal">
@@ -142,9 +142,9 @@ export default async function Home() {
             </HeroHeading>
 
             <HeroSubtitle>
-              <p className="leading-snug w-full md:mt-[50px] md:mb-[30px] sm:mt-12 my-9 sm:mb-10 2xl:text-3xl xl:text-2xl lg:text-2xl xl:w-full lg:w-2/3 md:w-full md:text-2xl sm:text-xl text-xl">
-                Where mathematics meets markets — explore quant research, trading strategies, and financial algorithms from IIT Kharagpur.
-              </p>
+            <p className="leading-snug w-1/2 mx-auto md:mt-[50px] md:mb-[30px] sm:mt-12 my-9 sm:mb-10 2xl:text-3xl xl:text-2xl lg:text-2xl md:text-2xl sm:text-xl text-xl">
+  Where mathematics meets markets — explore quant research, trading strategies, and financial algorithms from IIT Kharagpur.
+</p>
             </HeroSubtitle>
 
             <HeroCTA>
