@@ -10,15 +10,13 @@ import { AnimatedBlogHeader, AnimatedBlogBadge } from "@/components/app/blog-hea
 import { FadeIn } from "@/components/app/fade-in"
 import PDFViewerWrapper from "@/components/app/pdf-viewer-wrapper"
 
+// Always render on request so admin edits in Supabase appear immediately (no redeploy).
+export const dynamic = "force-dynamic"
+
 interface WhitepaperPageProps {
   params: Promise<{
     slug: string[]
   }>
-}
-
-export async function generateStaticParams(): Promise<{ slug: string[] }[]> {
-  const wps = await getWhitepapers()
-  return [{ slug: [] }, ...wps.map((wp) => ({ slug: [wp.slug] }))]
 }
 
 export async function generateMetadata(props: WhitepaperPageProps): Promise<Metadata> {

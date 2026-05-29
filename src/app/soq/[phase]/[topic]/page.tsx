@@ -3,7 +3,7 @@ import Link from "next/link"
 import { ChevronRight, ArrowLeft, ArrowRight, Clock, Lock } from "lucide-react"
 import type { Metadata } from "next"
 import GithubSlugger from "github-slugger"
-import { getTopicContent, checkEnrollment, getAllPhasesWithTopics } from "@/lib/soq-api"
+import { getTopicContent, checkEnrollment, getAllPhasesWithTopics, getCurrentUser } from "@/lib/soq-api"
 import type { SoQPhaseWithTopics } from "@/lib/soq-api"
 import { ContentRenderer } from "../../_components/content-renderer"
 import { TopicVisitTracker } from "../../_components/topic-visit-tracker"
@@ -74,16 +74,17 @@ function extractTOC(body: string) {
 export default async function TopicPage({ params }: Props) {
   const { phase: phaseSlug, topic: topicSlug } = await params
 
+  const user = await getCurrentUser()
   const [result, allPhases, enrolled] = await Promise.all([
     getTopicContent(phaseSlug, topicSlug),
     getAllPhasesWithTopics(),
-    checkEnrollment(),
+    checkEnrollment(user),
   ])
 
   // Auto-mark as complete when user views the topic
   if (enrolled && result) {
     const { markTopicComplete } = await import("@/lib/soq-api")
-    await markTopicComplete(result.topic.id)
+    await markTopicComplete(result.topic.id, user)
   }
   if (!result) notFound()
 

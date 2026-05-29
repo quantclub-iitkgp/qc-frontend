@@ -1,3 +1,5 @@
+import { unstable_cache } from "next/cache"
+import type { User } from "@supabase/supabase-js"
 import { createClient } from "@/lib/supabase/server"
 import { getSupabaseClient } from "@/lib/supabase"
 
@@ -51,21 +53,26 @@ function topicFromRow(row: any): SoQTopic {
 
 export type SoQPhaseWithTopics = SoQPhase & { topics: SoQTopic[] }
 
-export async function getAllPhasesWithTopics(): Promise<SoQPhaseWithTopics[]> {
-  const { data, error } = await getSupabaseClient()
-    .from("soq_phases")
-    .select("*, soq_topics(*)")
-    .eq("is_published", true)
-    .eq("soq_topics.is_published", true)
-    .order("order_index", { ascending: true })
-    .order("order_index", { referencedTable: "soq_topics", ascending: true })
-  if (error) throw new Error(error.message)
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  return (data ?? []).map((row: any) => ({
-    ...phaseFromRow(row),
-    topics: (row.soq_topics ?? []).map(topicFromRow),
-  }))
-}
+// Public, rarely-changes data — cached across requests. Bust with revalidateTag("soq-phases") from admin actions.
+export const getAllPhasesWithTopics = unstable_cache(
+  async (): Promise<SoQPhaseWithTopics[]> => {
+    const { data, error } = await getSupabaseClient()
+      .from("soq_phases")
+      .select("*, soq_topics(*)")
+      .eq("is_published", true)
+      .eq("soq_topics.is_published", true)
+      .order("order_index", { ascending: true })
+      .order("order_index", { referencedTable: "soq_topics", ascending: true })
+    if (error) throw new Error(error.message)
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    return (data ?? []).map((row: any) => ({
+      ...phaseFromRow(row),
+      topics: (row.soq_topics ?? []).map(topicFromRow),
+    }))
+  },
+  ["soq-phases-with-topics"],
+  { revalidate: 300, tags: ["soq-phases"] },
+)
 
 // Uses anon client — phases/topics are publicly readable (RLS: is_published = true)
 export async function getPublishedPhases(): Promise<SoQPhase[]> {
@@ -130,24 +137,8 @@ export async function getTopicContent(
   }
 }
 
-// Check if the current authenticated user is enrolled
-export async function checkEnrollment(): Promise<boolean> {
-  const supabase = await createClient()
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
-  if (!user) return false
-
-  const { data } = await supabase
-    .from("soq_enrollments")
-    .select("id")
-    .eq("user_id", user.id)
-    .single()
-
-  return !!data
-}
-
-export async function getCurrentUser() {
+// Single source of truth for the current user — call once per request, pass to other helpers.
+export async function getCurrentUser(): Promise<User | null> {
   const supabase = await createClient()
   const {
     data: { user },
@@ -155,45 +146,60 @@ export async function getCurrentUser() {
   return user
 }
 
-// Returns topic IDs the current user has completed
-export async function getUserProgress(): Promise<number[]> {
+// Check if a given user (or the current authenticated user) is enrolled.
+export async function checkEnrollment(user?: User | null): Promise<boolean> {
   const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
-  if (!user) return []
+  const resolvedUser = user ?? (await supabase.auth.getUser()).data.user
+  if (!resolvedUser) return false
+
+  const { data } = await supabase
+    .from("soq_enrollments")
+    .select("id")
+    .eq("user_id", resolvedUser.id)
+    .single()
+
+  return !!data
+}
+
+// Returns topic IDs the user has completed
+export async function getUserProgress(user?: User | null): Promise<number[]> {
+  const supabase = await createClient()
+  const resolvedUser = user ?? (await supabase.auth.getUser()).data.user
+  if (!resolvedUser) return []
 
   const { data } = await supabase
     .from("soq_progress")
     .select("topic_id")
-    .eq("user_id", user.id)
+    .eq("user_id", resolvedUser.id)
 
   return (data ?? []).map((r: { topic_id: number }) => r.topic_id)
 }
 
 // Marks a topic as completed for the current user (idempotent)
-export async function markTopicComplete(topicId: number): Promise<void> {
+export async function markTopicComplete(topicId: number, user?: User | null): Promise<void> {
   const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
-  if (!user) return
+  const resolvedUser = user ?? (await supabase.auth.getUser()).data.user
+  if (!resolvedUser) return
 
   await supabase
     .from("soq_progress")
-    .upsert({ user_id: user.id, topic_id: topicId }, { onConflict: "user_id,topic_id", ignoreDuplicates: true })
+    .upsert({ user_id: resolvedUser.id, topic_id: topicId }, { onConflict: "user_id,topic_id", ignoreDuplicates: true })
 }
 
-// Returns the most recently visited topic for the current user
-export async function getLastVisitedTopic(): Promise<{
+// Returns the most recently visited topic for the user
+export async function getLastVisitedTopic(user?: User | null): Promise<{
   phaseSlug: string
   topicSlug: string
   topicTitle: string
 } | null> {
   const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
-  if (!user) return null
+  const resolvedUser = user ?? (await supabase.auth.getUser()).data.user
+  if (!resolvedUser) return null
 
   const { data } = await supabase
     .from("soq_progress")
     .select("topic_id, soq_topics(slug, title, soq_phases(slug))")
-    .eq("user_id", user.id)
+    .eq("user_id", resolvedUser.id)
     .order("topic_id", { ascending: false })
     .limit(1)
     .single()

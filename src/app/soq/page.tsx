@@ -2,7 +2,13 @@ import { notFound } from "next/navigation"
 import { isFeatureEnabled } from "@/lib/featureFlags"
 import { SoQWaitlistPage } from "./_components/soq-waitlist-page"
 import { SoQProgramLanding } from "./_components/soq-program-landing"
-import { getAllPhasesWithTopics, getCurrentUser, getUserProgress, getLastVisitedTopic } from "@/lib/soq-api"
+import {
+  getAllPhasesWithTopics,
+  getCurrentUser,
+  getUserProgress,
+  getLastVisitedTopic,
+  checkEnrollment,
+} from "@/lib/soq-api"
 
 export const metadata = {
   title: "Summer of Quant | Quant Club IIT KGP",
@@ -16,17 +22,37 @@ export default async function SoQPage() {
 
   if (!waitlistEnabled && !programEnabled) notFound()
 
+  // When program is on, gate access by enrollment.
   if (programEnabled) {
-    const [phasesWithTopics, user] = await Promise.all([getAllPhasesWithTopics(), getCurrentUser()])
-    const [completedTopicIds, lastVisited] = user
-      ? await Promise.all([getUserProgress(), getLastVisitedTopic()])
-      : [[], null]
+    const user = await getCurrentUser()
+
+    // Run all subsequent reads in parallel — they share the cached user.
+    const [enrolled, phasesWithTopics, completedTopicIds, lastVisited] = await Promise.all([
+      checkEnrollment(user),
+      getAllPhasesWithTopics(),
+      user ? getUserProgress(user) : Promise.resolve<number[]>([]),
+      user ? getLastVisitedTopic(user) : Promise.resolve(null),
+    ])
+
+    if (enrolled) {
+      return (
+        <SoQProgramLanding
+          phases={phasesWithTopics}
+          userEmail={user?.email ?? null}
+          completedTopicIds={completedTopicIds}
+          lastVisited={lastVisited}
+        />
+      )
+    }
+
+    if (waitlistEnabled) return <SoQWaitlistPage />
+
     return (
       <SoQProgramLanding
         phases={phasesWithTopics}
         userEmail={user?.email ?? null}
-        completedTopicIds={completedTopicIds}
-        lastVisited={lastVisited}
+        completedTopicIds={[]}
+        lastVisited={null}
       />
     )
   }

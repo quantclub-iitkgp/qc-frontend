@@ -2,18 +2,15 @@
 
 import { useMemo } from "react"
 import { motion } from "framer-motion"
-import { ArrowRight, TrendingUp, BarChart4, LineChart, Sigma, LogOut, Trophy, Clock } from "lucide-react"
+import { ArrowRight, TrendingUp, LineChart, LogOut, Trophy, Clock } from "lucide-react"
 import Link from "next/link"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import type { SoQPhaseWithTopics } from "@/lib/soq-api"
 
 import Star1 from "@/examples/stars/s1"
-import Star6 from "@/examples/stars/s6"
 import Star13 from "@/examples/stars/s13"
-import Star21 from "@/examples/stars/s21"
 import Star29 from "@/examples/stars/s29"
-import Star32 from "@/examples/stars/s32"
 import React from "react"
 
 const AnimatedStar = ({
@@ -46,9 +43,9 @@ const FloatingIcon = ({ icon: Icon, top, left, delay = 0 }: { icon: React.Elemen
 
 const ParticleBackground = () => {
   const particles = useMemo(
-    () => Array.from({ length: 20 }, (_, i) => ({
-      id: i, x: `${(i * 7 + 13) % 100}%`, y: `${(i * 11 + 37) % 100}%`,
-      size: ((i * 3 + 61) % 8) + 4, duration: 15 + (i % 12),
+    () => Array.from({ length: 5 }, (_, i) => ({
+      id: i, x: `${(i * 19 + 13) % 100}%`, y: `${(i * 23 + 37) % 100}%`,
+      size: ((i * 3 + 5) % 6) + 4, duration: 18 + i * 2,
     })), [],
   )
   return (
@@ -57,7 +54,7 @@ const ParticleBackground = () => {
         <motion.div key={p.id} className="absolute rounded-full bg-main opacity-10"
           style={{ width: p.size, height: p.size, left: p.x, top: p.y }}
           animate={{ y: [0, -30, 0], opacity: [0.1, 0.2, 0.1] }}
-          transition={{ duration: p.duration, repeat: Infinity, ease: "easeInOut", delay: (p.id % 5) * 0.8 }} />
+          transition={{ duration: p.duration, repeat: Infinity, ease: "easeInOut", delay: p.id * 1.2 }} />
       ))}
     </div>
   )
@@ -80,18 +77,13 @@ export function SoQProgramLanding({ phases, userEmail, completedTopicIds, lastVi
     <div className="pt-[70px] pb-16 bg-background bg-[linear-gradient(to_right,#80808033_1px,transparent_1px),linear-gradient(to_bottom,#80808033_1px,transparent_1px)] bg-[size:70px_70px] min-h-dvh">
       <div className="container max-w-6xl mx-auto relative px-5 py-12">
         <div className="absolute inset-0 overflow-hidden pointer-events-none z-0">
-          <AnimatedStar StarComponent={Star1}  size={24} color="var(--color-main)" initialX="5%"  initialY="10%" animateY={-20} duration={8} />
-          <AnimatedStar StarComponent={Star6}  size={30} color="var(--color-main)" initialX="15%" initialY="40%" animateY={30}  duration={12} delay={2} />
-          <AnimatedStar StarComponent={Star13} size={28} color="var(--color-main)" initialX="80%" initialY="20%" animateY={-15} duration={9}  delay={1} />
-          <AnimatedStar StarComponent={Star21} size={22} color="var(--color-main)" initialX="60%" initialY="65%" animateY={20}  duration={11} />
-          <AnimatedStar StarComponent={Star29} size={32} color="var(--color-main)" initialX="90%" initialY="50%" animateY={-20} duration={10} delay={2} />
-          <AnimatedStar StarComponent={Star32} size={20} color="var(--color-main)" initialX="45%" initialY="80%" animateY={-25} duration={8}  delay={1.5} />
+          <AnimatedStar StarComponent={Star1}  size={24} color="var(--color-main)" initialX="6%"  initialY="14%" animateY={-20} duration={10} />
+          <AnimatedStar StarComponent={Star13} size={28} color="var(--color-main)" initialX="78%" initialY="22%" animateY={-15} duration={11} delay={1.5} />
+          <AnimatedStar StarComponent={Star29} size={30} color="var(--color-main)" initialX="88%" initialY="56%" animateY={-15} duration={12} delay={2} />
         </div>
         <ParticleBackground />
-        <FloatingIcon icon={TrendingUp} top="12%" left="8%"  delay={0} />
-        <FloatingIcon icon={BarChart4}  top="70%" left="88%" delay={1} />
-        <FloatingIcon icon={LineChart}  top="35%" left="82%" delay={2} />
-        <FloatingIcon icon={Sigma}      top="55%" left="3%"  delay={1.5} />
+        <FloatingIcon icon={TrendingUp} top="14%" left="6%"  delay={0} />
+        <FloatingIcon icon={LineChart}  top="56%" left="92%" delay={2} />
 
         {/* Header row */}
         <div className="relative z-10 flex items-start justify-between mb-12">

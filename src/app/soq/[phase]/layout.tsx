@@ -10,12 +10,12 @@ import { SoQScrollToTop } from "../_components/soq-scroll-to-top"
 export default async function PhaseLayout({ children }: { children: React.ReactNode }) {
   if (!isFeatureEnabled("soq-program")) notFound()
 
-  const [phases, enrolled, user] = await Promise.all([
+  const user = await getCurrentUser()
+  const [phases, enrolled] = await Promise.all([
     getAllPhasesWithTopics(),
-    checkEnrollment(),
-    getCurrentUser(),
+    checkEnrollment(user),
   ])
-  const completedTopicIds = enrolled ? await getUserProgress() : []
+  const completedTopicIds = enrolled ? await getUserProgress(user) : []
 
   return (
     <SoQProgressProvider>

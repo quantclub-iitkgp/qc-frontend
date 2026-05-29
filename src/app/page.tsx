@@ -1,3 +1,6 @@
+// Always render on request so admin edits in Supabase appear immediately (no redeploy).
+export const dynamic = "force-dynamic"
+
 import { Marquee } from "@devnomic/marquee"
 import { ArrowUpRight, CalendarDays } from "lucide-react"
 

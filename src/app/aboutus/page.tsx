@@ -1,3 +1,6 @@
+// Always render on request so admin edits in Supabase appear immediately (no redeploy).
+export const dynamic = "force-dynamic"
+
 import Link from "next/link"
 import { Github, Twitter, Linkedin } from "lucide-react"
 

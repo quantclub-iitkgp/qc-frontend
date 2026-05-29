@@ -1,4 +1,5 @@
-export const revalidate = 3600 // revalidate every hour
+// Always render on request so admin edits in Supabase appear immediately (no redeploy).
+export const dynamic = "force-dynamic"
 
 import "@/styling/code.css"
 import "katex/dist/katex.min.css"
