@@ -1,4 +1,3 @@
-import { unstable_cache } from "next/cache"
 import type { User } from "@supabase/supabase-js"
 import { createClient } from "@/lib/supabase/server"
 import { getSupabaseClient } from "@/lib/supabase"
@@ -53,26 +52,23 @@ function topicFromRow(row: any): SoQTopic {
 
 export type SoQPhaseWithTopics = SoQPhase & { topics: SoQTopic[] }
 
-// Public, rarely-changes data — cached across requests. Bust with revalidateTag("soq-phases") from admin actions.
-export const getAllPhasesWithTopics = unstable_cache(
-  async (): Promise<SoQPhaseWithTopics[]> => {
-    const { data, error } = await getSupabaseClient()
-      .from("soq_phases")
-      .select("*, soq_topics(*)")
-      .eq("is_published", true)
-      .eq("soq_topics.is_published", true)
-      .order("order_index", { ascending: true })
-      .order("order_index", { referencedTable: "soq_topics", ascending: true })
-    if (error) throw new Error(error.message)
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    return (data ?? []).map((row: any) => ({
-      ...phaseFromRow(row),
-      topics: (row.soq_topics ?? []).map(topicFromRow),
-    }))
-  },
-  ["soq-phases-with-topics"],
-  { revalidate: 300, tags: ["soq-phases"] },
-)
+// Public, rarely-changes data. Pages that call this render dynamically (they read
+// auth cookies), so it queries Supabase live per request — admin edits show instantly.
+export async function getAllPhasesWithTopics(): Promise<SoQPhaseWithTopics[]> {
+  const { data, error } = await getSupabaseClient()
+    .from("soq_phases")
+    .select("*, soq_topics(*)")
+    .eq("is_published", true)
+    .eq("soq_topics.is_published", true)
+    .order("order_index", { ascending: true })
+    .order("order_index", { referencedTable: "soq_topics", ascending: true })
+  if (error) throw new Error(error.message)
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  return (data ?? []).map((row: any) => ({
+    ...phaseFromRow(row),
+    topics: (row.soq_topics ?? []).map(topicFromRow),
+  }))
+}
 
 // Uses anon client — phases/topics are publicly readable (RLS: is_published = true)
 export async function getPublishedPhases(): Promise<SoQPhase[]> {
