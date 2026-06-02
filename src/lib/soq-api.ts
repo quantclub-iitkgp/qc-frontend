@@ -1,3 +1,5 @@
+import { cache } from "react"
+import { unstable_cache } from "next/cache"
 import type { User } from "@supabase/supabase-js"
 import { createClient } from "@/lib/supabase/server"
 import { getSupabaseClient } from "@/lib/supabase"
@@ -26,6 +28,11 @@ export type SoQContent = {
   body: string
 }
 
+// Cache tag for all public, published SoQ structure (phases + topics). Admin tooling
+// should POST /api/revalidate?tag=soq-structure after edits so changes appear instantly
+// without forcing every visitor's navigation to re-query Supabase.
+export const SOQ_STRUCTURE_TAG = "soq-structure"
+
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 function phaseFromRow(row: any): SoQPhase {
   return {
@@ -52,102 +59,103 @@ function topicFromRow(row: any): SoQTopic {
 
 export type SoQPhaseWithTopics = SoQPhase & { topics: SoQTopic[] }
 
-// Public, rarely-changes data. Pages that call this render dynamically (they read
-// auth cookies), so it queries Supabase live per request — admin edits show instantly.
-export async function getAllPhasesWithTopics(): Promise<SoQPhaseWithTopics[]> {
-  const { data, error } = await getSupabaseClient()
-    .from("soq_phases")
-    .select("*, soq_topics(*)")
-    .eq("is_published", true)
-    .eq("soq_topics.is_published", true)
-    .order("order_index", { ascending: true })
-    .order("order_index", { referencedTable: "soq_topics", ascending: true })
-  if (error) throw new Error(error.message)
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  return (data ?? []).map((row: any) => ({
-    ...phaseFromRow(row),
-    topics: (row.soq_topics ?? []).map(topicFromRow),
-  }))
-}
+// Public, rarely-changing data fetched via the anon client (no cookies → safe to cache).
+// Cached across requests (tag-invalidated on admin edit) AND deduped within a request, so
+// the layout, the page, and generateMetadata all share a single Supabase round-trip.
+export const getAllPhasesWithTopics = unstable_cache(
+  async (): Promise<SoQPhaseWithTopics[]> => {
+    const { data, error } = await getSupabaseClient()
+      .from("soq_phases")
+      .select("*, soq_topics(*)")
+      .eq("is_published", true)
+      .eq("soq_topics.is_published", true)
+      .order("order_index", { ascending: true })
+      .order("order_index", { referencedTable: "soq_topics", ascending: true })
+    if (error) throw new Error(error.message)
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    return (data ?? []).map((row: any) => ({
+      ...phaseFromRow(row),
+      topics: (row.soq_topics ?? []).map(topicFromRow),
+    }))
+  },
+  ["soq-all-phases-with-topics"],
+  { tags: [SOQ_STRUCTURE_TAG], revalidate: 3600 },
+)
 
-// Uses anon client — phases/topics are publicly readable (RLS: is_published = true)
-export async function getPublishedPhases(): Promise<SoQPhase[]> {
-  const { data, error } = await getSupabaseClient()
-    .from("soq_phases")
-    .select("*")
-    .eq("is_published", true)
-    .order("order_index", { ascending: true })
-  if (error) throw new Error(error.message)
-  return (data ?? []).map(phaseFromRow)
-}
+// Uses anon client — phases are publicly readable (RLS: is_published = true).
+export const getPublishedPhases = unstable_cache(
+  async (): Promise<SoQPhase[]> => {
+    const { data, error } = await getSupabaseClient()
+      .from("soq_phases")
+      .select("*")
+      .eq("is_published", true)
+      .order("order_index", { ascending: true })
+    if (error) throw new Error(error.message)
+    return (data ?? []).map(phaseFromRow)
+  },
+  ["soq-published-phases"],
+  { tags: [SOQ_STRUCTURE_TAG], revalidate: 3600 },
+)
 
-export async function getPhaseWithTopics(
-  phaseSlug: string,
-): Promise<{ phase: SoQPhase; topics: SoQTopic[] } | null> {
-  const { data: phaseData, error: phaseError } = await getSupabaseClient()
-    .from("soq_phases")
-    .select("*")
-    .eq("slug", phaseSlug)
-    .eq("is_published", true)
-    .single()
-  if (phaseError || !phaseData) return null
+// Derived from the cached structure — no extra Supabase queries.
+export const getPhaseWithTopics = cache(
+  async (
+    phaseSlug: string,
+  ): Promise<{ phase: SoQPhase; topics: SoQTopic[] } | null> => {
+    const all = await getAllPhasesWithTopics()
+    const phase = all.find((p) => p.slug === phaseSlug)
+    if (!phase) return null
+    const { topics, ...phaseFields } = phase
+    return { phase: phaseFields, topics }
+  },
+)
 
-  const phase = phaseFromRow(phaseData)
+// Topic metadata comes from the cached structure (0 queries); only the gated content body
+// hits Supabase via the authenticated SSR client (RLS: enrolled users only). Deduped per
+// request so the page and generateMetadata don't fetch the body twice.
+export const getTopicContent = cache(
+  async (
+    phaseSlug: string,
+    topicSlug: string,
+  ): Promise<{ topic: SoQTopic; content: SoQContent | null } | null> => {
+    const all = await getAllPhasesWithTopics()
+    const phase = all.find((p) => p.slug === phaseSlug)
+    const topic = phase?.topics.find((t) => t.slug === topicSlug)
+    if (!topic) return null
 
-  const { data: topicsData, error: topicsError } = await getSupabaseClient()
-    .from("soq_topics")
-    .select("*")
-    .eq("phase_id", phase.id)
-    .eq("is_published", true)
-    .order("order_index", { ascending: true })
-  if (topicsError) return null
+    const supabase = await createClient()
+    const { data, error } = await supabase
+      .from("soq_content")
+      .select("*")
+      .eq("topic_id", topic.id)
+      .single()
 
-  return { phase, topics: (topicsData ?? []).map(topicFromRow) }
-}
+    if (error || !data) return { topic, content: null }
 
-// Uses SSR server client — content requires authenticated + enrolled user (RLS enforced in DB)
-export async function getTopicContent(
-  phaseSlug: string,
-  topicSlug: string,
-): Promise<{ topic: SoQTopic; content: SoQContent | null } | null> {
-  // Get topic via anon (published check)
-  const phaseResult = await getPhaseWithTopics(phaseSlug)
-  if (!phaseResult) return null
+    return {
+      topic,
+      content: { id: data.id, topicId: data.topic_id, body: data.body },
+    }
+  },
+)
 
-  const topic = phaseResult.topics.find((t) => t.slug === topicSlug)
-  if (!topic) return null
-
-  // Get content via authenticated server client (RLS: enrolled users only)
-  const supabase = await createClient()
-  const { data, error } = await supabase
-    .from("soq_content")
-    .select("*")
-    .eq("topic_id", topic.id)
-    .single()
-
-  if (error || !data) return { topic, content: null }
-
-  return {
-    topic,
-    content: { id: data.id, topicId: data.topic_id, body: data.body },
-  }
-}
-
-// Single source of truth for the current user — call once per request, pass to other helpers.
-export async function getCurrentUser(): Promise<User | null> {
+// Single source of truth for the current user — deduped per request so the layout, page,
+// generateMetadata, and the user-scoped helpers below share one auth round-trip.
+export const getCurrentUser = cache(async (): Promise<User | null> => {
   const supabase = await createClient()
   const {
     data: { user },
   } = await supabase.auth.getUser()
   return user
-}
+})
 
-// Check if a given user (or the current authenticated user) is enrolled.
-export async function checkEnrollment(user?: User | null): Promise<boolean> {
-  const supabase = await createClient()
-  const resolvedUser = user ?? (await supabase.auth.getUser()).data.user
+// Check if a given user (or the current authenticated user) is enrolled. Deduped per
+// request when called with the same resolved user reference.
+export const checkEnrollment = cache(async (user?: User | null): Promise<boolean> => {
+  const resolvedUser = user ?? (await getCurrentUser())
   if (!resolvedUser) return false
 
+  const supabase = await createClient()
   const { data } = await supabase
     .from("soq_enrollments")
     .select("id")
@@ -155,23 +163,25 @@ export async function checkEnrollment(user?: User | null): Promise<boolean> {
     .single()
 
   return !!data
-}
+})
 
-// Returns topic IDs the user has completed
-export async function getUserProgress(user?: User | null): Promise<number[]> {
-  const supabase = await createClient()
-  const resolvedUser = user ?? (await supabase.auth.getUser()).data.user
+// Returns topic IDs the user has completed. Deduped per request.
+export const getUserProgress = cache(async (user?: User | null): Promise<number[]> => {
+  const resolvedUser = user ?? (await getCurrentUser())
   if (!resolvedUser) return []
 
+  const supabase = await createClient()
   const { data } = await supabase
     .from("soq_progress")
     .select("topic_id")
     .eq("user_id", resolvedUser.id)
 
   return (data ?? []).map((r: { topic_id: number }) => r.topic_id)
-}
+})
 
-// Marks a topic as completed for the current user (idempotent)
+// Marks a topic as completed for the current user (idempotent). This is a write, so it must
+// never run on the render/navigation critical path — call it from a server action triggered
+// client-side after the content has already painted (see topic-visit-tracker.tsx).
 export async function markTopicComplete(topicId: number, user?: User | null): Promise<void> {
   const supabase = await createClient()
   const resolvedUser = user ?? (await supabase.auth.getUser()).data.user
@@ -183,15 +193,15 @@ export async function markTopicComplete(topicId: number, user?: User | null): Pr
 }
 
 // Returns the most recently visited topic for the user
-export async function getLastVisitedTopic(user?: User | null): Promise<{
+export const getLastVisitedTopic = cache(async (user?: User | null): Promise<{
   phaseSlug: string
   topicSlug: string
   topicTitle: string
-} | null> {
-  const supabase = await createClient()
-  const resolvedUser = user ?? (await supabase.auth.getUser()).data.user
+} | null> => {
+  const resolvedUser = user ?? (await getCurrentUser())
   if (!resolvedUser) return null
 
+  const supabase = await createClient()
   const { data } = await supabase
     .from("soq_progress")
     .select("topic_id, soq_topics(slug, title, soq_phases(slug))")
@@ -209,4 +219,4 @@ export async function getLastVisitedTopic(user?: User | null): Promise<{
   if (!phase) return null
 
   return { phaseSlug: phase.slug, topicSlug: topic.slug, topicTitle: topic.title }
-}
+})
