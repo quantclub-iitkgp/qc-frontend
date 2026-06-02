@@ -1,0 +1,3 @@
+# Generated load-test reports — keep the directory, ignore its contents.
+*
+!.gitignore
