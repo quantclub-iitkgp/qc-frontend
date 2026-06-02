@@ -1,7 +1,7 @@
 "use client"
 
 import { useMemo } from "react"
-import { motion } from "framer-motion"
+import { motion, useReducedMotion } from "framer-motion"
 import { ArrowRight, TrendingUp, LineChart, LogOut, Trophy, Clock } from "lucide-react"
 import Link from "next/link"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
@@ -20,34 +20,43 @@ const AnimatedStar = ({
   StarComponent: React.ComponentType<any>
   size: number; color: string; initialX: string; initialY: string
   animateY?: number; duration: number; delay?: number
-}) => (
-  <motion.div
-    className="absolute z-0 pointer-events-none"
-    style={{ top: initialY, left: initialX }}
-    initial={{ opacity: 0, scale: 0 }}
-    animate={{ opacity: [0.2, 0.5, 0.2], scale: [0.8, 1, 0.8], y: animateY ? [0, animateY, 0] : 0 }}
-    transition={{ repeat: Infinity, duration, delay, ease: "easeInOut" }}
-  >
-    <StarComponent size={size} color={color} />
-  </motion.div>
-)
+}) => {
+  const reduce = useReducedMotion()
+  return (
+    <motion.div
+      className="absolute z-0 pointer-events-none"
+      style={{ top: initialY, left: initialX }}
+      initial={reduce ? false : { opacity: 0, scale: 0 }}
+      animate={reduce ? { opacity: 0.3 } : { opacity: [0.2, 0.5, 0.2], scale: [0.8, 1, 0.8], y: animateY ? [0, animateY, 0] : 0 }}
+      transition={reduce ? { duration: 0 } : { repeat: Infinity, duration, delay, ease: "easeInOut" }}
+    >
+      <StarComponent size={size} color={color} />
+    </motion.div>
+  )
+}
 
-const FloatingIcon = ({ icon: Icon, top, left, delay = 0 }: { icon: React.ElementType; top: string; left: string; delay?: number }) => (
-  <motion.div className="absolute text-main/20 z-0" style={{ top, left }}
-    initial={{ y: 20, opacity: 0 }}
-    animate={{ y: [0, -15, 0], opacity: [0.15, 0.25, 0.15] }}
-    transition={{ duration: 5, repeat: Infinity, delay }}>
-    <Icon size={32} />
-  </motion.div>
-)
+const FloatingIcon = ({ icon: Icon, top, left, delay = 0 }: { icon: React.ElementType; top: string; left: string; delay?: number }) => {
+  const reduce = useReducedMotion()
+  return (
+    <motion.div className="absolute text-main/20 z-0" style={{ top, left }}
+      initial={reduce ? false : { y: 20, opacity: 0 }}
+      animate={reduce ? { opacity: 0.2 } : { y: [0, -15, 0], opacity: [0.15, 0.25, 0.15] }}
+      transition={reduce ? { duration: 0 } : { duration: 5, repeat: Infinity, delay }}>
+      <Icon size={32} />
+    </motion.div>
+  )
+}
 
 const ParticleBackground = () => {
+  const reduce = useReducedMotion()
   const particles = useMemo(
     () => Array.from({ length: 5 }, (_, i) => ({
       id: i, x: `${(i * 19 + 13) % 100}%`, y: `${(i * 23 + 37) % 100}%`,
       size: ((i * 3 + 5) % 6) + 4, duration: 18 + i * 2,
     })), [],
   )
+  // Purely decorative — skip the infinite RAF loops entirely for reduced-motion users.
+  if (reduce) return null
   return (
     <div className="absolute inset-0 overflow-hidden pointer-events-none">
       {particles.map((p) => (

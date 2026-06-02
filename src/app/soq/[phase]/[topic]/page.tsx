@@ -81,12 +81,10 @@ export default async function TopicPage({ params }: Props) {
     checkEnrollment(user),
   ])
 
-  // Auto-mark as complete when user views the topic
-  if (enrolled && result) {
-    const { markTopicComplete } = await import("@/lib/soq-api")
-    await markTopicComplete(result.topic.id, user)
-  }
   if (!result) notFound()
+
+  // Progress is recorded off the critical path by <TopicVisitTracker> (a client effect that
+  // fires a server action after paint) — never block the navigation on a DB write here.
 
   const { topic, content } = result
   const currentPhase = allPhases.find((p) => p.slug === phaseSlug)
