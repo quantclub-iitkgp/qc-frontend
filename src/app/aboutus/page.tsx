@@ -13,25 +13,13 @@ import {
 import { FadeIn, FadeInStagger, FadeInItem } from "@/components/app/fade-in"
 import { getTeam, type TeamMember } from "@/lib/api"
 import QuantaCelebrate from "@/components/mascot/quanta-celebrate"
-
-function getInitials(name: string): string {
-  return name
-    .split(" ")
-    .map((part) => part[0])
-    .join("")
-    .toUpperCase()
-    .slice(0, 2)
-}
+import { TeamAvatar } from "./team-avatar"
 
 const TeamMemberCard = ({ member }: { member: TeamMember }) => {
   return (
     <div className="border-4 border-border bg-secondary-background shadow-shadow overflow-hidden flex flex-col h-full">
-      {/* Initials avatar */}
-      <div className="w-full aspect-square bg-main flex items-center justify-center border-b-4 border-border">
-        <span className="text-4xl font-heading font-bold text-main-foreground">
-          {getInitials(member.name)}
-        </span>
-      </div>
+      {/* Photo with initials fallback */}
+      <TeamAvatar name={member.name} image={member.image} />
       <div className="p-5 flex flex-col flex-1">
         <h3 className="font-heading font-bold text-lg">{member.name}</h3>
         <p className="text-sm font-medium text-main mb-3">{member.role}</p>
