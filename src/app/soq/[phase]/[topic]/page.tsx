@@ -60,15 +60,20 @@ function readingTime(body: string): number {
 
 function extractTOC(body: string) {
   const slugger = new GithubSlugger()
-  return body
-    .split("\n")
-    .filter((line) => /^#{1,3}\s/.test(line))
-    .map((line) => {
-      const match = line.match(/^(#{1,3})\s+(.+)$/)!
-      const depth = match[1].length
-      const value = match[2].replace(/\*\*/g, "").replace(/`([^`]*)`/g, "$1").trim()
-      return { depth, value, id: slugger.slug(value) }
-    })
+  const items: { depth: number; value: string; id: string }[] = []
+  for (const line of body.split("\n")) {
+    // No $ anchor and no non-null assertion: CRLF bodies leave a trailing \r that
+    // `.` can't match, and empty headings ("## ") have no text — skip, don't crash.
+    const match = line.match(/^(#{1,3})\s+(.+)/)
+    if (!match) continue
+    const value = match[2]
+      .replace(/\r$/, "")
+      .replace(/\*\*/g, "")
+      .replace(/`([^`]*)`/g, "$1")
+      .trim()
+    items.push({ depth: match[1].length, value, id: slugger.slug(value) })
+  }
+  return items
 }
 
 export default async function TopicPage({ params }: Props) {
