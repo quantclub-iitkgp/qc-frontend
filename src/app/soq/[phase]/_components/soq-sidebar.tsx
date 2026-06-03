@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react"
 import Link from "next/link"
 import { useParams } from "next/navigation"
-import { Search, Menu, Lock, BookOpen, ChevronDown, ChevronRight, LogOut, CheckCircle2 } from "lucide-react"
+import { Search, Menu, BookOpen, ChevronDown, ChevronRight, LogOut, CheckCircle2 } from "lucide-react"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
@@ -12,12 +12,11 @@ import { useSoQProgress } from "../../_components/soq-progress-provider"
 
 interface Props {
   phases: SoQPhaseWithTopics[]
-  enrolled: boolean
   userEmail?: string
   completedTopicIds?: number[]
 }
 
-function SidebarContent({ phases, enrolled, userEmail, completedTopicIds = [] }: Props) {
+function SidebarContent({ phases, userEmail, completedTopicIds = [] }: Props) {
   const params = useParams<{ phase: string; topic?: string }>()
   const [searchQuery, setSearchQuery] = useState("")
   const { visited } = useSoQProgress()
@@ -165,7 +164,7 @@ function SidebarContent({ phases, enrolled, userEmail, completedTopicIds = [] }:
       </nav>
 
       {/* Footer */}
-      {enrolled && userEmail ? (
+      {userEmail ? (
         <div className="p-3 border-t-2 border-border">
           <div className="flex items-center gap-2 px-2.5 py-2 rounded-base border-2 border-border bg-secondary-background">
             <div className="flex-1 min-w-0">
@@ -188,21 +187,6 @@ function SidebarContent({ phases, enrolled, userEmail, completedTopicIds = [] }:
             >
               <LogOut className="h-3.5 w-3.5" />
             </button>
-          </div>
-        </div>
-      ) : !enrolled ? (
-        <div className="p-3 border-t-2 border-border">
-          <div className="flex items-start gap-2.5 p-2.5 rounded-base border-2 border-border bg-main/5 shadow-[2px_2px_0px_0px_black]">
-            <Lock className="h-3.5 w-3.5 text-main shrink-0 mt-0.5" />
-            <div className="min-w-0">
-              <p className="text-xs font-heading font-bold">Enroll to view content</p>
-              <Link
-                href="/soq/login"
-                className="text-xs text-foreground/60 underline underline-offset-2 hover:text-foreground transition-colors"
-              >
-                Sign in to your account
-              </Link>
-            </div>
           </div>
         </div>
       ) : null}

@@ -4,10 +4,10 @@ import { Suspense, useState } from "react"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { z } from "zod"
-import { motion, AnimatePresence } from "framer-motion"
-import { UserPlus, Mail, Lock, CheckCircle, TrendingUp } from "lucide-react"
+import { motion } from "framer-motion"
+import { UserPlus, Mail, Lock, TrendingUp } from "lucide-react"
 import Link from "next/link"
-import { useSearchParams } from "next/navigation"
+import { useRouter, useSearchParams } from "next/navigation"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -27,10 +27,10 @@ const schema = z
 type FormValues = z.infer<typeof schema>
 
 function SignupForm() {
+  const router = useRouter()
   const searchParams = useSearchParams()
   const next = searchParams.get("next") ?? "/soq"
   const [serverError, setServerError] = useState<string | null>(null)
-  const [done, setDone] = useState(false)
 
   const {
     register,
@@ -41,7 +41,7 @@ function SignupForm() {
   async function onSubmit(values: FormValues) {
     setServerError(null)
     const supabase = createClient()
-    const { error } = await supabase.auth.signUp({
+    const { data, error } = await supabase.auth.signUp({
       email: values.email,
       password: values.password,
     })
@@ -49,7 +49,21 @@ function SignupForm() {
       setServerError(error.message)
       return
     }
-    setDone(true)
+    // With "Confirm email" disabled, signUp returns a live session and the user is
+    // logged in immediately. If confirmation is still enabled (no session yet), fall
+    // back to an explicit password sign-in so the flow never dead-ends on an email.
+    if (!data.session) {
+      const { error: signInError } = await supabase.auth.signInWithPassword({
+        email: values.email,
+        password: values.password,
+      })
+      if (signInError) {
+        setServerError(signInError.message)
+        return
+      }
+    }
+    router.push(next)
+    router.refresh()
   }
 
   return (
@@ -72,43 +86,17 @@ function SignupForm() {
           <CardHeader>
             <CardTitle className="text-xl font-heading">Create your account</CardTitle>
             <CardDescription className="text-foreground/60">
-              Sign up to access SoQ program materials once enrolled
+              Sign up to access the Summer of Quant program
             </CardDescription>
           </CardHeader>
 
           <CardContent>
-            <AnimatePresence mode="wait">
-              {done ? (
-                <motion.div
-                  key="done"
-                  initial={{ opacity: 0, scale: 0.95 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  className="flex flex-col items-center gap-4 py-6 text-center"
-                >
-                  <motion.div
-                    initial={{ scale: 0 }}
-                    animate={{ scale: 1 }}
-                    transition={{ type: "spring", stiffness: 300, damping: 20, delay: 0.1 }}
-                    className="flex h-14 w-14 items-center justify-center rounded-base border-4 border-border bg-main shadow-shadow"
-                  >
-                    <CheckCircle className="h-7 w-7 text-main-foreground" />
-                  </motion.div>
-                  <h3 className="text-xl font-heading">Check your email</h3>
-                  <p className="text-sm text-foreground/60 max-w-xs">
-                    We&apos;ve sent a confirmation link. Once confirmed, an admin will enroll you and you&apos;ll get access to the program.
-                  </p>
-                  <Link href={`/soq/login?next=${encodeURIComponent(next)}`}>
-                    <Button variant="neutral" className="mt-2">Back to Sign In</Button>
-                  </Link>
-                </motion.div>
-              ) : (
-                <motion.form
-                  key="form"
-                  onSubmit={handleSubmit(onSubmit)}
-                  className="space-y-4"
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                >
+            <motion.form
+              onSubmit={handleSubmit(onSubmit)}
+              className="space-y-4"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+            >
                   <div className="space-y-2">
                     <Label htmlFor="email" className="flex items-center gap-2 font-heading">
                       <Mail className="h-4 w-4" /> Email
@@ -174,21 +162,17 @@ function SignupForm() {
                       </>
                     )}
                   </Button>
-                </motion.form>
-              )}
-            </AnimatePresence>
+            </motion.form>
           </CardContent>
 
-          {!done && (
-            <CardFooter className="flex justify-center border-t-2 border-border/40 pt-4">
-              <p className="text-sm text-foreground/60">
-                Already have an account?{" "}
-                <Link href={`/soq/login${next !== "/soq" ? `?next=${encodeURIComponent(next)}` : ""}`} className="font-heading text-foreground underline underline-offset-2 hover:text-main transition-colors">
-                  Sign in
-                </Link>
-              </p>
-            </CardFooter>
-          )}
+          <CardFooter className="flex justify-center border-t-2 border-border/40 pt-4">
+            <p className="text-sm text-foreground/60">
+              Already have an account?{" "}
+              <Link href={`/soq/login${next !== "/soq" ? `?next=${encodeURIComponent(next)}` : ""}`} className="font-heading text-foreground underline underline-offset-2 hover:text-main transition-colors">
+                Sign in
+              </Link>
+            </p>
+          </CardFooter>
         </Card>
       </motion.div>
     </div>

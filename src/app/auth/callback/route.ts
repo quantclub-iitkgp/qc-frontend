@@ -11,12 +11,6 @@ export async function GET(request: NextRequest) {
     const supabase = await createClient()
     const { error } = await supabase.auth.exchangeCodeForSession(code)
     if (!error) {
-      const { data: { user } } = await supabase.auth.getUser()
-      if (user) {
-        await supabase
-          .from("soq_enrollments")
-          .upsert({ user_id: user.id }, { onConflict: "user_id", ignoreDuplicates: true })
-      }
       return NextResponse.redirect(`${origin}${next}`)
     }
   }

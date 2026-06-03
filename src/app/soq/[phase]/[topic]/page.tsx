@@ -1,16 +1,14 @@
 import { notFound } from "next/navigation"
 import Link from "next/link"
-import { ChevronRight, ArrowLeft, ArrowRight, Clock, Lock } from "lucide-react"
+import { ChevronRight, ArrowLeft, ArrowRight, Clock } from "lucide-react"
 import type { Metadata } from "next"
 import GithubSlugger from "github-slugger"
-import { getTopicContent, checkEnrollment, getAllPhasesWithTopics, getCurrentUser } from "@/lib/soq-api"
+import { getTopicContent, getAllPhasesWithTopics } from "@/lib/soq-api"
 import type { SoQPhaseWithTopics } from "@/lib/soq-api"
 import { ContentRenderer } from "../../_components/content-renderer"
 import { TopicVisitTracker } from "../../_components/topic-visit-tracker"
 import { TableOfContents } from "@/components/app/toc"
 import { KeyboardNav } from "../../_components/keyboard-nav"
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
 
 interface Props {
   params: Promise<{ phase: string; topic: string }>
@@ -79,11 +77,9 @@ function extractTOC(body: string) {
 export default async function TopicPage({ params }: Props) {
   const { phase: phaseSlug, topic: topicSlug } = await params
 
-  const user = await getCurrentUser()
-  const [result, allPhases, enrolled] = await Promise.all([
+  const [result, allPhases] = await Promise.all([
     getTopicContent(phaseSlug, topicSlug),
     getAllPhasesWithTopics(),
-    checkEnrollment(user),
   ])
 
   if (!result) notFound()
@@ -123,32 +119,7 @@ export default async function TopicPage({ params }: Props) {
         </span>
       </div>
 
-      {!enrolled ? (
-        <div className="flex items-center justify-center min-h-[50vh]">
-          <Card className="border-4 border-border shadow-shadow max-w-md w-full text-center">
-            <CardHeader>
-              <div className="flex justify-center mb-4">
-                <div className="flex h-14 w-14 items-center justify-center rounded-base border-4 border-border bg-main shadow-shadow">
-                  <Lock className="h-7 w-7 text-main-foreground" />
-                </div>
-              </div>
-              <CardTitle className="text-xl font-heading">Enrollment Required</CardTitle>
-              <CardDescription className="text-foreground/60">
-                This content is for enrolled SoQ participants. Sign up for an account, then wait for enrollment confirmation from the Quant Club team.
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-3">
-              <Link href="/soq/signup">
-                <Button className="w-full">Create Account</Button>
-              </Link>
-              <Link href="/soq/login">
-                <Button variant="neutral" className="w-full">Sign In</Button>
-              </Link>
-            </CardContent>
-          </Card>
-        </div>
-      ) : (
-        <div className={tocItems.length > 2 ? "xl:flex xl:gap-10 xl:items-start" : ""}>
+      <div className={tocItems.length > 2 ? "xl:flex xl:gap-10 xl:items-start" : ""}>
           <div className="flex-1 min-w-0">
             {/* Topic header */}
             <div className="mb-8 pb-6 border-b-2 border-border">
@@ -231,8 +202,7 @@ export default async function TopicPage({ params }: Props) {
               </div>
             </aside>
           )}
-        </div>
-      )}
+      </div>
     </div>
   )
 }

@@ -7,7 +7,6 @@ import {
   getCurrentUser,
   getUserProgress,
   getLastVisitedTopic,
-  checkEnrollment,
 } from "@/lib/soq-api"
 
 export const metadata = {
@@ -22,37 +21,24 @@ export default async function SoQPage() {
 
   if (!waitlistEnabled && !programEnabled) notFound()
 
-  // When program is on, gate access by enrollment.
+  // When the program is on, every signed-in user (middleware enforces login) sees it —
+  // there is no enrollment gate.
   if (programEnabled) {
     const user = await getCurrentUser()
 
     // Run all subsequent reads in parallel — they share the cached user.
-    const [enrolled, phasesWithTopics, completedTopicIds, lastVisited] = await Promise.all([
-      checkEnrollment(user),
+    const [phasesWithTopics, completedTopicIds, lastVisited] = await Promise.all([
       getAllPhasesWithTopics(),
       user ? getUserProgress(user) : Promise.resolve<number[]>([]),
       user ? getLastVisitedTopic(user) : Promise.resolve(null),
     ])
 
-    if (enrolled) {
-      return (
-        <SoQProgramLanding
-          phases={phasesWithTopics}
-          userEmail={user?.email ?? null}
-          completedTopicIds={completedTopicIds}
-          lastVisited={lastVisited}
-        />
-      )
-    }
-
-    if (waitlistEnabled) return <SoQWaitlistPage />
-
     return (
       <SoQProgramLanding
         phases={phasesWithTopics}
         userEmail={user?.email ?? null}
-        completedTopicIds={[]}
-        lastVisited={null}
+        completedTopicIds={completedTopicIds}
+        lastVisited={lastVisited}
       />
     )
   }

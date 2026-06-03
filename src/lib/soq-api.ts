@@ -110,8 +110,8 @@ export const getPhaseWithTopics = cache(
   },
 )
 
-// Topic metadata comes from the cached structure (0 queries); only the gated content body
-// hits Supabase via the authenticated SSR client (RLS: enrolled users only). Deduped per
+// Topic metadata comes from the cached structure (0 queries); only the content body hits
+// Supabase via the authenticated SSR client (RLS: any authenticated user). Deduped per
 // request so the page and generateMetadata don't fetch the body twice.
 export const getTopicContent = cache(
   async (
@@ -147,22 +147,6 @@ export const getCurrentUser = cache(async (): Promise<User | null> => {
     data: { user },
   } = await supabase.auth.getUser()
   return user
-})
-
-// Check if a given user (or the current authenticated user) is enrolled. Deduped per
-// request when called with the same resolved user reference.
-export const checkEnrollment = cache(async (user?: User | null): Promise<boolean> => {
-  const resolvedUser = user ?? (await getCurrentUser())
-  if (!resolvedUser) return false
-
-  const supabase = await createClient()
-  const { data } = await supabase
-    .from("soq_enrollments")
-    .select("id")
-    .eq("user_id", resolvedUser.id)
-    .single()
-
-  return !!data
 })
 
 // Returns topic IDs the user has completed. Deduped per request.
