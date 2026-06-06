@@ -77,10 +77,9 @@ function NavLinks({ mobile = false, onClose }: { mobile?: boolean; onClose?: () 
 }
 
 function SoQButton({ mobile = false }: { mobile?: boolean }) {
-  const waitlist = useFeatureFlag("soq-waitlist")
   const program = useFeatureFlag("soq-program")
 
-  if (!waitlist && !program) return null
+  if (!program) return null
 
   if (mobile) {
     return (
@@ -91,11 +90,6 @@ function SoQButton({ mobile = false }: { mobile?: boolean }) {
         >
           <Sun className="size-4 shrink-0" />
           Summer of Quant
-          {waitlist && !program && (
-            <span className="ml-auto text-xs bg-main-foreground/20 px-1.5 py-0.5 rounded-base">
-              Waitlist
-            </span>
-          )}
         </Link>
       </div>
     )
@@ -108,12 +102,6 @@ function SoQButton({ mobile = false }: { mobile?: boolean }) {
     >
       <Sun className="size-3.5" />
       SoQ
-      {waitlist && !program && (
-        <span className="relative flex size-2 ml-0.5">
-          <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-main-foreground opacity-60" />
-          <span className="relative inline-flex rounded-full size-2 bg-main-foreground" />
-        </span>
-      )}
     </Link>
   )
 }

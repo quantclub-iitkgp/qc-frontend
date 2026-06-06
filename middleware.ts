@@ -5,9 +5,8 @@ import type { FeatureFlagKey } from "@/lib/featureFlags"
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl
 
-  // Skip auth/public SoQ pages
+  // Skip the public auth pages — everything else under /soq (incl. the root landing) requires login
   if (
-    pathname === "/soq" ||
     pathname.startsWith("/soq/login") ||
     pathname.startsWith("/soq/signup") ||
     pathname.startsWith("/soq/forgot-password")
@@ -15,8 +14,8 @@ export async function middleware(request: NextRequest) {
     return NextResponse.next()
   }
 
-  // Only intercept /soq/* routes
-  if (!pathname.startsWith("/soq/")) {
+  // Only intercept the SoQ area
+  if (pathname !== "/soq" && !pathname.startsWith("/soq/")) {
     return NextResponse.next()
   }
 
@@ -67,5 +66,5 @@ export async function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/soq/:path+"],
+  matcher: ["/soq", "/soq/:path+"],
 }

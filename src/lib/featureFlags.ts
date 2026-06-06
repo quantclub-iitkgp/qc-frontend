@@ -1,10 +1,10 @@
-export type FeatureFlagKey = "soq-waitlist" | "soq-program"
+export type FeatureFlagKey = "soq-program"
 
 function loadFlags(): Record<FeatureFlagKey, boolean> {
   try {
     return JSON.parse(process.env.NEXT_PUBLIC_FEATURE_FLAGS ?? "{}") as Record<FeatureFlagKey, boolean>
   } catch {
-    return { "soq-waitlist": false, "soq-program": false }
+    return { "soq-program": false }
   }
 }
 
