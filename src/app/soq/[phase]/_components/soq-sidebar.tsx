@@ -211,7 +211,7 @@ export function MobileSidebarToggle(props: Props) {
           <Menu className="h-4 w-4" />
         </Button>
       </SheetTrigger>
-      <SheetContent side="left" className="p-0 w-72 border-r-4 border-border">
+      <SheetContent side="left" className="p-0 w-[min(18rem,85vw)] border-r-4 border-border">
         <SidebarContent {...props} />
       </SheetContent>
     </Sheet>

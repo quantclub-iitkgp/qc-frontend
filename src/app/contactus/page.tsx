@@ -1,7 +1,6 @@
 import type { Metadata } from "next"
-import { Mail, MapPin, Github, MessageSquare } from "lucide-react"
-import { FaLinkedinIn, FaDiscord } from "react-icons/fa"
-import { RiTwitterXLine } from "react-icons/ri"
+import { Mail, MapPin, MessageSquare } from "lucide-react"
+import { FaLinkedinIn, FaInstagram } from "react-icons/fa"
 import Link from "next/link"
 
 import { Footer } from "@/components/app/footer"
@@ -11,30 +10,16 @@ import QuantaWave from "@/components/mascot/quanta-wave"
 export const metadata: Metadata = {
   title: "Contact Us",
   description:
-    "Get in touch with Quant Club IIT Kharagpur — reach us via email, Discord, or social media.",
+    "Get in touch with Quant Club IIT Kharagpur — reach us via email or social media.",
 }
 
 const contactMethods = [
   {
     icon: Mail,
     label: "Email",
-    value: "info@quantclub.ai",
-    href: "mailto:info@quantclub.ai",
+    value: "quantclubiitkgp@gmail.com",
+    href: "mailto:quantclubiitkgp@gmail.com",
     description: "Drop us a line anytime.",
-  },
-  {
-    icon: FaDiscord,
-    label: "Discord",
-    value: "Join our server",
-    href: "#",
-    description: "Chat with the community in real-time.",
-  },
-  {
-    icon: Github,
-    label: "GitHub",
-    value: "quantclub-iitkgp",
-    href: "https://github.com/quantclub-iitkgp",
-    description: "Browse our open-source projects.",
   },
   {
     icon: MapPin,
@@ -46,10 +31,8 @@ const contactMethods = [
 ]
 
 const socialLinks = [
-  { icon: Github, label: "GitHub", href: "https://github.com/quantclub-iitkgp" },
-  { icon: RiTwitterXLine, label: "Twitter / X", href: "#" },
-  { icon: FaLinkedinIn, label: "LinkedIn", href: "#" },
-  { icon: FaDiscord, label: "Discord", href: "#" },
+  { icon: FaInstagram, label: "Instagram", href: "https://www.instagram.com/quantclub_iitkgp/?hl=en" },
+  { icon: FaLinkedinIn, label: "LinkedIn", href: "https://www.linkedin.com/company/qciitkgp/posts/?feedView=all" },
 ]
 
 export default function ContactPage() {
@@ -83,7 +66,7 @@ export default function ContactPage() {
 
       <main className="mx-auto max-w-container px-5 py-12 md:py-16">
         {/* Contact methods grid */}
-        <FadeInStagger className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4 mb-16">
+        <FadeInStagger className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 mb-16">
           {contactMethods.map((method) => {
             const Inner = (
               <div className="border-4 border-border bg-secondary-background shadow-shadow p-6 flex flex-col gap-4 h-full hover:translate-x-boxShadowX hover:translate-y-boxShadowY hover:shadow-none transition-all">
@@ -125,7 +108,7 @@ export default function ContactPage() {
         <FadeIn>
           <div className="grid gap-8 md:grid-cols-2">
             {/* Social links */}
-            <div className="border-4 border-border bg-secondary-background shadow-shadow p-8">
+            <div className="border-4 border-border bg-secondary-background shadow-shadow p-5 md:p-8">
               <h2 className="text-xl font-heading font-bold mb-2">Follow Us</h2>
               <p className="text-sm text-foreground/60 mb-6">
                 Stay updated with our latest research, events, and community activity.
@@ -147,14 +130,14 @@ export default function ContactPage() {
             </div>
 
             {/* Collaborate CTA */}
-            <div className="border-4 border-border bg-main shadow-shadow p-8 text-main-foreground">
+            <div className="border-4 border-border bg-main shadow-shadow p-5 md:p-8 text-main-foreground">
               <h2 className="text-xl font-heading font-bold mb-2">Want to Collaborate?</h2>
               <p className="text-sm mb-6 opacity-80">
                 We&apos;re always open to research partnerships, guest blog contributions,
                 workshop proposals, and industry collaborations.
               </p>
               <Link
-                href="mailto:info@quantclub.ai"
+                href="mailto:quantclubiitkgp@gmail.com"
                 className="inline-flex items-center gap-2 border-4 border-main-foreground px-5 py-2.5 font-heading font-bold text-sm bg-main-foreground text-main shadow-[4px_4px_0px_0px_rgba(0,0,0,0.3)] hover:translate-x-[4px] hover:translate-y-[4px] hover:shadow-none transition-all"
               >
                 <Mail className="size-4" />

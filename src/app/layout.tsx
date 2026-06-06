@@ -1,6 +1,6 @@
 import "@/styling/globals.css"
 
-import type { Metadata } from "next"
+import type { Metadata, Viewport } from "next"
 import localFont from "next/font/local"
 
 import Navbar from "@/components/app/navbar"
@@ -63,6 +63,13 @@ export const metadata: Metadata = {
     icon: "/quant_club_iit_kharagpur_logo.jpg",
     apple: "/quant_club_iit_kharagpur_logo.jpg",
   },
+}
+
+// Mobile-first viewport. No maximum-scale / user-scalable=no, so pinch-zoom
+// stays available for accessibility.
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
 }
 
 export default function RootLayout({

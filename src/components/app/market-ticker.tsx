@@ -21,7 +21,7 @@ function TickerItem({ quote }: { quote: MarketQuote }) {
       : `₹${new Intl.NumberFormat("en-IN", { maximumFractionDigits: 0 }).format(v)}`
 
   return (
-    <div className="flex items-center gap-3 px-6 border-r-2 border-border/40">
+    <div className="flex items-center gap-3 px-4 md:px-6 border-r-2 border-border/40">
       <div>
         <span className="text-xs font-heading font-bold uppercase tracking-widest text-foreground/50 block leading-none mb-0.5">
           {quote.name}

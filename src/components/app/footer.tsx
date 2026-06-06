@@ -2,8 +2,7 @@
 
 import Link from "next/link"
 import { Locate, Mail } from "lucide-react"
-import { FaLinkedinIn, FaGithub, FaDiscord } from "react-icons/fa"
-import { RiTwitterXLine } from "react-icons/ri"
+import { FaLinkedinIn, FaInstagram } from "react-icons/fa"
 import { motion } from "framer-motion"
 
 import { staggerContainer, cardItem, slideInLeft } from "@/lib/motion"
@@ -12,9 +11,9 @@ import QuantaWave from "@/components/mascot/quanta-wave"
 
 const links = [
   {
-    name: "info@quantclub.ai",
+    name: "quantclubiitkgp@gmail.com",
     logo: Mail,
-    href: "mailto:info@quantclub.ai",
+    href: "mailto:quantclubiitkgp@gmail.com",
   },
   {
     name: "IIT Kharagpur, West Bengal",
@@ -37,16 +36,13 @@ const footerLinks = [
     links: [
       { label: "Our Team", href: "/aboutus" },
       { label: "Contact Us", href: "/contactus" },
-      { label: "GitHub", href: "https://github.com/quantclub-iitkgp" },
     ],
   },
 ]
 
 const links_social = [
-  { name: "github", logo: FaGithub, href: "https://github.com/quantclub-iitkgp" },
-  { name: "twitter", logo: RiTwitterXLine, href: "#" },
-  { name: "linkedin", logo: FaLinkedinIn, href: "#" },
-  { name: "discord", logo: FaDiscord, href: "#" },
+  { name: "instagram", logo: FaInstagram, href: "https://www.instagram.com/quantclub_iitkgp/?hl=en" },
+  { name: "linkedin", logo: FaLinkedinIn, href: "https://www.linkedin.com/company/qciitkgp/posts/?feedView=all" },
 ]
 
 export const Footer = () => {
@@ -102,7 +98,7 @@ export const Footer = () => {
 
           {/* Footer link columns */}
           <motion.div
-            className="grid md:grid-cols-2 grid-cols-1 xl:grid-cols-4 md:gap-16 gap-8 flex-1"
+            className="grid sm:grid-cols-2 grid-cols-1 xl:grid-cols-4 md:gap-16 gap-8 flex-1"
             initial="hidden"
             whileInView="visible"
             viewport={{ once: true, margin: "-60px" }}
