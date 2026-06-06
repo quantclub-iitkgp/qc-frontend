@@ -84,7 +84,7 @@ export function SoQProgramLanding({ phases, userEmail, completedTopicIds, lastVi
   const overallPct = totalTopics > 0 ? Math.round((completedCount / totalTopics) * 100) : 0
   return (
     <div className="pt-[70px] pb-16 bg-background bg-[linear-gradient(to_right,#80808033_1px,transparent_1px),linear-gradient(to_bottom,#80808033_1px,transparent_1px)] bg-[size:70px_70px] min-h-dvh">
-      <div className="container max-w-6xl mx-auto relative px-5 py-12">
+      <div className="container max-w-6xl mx-auto relative px-5 py-8 md:py-12">
         <div className="absolute inset-0 overflow-hidden pointer-events-none z-0">
           <AnimatedStar StarComponent={Star1}  size={24} color="var(--color-main)" initialX="6%"  initialY="14%" animateY={-20} duration={10} />
           <AnimatedStar StarComponent={Star13} size={28} color="var(--color-main)" initialX="78%" initialY="22%" animateY={-15} duration={11} delay={1.5} />
@@ -180,15 +180,7 @@ export function SoQProgramLanding({ phases, userEmail, completedTopicIds, lastVi
             </div>
             <h2 className="text-2xl font-heading font-bold tracking-tight mb-1">You completed Summer of Quant!</h2>
             <p className="text-sm text-foreground/60 mb-1">{userEmail}</p>
-            <p className="text-xs text-foreground/40 mb-4">{new Date().toLocaleDateString("en-IN", { day: "numeric", month: "long", year: "numeric" })}</p>
-            <Button
-              variant="neutral"
-              size="sm"
-              onClick={() => window.print()}
-              className="border-2 border-border shadow-shadow hover:translate-x-boxShadowX hover:translate-y-boxShadowY hover:shadow-none transition-all"
-            >
-              Print Certificate
-            </Button>
+            <p className="text-xs text-foreground/40">{new Date().toLocaleDateString("en-IN", { day: "numeric", month: "long", year: "numeric" })}</p>
           </motion.div>
         )}
 

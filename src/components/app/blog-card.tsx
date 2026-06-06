@@ -32,7 +32,7 @@ export function BlogCard({ blog, featured = false }: BlogCardProps) {
         <Link href={`/blogs/${slug}`} className="block group">
           <article className="flex flex-col md:flex-row border-4 border-border bg-secondary-background shadow-shadow hover:shadow-none transition-shadow overflow-hidden">
             {blog.coverImage && (
-              <div className="relative md:w-1/2 w-full h-64 md:h-auto border-b-4 md:border-b-0 md:border-r-4 border-border flex-shrink-0 overflow-hidden">
+              <div className="relative md:w-1/2 w-full h-48 sm:h-64 md:h-auto border-b-4 md:border-b-0 md:border-r-4 border-border flex-shrink-0 overflow-hidden">
                 <Image
                   src={blog.coverImage}
                   alt={blog.title}
@@ -43,7 +43,7 @@ export function BlogCard({ blog, featured = false }: BlogCardProps) {
                 />
               </div>
             )}
-            <div className="flex flex-col justify-between p-8 flex-1">
+            <div className="flex flex-col justify-between p-5 md:p-8 flex-1">
               <div>
                 {blog.tags && blog.tags.length > 0 && (
                   <div className="flex flex-wrap gap-2 mb-4">

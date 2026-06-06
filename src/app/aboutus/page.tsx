@@ -116,7 +116,7 @@ export default async function AboutUsPage() {
           <p className="font-heading font-bold text-lg">Team profiles coming soon!</p>
         </div>
       ) : (
-        <FadeInStagger className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 mb-16">
+        <FadeInStagger className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 mb-16">
           {teamMembers.map((member) => (
             <FadeInItem key={member.id}>
               <TeamMemberCard member={member} />
