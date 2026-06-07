@@ -152,7 +152,8 @@ function MobileMenu() {
               </div>
 
               <NavLinks mobile onClose={() => setOpen(false)} />
-              <SoQButton mobile />
+              {/* SoQ button hidden for now */}
+              {/* <SoQButton mobile /> */}
             </motion.div>
           </>
         )}
@@ -194,7 +195,8 @@ function Navbar() {
 
         {/* Right side */}
         <div className="flex items-center gap-3">
-          <SoQButton />
+          {/* SoQ button hidden for now */}
+          {/* <SoQButton /> */}
           <Search />
 
           <ThemeSwitcher />
