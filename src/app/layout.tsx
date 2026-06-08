@@ -8,6 +8,7 @@ import ScrollToTop from "@/components/app/scroll-to-top"
 import SetStylingPref from "@/components/app/set-styling-pref"
 import { ThemeProvider } from "@/components/app/theme-provider"
 import { Toaster } from "@/components/ui/sonner"
+import { SITE_URL } from "@/lib/site"
 
 const dmSans = localFont({
   src: [
@@ -41,15 +42,15 @@ export const metadata: Metadata = {
     "portfolio theory",
     "financial research",
   ],
-  authors: [{ name: "Quant Club IIT Kharagpur", url: "https://quantclub.ai" }],
-  metadataBase: new URL("https://quantclub.ai"),
+  authors: [{ name: "Quant Club IIT Kharagpur", url: SITE_URL }],
+  metadataBase: new URL(SITE_URL),
   openGraph: {
     type: "website",
     siteName: "Quant Club IIT Kharagpur",
     title: "Quant Club IIT Kharagpur",
     description:
       "Advancing quantitative finance through research, education, and open-source tools.",
-    url: "https://quantclub.ai",
+    url: SITE_URL,
     images: [{ url: "/quant_club_iit_kharagpur_logo.jpg", width: 800, height: 800 }],
   },
   twitter: {

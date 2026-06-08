@@ -1,7 +1,6 @@
 import type { MetadataRoute } from "next"
 import { getBlogs, getWhitepapers } from "@/lib/api"
-
-const BASE_URL = "https://quantclub.ai"
+import { SITE_URL as BASE_URL } from "@/lib/site"
 
 // The sitemap is statically generated at build, so its DB reads run during the build. They
 // must be best-effort: a slow or disk-IO-throttled Supabase must never block a deploy. A
