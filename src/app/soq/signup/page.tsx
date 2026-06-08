@@ -6,6 +6,7 @@ import { zodResolver } from "@hookform/resolvers/zod"
 import { z } from "zod"
 import { motion } from "framer-motion"
 import { UserPlus, Mail, Lock, TrendingUp } from "lucide-react"
+import { Github } from "lucide-react"
 import Link from "next/link"
 import { useRouter, useSearchParams } from "next/navigation"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
@@ -31,6 +32,7 @@ function SignupForm() {
   const searchParams = useSearchParams()
   const next = searchParams.get("next") ?? "/soq"
   const [serverError, setServerError] = useState<string | null>(null)
+  const [githubLoading, setGithubLoading] = useState(false)
 
   const {
     register,
@@ -64,6 +66,22 @@ function SignupForm() {
     }
     router.push(next)
     router.refresh()
+  }
+
+  async function handleGithubSignup() {
+    setGithubLoading(true)
+    setServerError(null)
+    const supabase = createClient()
+    const redirectTo = `${window.location.origin}/auth/callback?next=${encodeURIComponent(next)}`
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider: "github",
+      options: { redirectTo },
+    })
+    if (error) {
+      setServerError(error.message)
+      setGithubLoading(false)
+    }
+    // On success, the browser is redirected to GitHub — no further action needed here
   }
 
   return (
@@ -145,7 +163,7 @@ function SignupForm() {
                     </p>
                   )}
 
-                  <Button type="submit" className="w-full mt-2" disabled={isSubmitting}>
+                  <Button type="submit" className="w-full mt-2" disabled={isSubmitting || githubLoading}>
                     {isSubmitting ? (
                       <>
                         <motion.span
@@ -163,6 +181,41 @@ function SignupForm() {
                     )}
                   </Button>
             </motion.form>
+
+            {/* Divider */}
+            <div className="relative my-4">
+              <div className="absolute inset-0 flex items-center">
+                <span className="w-full border-t-2 border-border/40" />
+              </div>
+              <div className="relative flex justify-center text-xs uppercase">
+                <span className="bg-card px-2 text-foreground/40 font-heading">or</span>
+              </div>
+            </div>
+
+            {/* GitHub OAuth */}
+            <Button
+              type="button"
+              variant="neutral"
+              className="w-full font-heading"
+              onClick={handleGithubSignup}
+              disabled={isSubmitting || githubLoading}
+            >
+              {githubLoading ? (
+                <>
+                  <motion.span
+                    animate={{ rotate: 360 }}
+                    transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+                    className="inline-block mr-2 h-4 w-4 border-2 border-current border-t-transparent rounded-full"
+                  />
+                  Connecting to GitHub...
+                </>
+              ) : (
+                <>
+                  <Github className="mr-2 h-4 w-4" />
+                  Continue with GitHub
+                </>
+              )}
+            </Button>
           </CardContent>
 
           <CardFooter className="flex justify-center border-t-2 border-border/40 pt-4">
