@@ -188,7 +188,7 @@ function SignupForm() {
                 <span className="w-full border-t-2 border-border/40" />
               </div>
               <div className="relative flex justify-center text-xs uppercase">
-                <span className="bg-card px-2 text-foreground/40 font-heading">or</span>
+                <span className="bg-background px-2 text-foreground/40 font-heading">OR</span>
               </div>
             </div>
 
