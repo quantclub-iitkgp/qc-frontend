@@ -3,6 +3,7 @@ import { unstable_cache } from "next/cache"
 import type { User } from "@supabase/supabase-js"
 import { createClient } from "@/lib/supabase/server"
 import { getSupabaseClient } from "@/lib/supabase"
+import { getServiceClient } from "@/lib/supabase/service"
 
 export type SoQPhase = {
   id: number
@@ -32,6 +33,11 @@ export type SoQContent = {
 // should POST /api/revalidate?tag=soq-structure after edits so changes appear instantly
 // without forcing every visitor's navigation to re-query Supabase.
 export const SOQ_STRUCTURE_TAG = "soq-structure"
+
+// Cache tag for the SoQ topic bodies cached in getCachedContentByTopicId. Admin tooling
+// should POST /api/revalidate?tag=soq-content after editing a topic's body so the change
+// appears immediately instead of waiting out the revalidate window.
+export const SOQ_CONTENT_TAG = "soq-content"
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 function phaseFromRow(row: any): SoQPhase {
@@ -110,9 +116,30 @@ export const getPhaseWithTopics = cache(
   },
 )
 
-// Topic metadata comes from the cached structure (0 queries); only the content body hits
-// Supabase via the authenticated SSR client (RLS: any authenticated user). Deduped per
-// request so the page and generateMetadata don't fetch the body twice.
+// A topic body is identical for every authenticated user (RLS: any authenticated user) and
+// rarely changes, so it's cached globally per topic in Next's Data Cache rather than queried
+// on every page view — this is what keeps content reads off the database under load. Access
+// stays gated by middleware (the whole /soq area requires login); the service-role client is
+// used only to bypass RLS for this cookie-free cached read (unstable_cache can't read cookies),
+// never to widen who can see the data. unstable_cache keys on the topicId argument, so each
+// topic gets its own entry; tag-invalidated on admin edit + hourly revalidate as a safety net.
+const getCachedContentByTopicId = unstable_cache(
+  async (topicId: number): Promise<SoQContent | null> => {
+    const { data, error } = await getServiceClient()
+      .from("soq_content")
+      .select("id, topic_id, body")
+      .eq("topic_id", topicId)
+      .single()
+    if (error || !data) return null
+    return { id: data.id, topicId: data.topic_id, body: data.body }
+  },
+  ["soq-content-by-topic"],
+  { tags: [SOQ_CONTENT_TAG], revalidate: 3600 },
+)
+
+// Topic metadata comes from the cached structure (0 queries); the body comes from the
+// per-topic Data Cache above. Deduped per request so the page and generateMetadata share one
+// lookup. Net DB cost of a content page view at steady state: 0 reads (everything cached).
 export const getTopicContent = cache(
   async (
     phaseSlug: string,
@@ -123,19 +150,8 @@ export const getTopicContent = cache(
     const topic = phase?.topics.find((t) => t.slug === topicSlug)
     if (!topic) return null
 
-    const supabase = await createClient()
-    const { data, error } = await supabase
-      .from("soq_content")
-      .select("*")
-      .eq("topic_id", topic.id)
-      .single()
-
-    if (error || !data) return { topic, content: null }
-
-    return {
-      topic,
-      content: { id: data.id, topicId: data.topic_id, body: data.body },
-    }
+    const content = await getCachedContentByTopicId(topic.id)
+    return { topic, content }
   },
 )
 

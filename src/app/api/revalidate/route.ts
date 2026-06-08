@@ -1,9 +1,9 @@
 import { revalidateTag } from "next/cache"
 import { NextResponse, type NextRequest } from "next/server"
-import { SOQ_STRUCTURE_TAG } from "@/lib/soq-api"
+import { SOQ_STRUCTURE_TAG, SOQ_CONTENT_TAG } from "@/lib/soq-api"
 
 // Tags that may be invalidated on demand. Keeping an allowlist prevents arbitrary cache busting.
-const ALLOWED_TAGS = new Set<string>([SOQ_STRUCTURE_TAG])
+const ALLOWED_TAGS = new Set<string>([SOQ_STRUCTURE_TAG, SOQ_CONTENT_TAG])
 
 /**
  * On-demand cache invalidation for the cached SoQ course structure. Wire this into the admin
