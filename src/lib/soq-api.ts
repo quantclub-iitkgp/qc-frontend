@@ -4,6 +4,12 @@ import type { User } from "@supabase/supabase-js"
 import { createClient } from "@/lib/supabase/server"
 import { getSupabaseClient } from "@/lib/supabase"
 import { getServiceClient } from "@/lib/supabase/service"
+import {
+  withCache,
+  invalidateUserProgress,
+  cacheKey,
+  TTL,
+} from "@/lib/redis"
 
 export type SoQPhase = {
   id: number
@@ -165,23 +171,31 @@ export const getCurrentUser = cache(async (): Promise<User | null> => {
   return user
 })
 
-// Returns topic IDs the user has completed. Deduped per request.
+// Returns topic IDs the user has completed.
+// Redis TTL: 5 min. Invalidated by markTopicComplete.
 export const getUserProgress = cache(async (user?: User | null): Promise<number[]> => {
   const resolvedUser = user ?? (await getCurrentUser())
   if (!resolvedUser) return []
 
-  const supabase = await createClient()
-  const { data } = await supabase
-    .from("soq_progress")
-    .select("topic_id")
-    .eq("user_id", resolvedUser.id)
-
-  return (data ?? []).map((r: { topic_id: number }) => r.topic_id)
+  return withCache(
+    cacheKey.userProgress(resolvedUser.id),
+    TTL.userProgress,
+    async () => {
+      const supabase = await createClient()
+      const { data } = await supabase
+        .from("soq_progress")
+        .select("topic_id")
+        .eq("user_id", resolvedUser.id)
+      return (data ?? []).map((r: { topic_id: number }) => r.topic_id)
+    },
+  )
 })
 
 // Marks a topic as completed for the current user (idempotent). This is a write, so it must
 // never run on the render/navigation critical path — call it from a server action triggered
 // client-side after the content has already painted (see topic-visit-tracker.tsx).
+// After a successful upsert the Redis progress + last-topic keys are invalidated so the
+// next read reflects the new state without waiting for the TTL to expire.
 export async function markTopicComplete(topicId: number, user?: User | null): Promise<void> {
   const supabase = await createClient()
   const resolvedUser = user ?? (await supabase.auth.getUser()).data.user
@@ -190,9 +204,13 @@ export async function markTopicComplete(topicId: number, user?: User | null): Pr
   await supabase
     .from("soq_progress")
     .upsert({ user_id: resolvedUser.id, topic_id: topicId }, { onConflict: "user_id,topic_id", ignoreDuplicates: true })
+
+  // Bust the Redis cache so the sidebar & dashboard see fresh completion state
+  await invalidateUserProgress(resolvedUser.id)
 }
 
-// Returns the most recently visited topic for the user
+// Returns the most recently visited topic for the user.
+// Redis TTL: 5 min. Invalidated by markTopicComplete.
 export const getLastVisitedTopic = cache(async (user?: User | null): Promise<{
   phaseSlug: string
   topicSlug: string
@@ -201,22 +219,28 @@ export const getLastVisitedTopic = cache(async (user?: User | null): Promise<{
   const resolvedUser = user ?? (await getCurrentUser())
   if (!resolvedUser) return null
 
-  const supabase = await createClient()
-  const { data } = await supabase
-    .from("soq_progress")
-    .select("topic_id, soq_topics(slug, title, soq_phases(slug))")
-    .eq("user_id", resolvedUser.id)
-    .order("topic_id", { ascending: false })
-    .limit(1)
-    .single()
+  return withCache(
+    cacheKey.lastVisitedTopic(resolvedUser.id),
+    TTL.lastVisitedTopic,
+    async () => {
+      const supabase = await createClient()
+      const { data } = await supabase
+        .from("soq_progress")
+        .select("topic_id, soq_topics(slug, title, soq_phases(slug))")
+        .eq("user_id", resolvedUser.id)
+        .order("topic_id", { ascending: false })
+        .limit(1)
+        .single()
 
-  if (!data) return null
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const topic = data.soq_topics as any
-  if (!topic) return null
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const phase = topic.soq_phases as any
-  if (!phase) return null
+      if (!data) return null
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const topic = data.soq_topics as any
+      if (!topic) return null
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const phase = topic.soq_phases as any
+      if (!phase) return null
 
-  return { phaseSlug: phase.slug, topicSlug: topic.slug, topicTitle: topic.title }
+      return { phaseSlug: phase.slug, topicSlug: topic.slug, topicTitle: topic.title }
+    },
+  )
 })
