@@ -6,12 +6,18 @@ import { ArrowRight, TrendingUp, LineChart, LogOut, Trophy, Clock } from "lucide
 import Link from "next/link"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import type { SoQPhaseWithTopics } from "@/lib/soq-api"
+import type { SoQPhaseWithTopics, UserProfile, LeaderboardEntry } from "@/lib/soq-api"
+import { ProfileButton } from "./profile-button"
+import { Leaderboard } from "./leaderboard"
 
 import Star1 from "@/examples/stars/s1"
 import Star13 from "@/examples/stars/s13"
 import Star29 from "@/examples/stars/s29"
 import React from "react"
+
+// ---------------------------------------------------------------------------
+// Decorative helpers
+// ---------------------------------------------------------------------------
 
 const AnimatedStar = ({
   StarComponent, size, color, initialX, initialY, animateY, duration, delay = 0,
@@ -55,7 +61,6 @@ const ParticleBackground = () => {
       size: ((i * 3 + 5) % 6) + 4, duration: 18 + i * 2,
     })), [],
   )
-  // Purely decorative — skip the infinite RAF loops entirely for reduced-motion users.
   if (reduce) return null
   return (
     <div className="absolute inset-0 overflow-hidden pointer-events-none">
@@ -71,20 +76,37 @@ const ParticleBackground = () => {
 
 const phaseColors = ["bg-main", "bg-blue-500", "bg-purple-500", "bg-orange-500"]
 
+// ---------------------------------------------------------------------------
+// Main landing component
+// ---------------------------------------------------------------------------
+
 interface Props {
   phases: SoQPhaseWithTopics[]
   userEmail: string | null
+  userId: string | null
   completedTopicIds: number[]
   lastVisited: { phaseSlug: string; topicSlug: string; topicTitle: string } | null
+  userProfile: Omit<UserProfile, "id"> | null
+  leaderboard: LeaderboardEntry[]
 }
 
-export function SoQProgramLanding({ phases, userEmail, completedTopicIds, lastVisited }: Props) {
+export function SoQProgramLanding({
+  phases,
+  userEmail,
+  userId,
+  completedTopicIds,
+  lastVisited,
+  userProfile,
+  leaderboard,
+}: Props) {
   const totalTopics = phases.reduce((sum, p) => sum + p.topics.length, 0)
   const completedCount = completedTopicIds.length
   const overallPct = totalTopics > 0 ? Math.round((completedCount / totalTopics) * 100) : 0
+
   return (
     <div className="pt-[70px] pb-16 bg-background bg-[linear-gradient(to_right,#80808033_1px,transparent_1px),linear-gradient(to_bottom,#80808033_1px,transparent_1px)] bg-[size:70px_70px] min-h-dvh">
       <div className="container max-w-6xl mx-auto relative px-5 py-8 md:py-12">
+        {/* Background decorations */}
         <div className="absolute inset-0 overflow-hidden pointer-events-none z-0">
           <AnimatedStar StarComponent={Star1}  size={24} color="var(--color-main)" initialX="6%"  initialY="14%" animateY={-20} duration={10} />
           <AnimatedStar StarComponent={Star13} size={28} color="var(--color-main)" initialX="78%" initialY="22%" animateY={-15} duration={11} delay={1.5} />
@@ -95,8 +117,8 @@ export function SoQProgramLanding({ phases, userEmail, completedTopicIds, lastVi
         <FloatingIcon icon={LineChart}  top="56%" left="92%" delay={2} />
 
         {/* Header row */}
-        <div className="relative z-10 flex items-start justify-between mb-12">
-          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}>
+        <div className="relative z-10 flex flex-col sm:flex-row sm:items-start justify-between gap-6 mb-12">
+          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }} className="flex-1 min-w-0">
             <div className="inline-flex items-center gap-2 mb-4 px-3 py-1 bg-main text-main-foreground border-2 border-border shadow-shadow text-xs font-heading rounded-base">
               Program Active · Summer 2026
             </div>
@@ -128,8 +150,15 @@ export function SoQProgramLanding({ phases, userEmail, completedTopicIds, lastVi
             )}
           </motion.div>
 
+          {/* Profile + Sign out buttons */}
           {userEmail && (
-            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.3 }}>
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.3 }}
+              className="flex items-center gap-2 shrink-0 self-start sm:self-auto"
+            >
+              <ProfileButton initialProfile={userProfile} />
               <form action="/soq/logout" method="POST">
                 <Button variant="neutral" size="sm" type="submit">
                   <LogOut className="h-3.5 w-3.5 mr-1.5" /> Sign out
@@ -247,6 +276,15 @@ export function SoQProgramLanding({ phases, userEmail, completedTopicIds, lastVi
             )
           })}
         </div>
+
+        {/* Leaderboard — below the phase grid */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.4, duration: 0.5 }}
+        >
+          <Leaderboard entries={leaderboard} currentUserId={userId} />
+        </motion.div>
       </div>
     </div>
   )

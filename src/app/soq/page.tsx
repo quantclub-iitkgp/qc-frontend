@@ -6,6 +6,8 @@ import {
   getCurrentUser,
   getUserProgress,
   getLastVisitedTopic,
+  getUserProfile,
+  getLeaderboard,
 } from "@/lib/soq-api"
 
 export const metadata = {
@@ -17,23 +19,27 @@ export const metadata = {
 export default async function SoQPage() {
   if (!isFeatureEnabled("soq-program")) notFound()
 
-  // Every visitor here is signed in — middleware redirects logged-out users to /soq/login.
-  // There is no enrollment gate: sign-up grants access to the whole program.
   const user = await getCurrentUser()
 
-  // Run all subsequent reads in parallel — they share the cached user.
-  const [phasesWithTopics, completedTopicIds, lastVisited] = await Promise.all([
-    getAllPhasesWithTopics(),
-    user ? getUserProgress(user) : Promise.resolve<number[]>([]),
-    user ? getLastVisitedTopic(user) : Promise.resolve(null),
-  ])
+  const [phasesWithTopics, completedTopicIds, lastVisited, userProfile, leaderboardResult] =
+    await Promise.all([
+      getAllPhasesWithTopics(),
+      user ? getUserProgress(user) : Promise.resolve<number[]>([]),
+      user ? getLastVisitedTopic(user) : Promise.resolve(null),
+      user ? getUserProfile() : Promise.resolve(null),
+      getLeaderboard(),
+    ])
 
   return (
     <SoQProgramLanding
       phases={phasesWithTopics}
       userEmail={user?.email ?? null}
+      userId={user?.id ?? null}
       completedTopicIds={completedTopicIds}
       lastVisited={lastVisited}
+      userProfile={userProfile}
+      leaderboard={leaderboardResult.entries}
     />
   )
 }
+

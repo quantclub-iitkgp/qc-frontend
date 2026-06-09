@@ -80,7 +80,7 @@ export default function RootLayout({
 }) {
   return (
     <html className="scroll-smooth" suppressHydrationWarning lang="en">
-      <body className={dmSans.className}>
+      <body className={dmSans.className} suppressHydrationWarning>
           <ThemeProvider
             attribute="class"
             defaultTheme="light"
