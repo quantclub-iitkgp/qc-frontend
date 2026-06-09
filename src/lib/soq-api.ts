@@ -1,5 +1,5 @@
 import { cache } from "react"
-import { unstable_cache } from "next/cache"
+import { unstable_cache, revalidateTag } from "next/cache"
 import type { User } from "@supabase/supabase-js"
 import { createClient } from "@/lib/supabase/server"
 import { getSupabaseClient } from "@/lib/supabase"
@@ -207,6 +207,9 @@ export async function markTopicComplete(topicId: number, user?: User | null): Pr
 
   // Bust the Redis cache so the sidebar & dashboard see fresh completion state
   await invalidateUserProgress(resolvedUser.id)
+
+  // Invalidate leaderboard cache
+  revalidateTag("soq-leaderboard")
 }
 
 // Returns the most recently visited topic for the user.
@@ -244,3 +247,135 @@ export const getLastVisitedTopic = cache(async (user?: User | null): Promise<{
     },
   )
 })
+
+// ---------------------------------------------------------------------------
+// User profiles
+// ---------------------------------------------------------------------------
+
+export type UserProfile = {
+  id: string
+  fullName: string | null
+  university: string | null
+  email: string | null
+  phone: string | null
+  gender: "male" | "female" | "non_binary" | "prefer_not_to_say" | null
+}
+
+/** Returns the profile for the currently-authenticated user. */
+export const getUserProfile = cache(async (): Promise<UserProfile | null> => {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return null
+
+  const { data, error } = await supabase
+    .from("user_profiles")
+    .select("id, full_name, university, email, phone, gender")
+    .eq("id", user.id)
+    .single()
+
+  if (error || !data) {
+    return {
+      id: user.id,
+      fullName: null,
+      university: null,
+      email: user.email ?? null,
+      phone: null,
+      gender: null,
+    }
+  }
+  return {
+    id: data.id,
+    fullName: data.full_name ?? null,
+    university: data.university ?? null,
+    email: data.email ?? user.email ?? null,
+    phone: data.phone ?? null,
+    gender: data.gender ?? null,
+  }
+})
+
+/** Upserts the current user's profile. Server action–safe. */
+export async function upsertUserProfile(
+  profile: Omit<UserProfile, "id">,
+): Promise<{ error: string | null }> {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return { error: "Not authenticated" }
+
+  const { error } = await supabase
+    .from("user_profiles")
+    .upsert(
+      {
+        id: user.id,
+        full_name: profile.fullName,
+        university: profile.university,
+        email: profile.email ?? user.email,
+        phone: profile.phone,
+        gender: profile.gender,
+        updated_at: new Date().toISOString(),
+      },
+      { onConflict: "id" },
+    )
+
+  if (error) return { error: error.message }
+  return { error: null }
+}
+
+// Leaderboard
+// Uses the service-role client so it can bypass RLS.
+// Reads the denormalised completed_topics_count + last_completed_at columns
+// that live directly on user_profiles (kept in sync by the DB trigger in
+// supabase_progress_counter.sql). Single query, DB-level sort, no join needed.
+// Only users with ALL 5 profile fields filled AND at least 1 completed topic appear.
+// ---------------------------------------------------------------------------
+
+export type LeaderboardEntry = {
+  id: string
+  fullName: string
+  university: string
+  completedCount: number
+  lastProgressAt: string
+}
+
+export type LeaderboardResult = {
+  entries: LeaderboardEntry[]
+}
+
+export const getLeaderboard = unstable_cache(
+  async (): Promise<LeaderboardResult> => {
+    const supabase = getServiceClient()
+
+    // Single query — sorted at DB level
+    const { data, error } = await supabase
+      .from("user_profiles")
+      .select("id, full_name, university, email, phone, gender, completed_topics_count, last_completed_at")
+      .gt("completed_topics_count", 0)                          // must have at least 1 topic
+      .order("completed_topics_count", { ascending: false })
+      .order("last_completed_at",      { ascending: false, nullsFirst: false })
+
+    if (error) {
+      console.error("[leaderboard] query failed:", error)
+      return { entries: [] }
+    }
+
+    // Client-side guard: all 5 profile fields must be non-empty
+    const entries: LeaderboardEntry[] = (data ?? [])
+      .filter((p) =>
+        p.full_name?.trim() &&
+        p.university?.trim() &&
+        p.email?.trim() &&
+        p.phone?.trim() &&
+        p.gender,
+      )
+      .map((p) => ({
+        id: p.id,
+        fullName:       p.full_name,
+        university:     p.university,
+        completedCount: p.completed_topics_count,
+        lastProgressAt: p.last_completed_at ?? "",
+      }))
+
+    return { entries }
+  },
+  ["soq-leaderboard"],
+  { revalidate: 300, tags: ["soq-leaderboard"] },
+)

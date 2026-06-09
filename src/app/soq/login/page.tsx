@@ -1,6 +1,6 @@
 "use client"
 
-import { Suspense, useState } from "react"
+import { Suspense, useState, useEffect } from "react"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { z } from "zod"
@@ -23,9 +23,16 @@ type FormValues = z.infer<typeof schema>
 function LoginForm() {
   const router = useRouter()
   const searchParams = useSearchParams()
-  const next = searchParams.get("next") ?? "/soq"
+  const [next, setNext] = useState("/soq")
   const [serverError, setServerError] = useState<string | null>(null)
   const [githubLoading, setGithubLoading] = useState(false)
+
+  useEffect(() => {
+    const nextParam = searchParams.get("next")
+    if (nextParam) {
+      setNext(nextParam)
+    }
+  }, [searchParams])
 
   const {
     register,
