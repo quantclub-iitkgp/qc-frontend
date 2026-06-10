@@ -1,6 +1,6 @@
 "use client"
 
-import { useMemo } from "react"
+import { useMemo, useRef } from "react"
 import { motion, useReducedMotion } from "framer-motion"
 import { ArrowRight, TrendingUp, LineChart, LogOut, Trophy, Clock } from "lucide-react"
 import Link from "next/link"
@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button"
 import type { SoQPhaseWithTopics, UserProfile, LeaderboardEntry } from "@/lib/soq-api"
 import { ProfileButton } from "./profile-button"
 import { Leaderboard } from "./leaderboard"
+import { LinkedInShareButton } from "./linkedin-share-button"
 
 import Star1 from "@/examples/stars/s1"
 import Star13 from "@/examples/stars/s13"
@@ -103,6 +104,9 @@ export function SoQProgramLanding({
   const completedCount = completedTopicIds.length
   const overallPct = totalTopics > 0 ? Math.round((completedCount / totalTopics) * 100) : 0
 
+  // Ref attached to the shareable section (progress bar + leaderboard)
+  const shareRef = useRef<HTMLDivElement>(null)
+
   const isProfileComplete = useMemo(() => {
     if (!userProfile) return false
     const fields: (keyof Omit<UserProfile, "id">)[] = [
@@ -131,6 +135,8 @@ export function SoQProgramLanding({
         <FloatingIcon icon={TrendingUp} top="14%" left="6%"  delay={0} />
         <FloatingIcon icon={LineChart}  top="56%" left="92%" delay={2} />
 
+        {/* Shareable section: header + progress bar + phase grid */}
+        <div ref={shareRef} className="bg-background">
         {/* Header row */}
         <div className="relative z-10 flex flex-col sm:flex-row sm:items-start justify-between gap-6 mb-12">
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }} className="flex-1 min-w-0">
@@ -191,9 +197,9 @@ export function SoQProgramLanding({
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.25, duration: 0.4 }}
           >
-            <div className="flex items-center justify-between mb-2">
-              <span className="text-sm font-heading">Overall Progress</span>
-              <span className="text-sm font-heading tabular-nums">
+            <div className="flex items-center justify-between gap-4 mb-2">
+              <span className="text-sm font-heading whitespace-nowrap">Overall Progress</span>
+              <span className="text-sm font-heading tabular-nums whitespace-nowrap">
                 {completedCount} / {totalTopics} topics
               </span>
             </div>
@@ -291,8 +297,10 @@ export function SoQProgramLanding({
             )
           })}
         </div>
+        {/* end shareRef — header + progress + phases captured above */}
+        </div>
 
-        {/* Leaderboard — below the phase grid */}
+        {/* Leaderboard — below the shareable section */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -302,6 +310,16 @@ export function SoQProgramLanding({
             entries={leaderboard}
             currentUserId={userId}
             isProfileComplete={isProfileComplete}
+            action={
+              userEmail && isProfileComplete ? (
+                <LinkedInShareButton
+                  captureRef={shareRef}
+                  userName={userProfile?.fullName}
+                  completedCount={completedCount}
+                  totalTopics={totalTopics}
+                />
+              ) : undefined
+            }
           />
         </motion.div>
       </div>

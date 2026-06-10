@@ -32,11 +32,12 @@ const USER_CACHE_TTL = 60 // seconds
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl
 
-  // Skip the public auth pages — everything else under /soq (incl. the root landing) requires login
+  // Skip public auth pages AND the LinkedIn share OG page (must be accessible to unauthenticated crawlers)
   if (
     pathname.startsWith("/soq/login") ||
     pathname.startsWith("/soq/signup") ||
-    pathname.startsWith("/soq/forgot-password")
+    pathname.startsWith("/soq/forgot-password") ||
+    pathname.startsWith("/soq/share")
   ) {
     return NextResponse.next()
   }
