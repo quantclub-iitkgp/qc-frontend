@@ -4,7 +4,7 @@ import { motion } from "framer-motion"
 import { Trophy, User } from "lucide-react"
 import type { LeaderboardEntry } from "@/lib/soq-api"
 
-const SHOW_LEADERBOARD = false // SET TO FALSE TO SHOW "COMING SOON"
+const SHOW_LEADERBOARD = true // SET TO FALSE TO SHOW "COMING SOON"
 
 const TOP_N = 10
 
@@ -17,9 +17,35 @@ const RANK_COLORS = [
 interface LeaderboardProps {
   entries: LeaderboardEntry[]          // full sorted list from the server
   currentUserId?: string | null
+  isProfileComplete?: boolean
 }
 
-export function Leaderboard({ entries, currentUserId }: LeaderboardProps) {
+export function Leaderboard({
+  entries,
+  currentUserId,
+  isProfileComplete = false,
+}: LeaderboardProps) {
+  if (!isProfileComplete) {
+    return (
+      <div className="relative z-10 mt-10">
+        <SectionHeader description="Complete your profile to participate" />
+        <div className="flex flex-col items-center justify-center p-8 border-4 border-border rounded-base bg-background text-center mt-4 shadow-shadow">
+          <User className="h-10 w-10 text-main mb-3 animate-bounce" />
+          <h3 className="font-heading text-lg font-bold">Leaderboard Locked</h3>
+          <p className="text-xs text-foreground/50 max-w-sm mt-1.5 leading-relaxed">
+            Complete the profile to participate in leaderboard
+          </p>
+          <button
+            onClick={() => document.getElementById("soq-profile-btn")?.click()}
+            className="mt-4 px-4 py-2 text-xs font-heading font-bold rounded-base border-2 border-border bg-main text-main-foreground shadow-shadow hover:translate-x-boxShadowX hover:translate-y-boxShadowY hover:shadow-none transition-all"
+          >
+            Complete Profile
+          </button>
+        </div>
+      </div>
+    )
+  }
+
   if (!SHOW_LEADERBOARD) {
     return (
       <div className="relative z-10 mt-10">
