@@ -92,14 +92,39 @@ export async function captureAndShare(
 // LinkedIn "Create Post" opener
 // ---------------------------------------------------------------------------
 
+const LINKEDIN_CREATE_POST_URL = "https://www.linkedin.com/feed/?shareActive=true"
+
 /**
- * Opens LinkedIn's Create Post page in a new tab.
- * The image has already been downloaded; the user just attaches it.
+ * Returns true if we're running on a mobile/tablet device.
+ * Used to decide between Universal Link navigation and a new browser tab.
+ */
+function isMobileDevice(): boolean {
+  if (typeof navigator === "undefined") return false
+  return /Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent)
+}
+
+/**
+ * Opens LinkedIn's Create Post page.
+ *
+ * Desktop: opens in a new tab (normal browser behaviour).
+ *
+ * Mobile: navigates the current tab via `window.location.href` instead of
+ * `window.open()`. This is critical — iOS Universal Links and Android App
+ * Links are only triggered by same-frame navigations; `window.open()` into a
+ * new tab bypasses the OS interception entirely, so the LinkedIn app would
+ * never be offered. Using `location.href` lets the OS prompt "Open in
+ * LinkedIn?" automatically if the app is installed.
+ *
+ * The image has already been downloaded; the user just attaches it in the
+ * LinkedIn composer.
  */
 export function openLinkedInCreatePost(): void {
-  window.open(
-    "https://www.linkedin.com/feed/?shareActive=true",
-    "_blank",
-    "noopener,noreferrer",
-  )
+  if (isMobileDevice()) {
+    // Same-frame navigation → triggers iOS Universal Links / Android App Links.
+    // If LinkedIn is installed the OS will show "Open in LinkedIn" or open
+    // directly; if not, it falls through to the mobile browser.
+    window.location.href = LINKEDIN_CREATE_POST_URL
+  } else {
+    window.open(LINKEDIN_CREATE_POST_URL, "_blank", "noopener,noreferrer")
+  }
 }
