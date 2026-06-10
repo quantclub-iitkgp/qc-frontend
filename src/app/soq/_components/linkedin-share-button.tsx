@@ -48,7 +48,7 @@ export function LinkedInShareButton({
       `* Quantitative Finance Basics\n\n` +
       `* Machine Learning for Finance\n\n` +
       `* Strategic Modeling & Implementation\n\n` +
-      `The experience so far has been incredibly rewarding, and I’m eager to apply these skills to solve complex market challenges. Can't wait to see what the next modules have in store as I continue this deep dive into the quant space! 🚀📈\n\n` +
+      `The experience so far has been incredibly rewarding, and I’m eager to apply these skills to solve complex market challenges.\n\n` +
       `#QuantClub #SummerofQuant #QuantFinance #QuantitativeAnalysis`
     )
   }
