@@ -18,17 +18,19 @@ interface LeaderboardProps {
   entries: LeaderboardEntry[]          // full sorted list from the server
   currentUserId?: string | null
   isProfileComplete?: boolean
+  action?: React.ReactNode
 }
 
 export function Leaderboard({
   entries,
   currentUserId,
   isProfileComplete = false,
+  action,
 }: LeaderboardProps) {
   if (!isProfileComplete) {
     return (
       <div className="relative z-10 mt-10">
-        <SectionHeader description="Complete your profile to participate" />
+        <SectionHeader description="Complete your profile to participate" action={action} />
         <div className="flex flex-col items-center justify-center p-8 border-4 border-border rounded-base bg-background text-center mt-4 shadow-shadow">
           <User className="h-10 w-10 text-main mb-3 animate-bounce" />
           <h3 className="font-heading text-lg font-bold">Leaderboard Locked</h3>
@@ -49,7 +51,7 @@ export function Leaderboard({
   if (!SHOW_LEADERBOARD) {
     return (
       <div className="relative z-10 mt-10">
-        <SectionHeader description="Rankings will be revealed soon" />
+        <SectionHeader description="Rankings will be revealed soon" action={action} />
         <div className="flex flex-col items-center justify-center p-8 border-4 border-border rounded-base bg-background text-center mt-4 shadow-shadow">
           <Trophy className="h-10 w-10 text-foreground/30 mb-3 animate-pulse" />
           <h3 className="font-heading text-lg font-bold">Leaderboard Coming Soon</h3>
@@ -76,7 +78,7 @@ export function Leaderboard({
   if (top10.length === 0 && !showSelfBelow) {
     return (
       <div className="relative z-10 mt-10">
-        <SectionHeader />
+        <SectionHeader action={action} />
         <p className="text-sm text-foreground/40 text-center py-8">
           No entries yet — complete your profile and finish topics to appear here!
         </p>
@@ -86,7 +88,7 @@ export function Leaderboard({
 
   return (
     <div className="relative z-10 mt-10">
-      <SectionHeader />
+      <SectionHeader action={action} />
       <div className="grid gap-3 mt-4">
         {top10.map((entry, i) => (
           <LeaderboardCard
@@ -122,18 +124,27 @@ export function Leaderboard({
   )
 }
 
-function SectionHeader({ description = "Top 10 " }: { description?: string }) {
+function SectionHeader({
+  description = "Top 10",
+  action,
+}: {
+  description?: string
+  action?: React.ReactNode
+}) {
   return (
-    <div className="flex items-center gap-3 mb-2">
-      <div className="flex h-9 w-9 items-center justify-center rounded-base border-4 border-border bg-main shadow-shadow shrink-0">
-        <Trophy className="h-4 w-4 text-main-foreground" />
+    <div className="flex items-center justify-between mb-2">
+      <div className="flex items-center gap-2 sm:gap-3">
+        <div className="flex h-8 w-8 sm:h-9 sm:w-9 items-center justify-center rounded-base border-4 border-border bg-main shadow-shadow shrink-0">
+          <Trophy className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-main-foreground" />
+        </div>
+        <div>
+          <h2 className="text-lg sm:text-xl font-heading font-bold tracking-tight leading-none">
+            Leaderboard
+          </h2>
+          <p className="text-[10px] sm:text-xs text-foreground/50 mt-0.5">{description}</p>
+        </div>
       </div>
-      <div>
-        <h2 className="text-xl font-heading font-bold tracking-tight leading-none">
-          Leaderboard
-        </h2>
-        <p className="text-xs text-foreground/50 mt-0.5">{description}</p>
-      </div>
+      {action && <div className="shrink-0">{action}</div>}
     </div>
   )
 }
@@ -156,15 +167,15 @@ function LeaderboardCard({
 
   return (
     <div
-      className={`flex items-center gap-4 px-4 py-3 rounded-base border-2 shadow-shadow bg-background transition-colors
+      className={`flex w-full min-w-0 items-center gap-2.5 sm:gap-4 px-3 py-2.5 sm:px-4 sm:py-3 rounded-base border-2 shadow-shadow bg-background transition-colors
         ${isCurrentUser ? "border-main" : "border-border"}`}
     >
       {/* Rank badge */}
       <div
-        className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-base border-2 font-heading font-bold text-sm ${medalClass}`}
+        className={`flex h-8 w-8 sm:h-9 sm:w-9 shrink-0 items-center justify-center rounded-base border-2 font-heading font-bold text-xs sm:text-sm ${medalClass}`}
       >
         {rank <= 3 ? (
-          <Trophy className="h-4 w-4" />
+          <Trophy className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
         ) : (
           <span>{rank}</span>
         )}
@@ -172,10 +183,10 @@ function LeaderboardCard({
 
       {/* Avatar */}
       <div
-        className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-full border-2 bg-secondary-background
+        className={`flex h-8 w-8 sm:h-10 sm:w-10 shrink-0 items-center justify-center rounded-full border-2 bg-secondary-background
           ${isCurrentUser ? "border-main" : "border-border"}`}
       >
-        <User className={`h-5 w-5 ${isCurrentUser ? "text-main" : "text-foreground/60"}`} />
+        <User className={`h-4 w-4 sm:h-5 sm:w-5 ${isCurrentUser ? "text-main" : "text-foreground/60"}`} />
       </div>
 
       {/* Info */}

@@ -26,8 +26,10 @@ function LoginForm() {
   const [next, setNext] = useState("/soq")
   const [serverError, setServerError] = useState<string | null>(null)
   const [githubLoading, setGithubLoading] = useState(false)
+  const [mounted, setMounted] = useState(false)
 
   useEffect(() => {
+    setMounted(true)
     const nextParam = searchParams.get("next")
     if (nextParam) {
       setNext(nextParam)
@@ -39,6 +41,10 @@ function LoginForm() {
     handleSubmit,
     formState: { errors, isSubmitting },
   } = useForm<FormValues>({ resolver: zodResolver(schema) })
+
+  if (!mounted) {
+    return null
+  }
 
   async function onSubmit(values: FormValues) {
     setServerError(null)

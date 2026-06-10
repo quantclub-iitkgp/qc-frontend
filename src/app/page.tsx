@@ -8,7 +8,6 @@ import "@/styling/marquee.css"
 
 import Link from "next/link"
 
-
 import HeroComponents from "@/components/app/hero-components"
 import { sharedComponents } from "@/components/app/mdx-components"
 import { Pre } from "@/components/app/pre"

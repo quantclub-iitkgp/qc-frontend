@@ -1,3 +1,5 @@
+"use client"
+
 import { Marquee } from "@devnomic/marquee"
 import { ChevronsUpDown, Terminal, TrendingUp } from "lucide-react"
 
@@ -66,6 +68,16 @@ export default function HeroComponents({
   className?: string
   reverse?: boolean
 }) {
+  const [mounted, setMounted] = React.useState(false)
+
+  React.useEffect(() => {
+    setMounted(true)
+  }, [])
+
+  if (!mounted) {
+    return null
+  }
+
   return (
     <div
       aria-hidden="true"
