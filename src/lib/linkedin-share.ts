@@ -35,15 +35,24 @@ export async function captureAndShare(
   postText: string,
 ): Promise<ShareResult> {
   // ── 1. Capture ──────────────────────────────────────────────────────────
+  const originalWidth = element.offsetWidth
+  const originalHeight = element.offsetHeight
+
   const blob = await toBlob(element, {
     quality: 0.92,
     pixelRatio: 2,        // 2× for retina sharpness
     cacheBust: true,
     skipFonts: true,      // Avoid CORS font loading issues
     fontEmbedCSS: "",     // Stop scanning document stylesheets for font rules (bypasses CORS errors)
+    width: originalWidth + 48,
+    height: originalHeight + 48,
     style: {
       padding: "24px",
+      margin: "0",
+      width: `${originalWidth + 48}px`,
+      height: `${originalHeight + 48}px`,
       backgroundColor: "oklch(93.46% 0.0304 254.32)",
+      boxSizing: "border-box",
     }
   })
   if (!blob) throw new Error("Screen capture produced an empty blob")

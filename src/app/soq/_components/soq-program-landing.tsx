@@ -140,7 +140,7 @@ export function SoQProgramLanding({
         {/* Header row */}
         <div className="relative z-10 flex flex-col sm:flex-row sm:items-start justify-between gap-6 mb-12">
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }} className="flex-1 min-w-0">
-            <div className="inline-flex items-center gap-2 mb-4 px-3 py-1 bg-main text-main-foreground border-2 border-border shadow-shadow text-xs font-heading rounded-base">
+            <div className="inline-flex items-center gap-2 mb-4 px-3 py-1 bg-main text-main-foreground border-2 border-border shadow-shadow text-xs font-heading rounded-base whitespace-nowrap">
               Program Active · Summer 2026
             </div>
             <h1 className="text-4xl md:text-6xl font-heading font-bold tracking-tight mb-3">

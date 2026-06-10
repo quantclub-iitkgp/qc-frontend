@@ -74,7 +74,6 @@ export function LinkedInShareButton({
 
       setStatus("copied")
       // Log the URL for testing in LinkedIn Post Inspector
-      console.log("LinkedIn Share URL for Post Inspector:", shareUrl)
       // Open LinkedIn — text is in clipboard, user pastes it
       openLinkedInShare(shareUrl)
       // Reset to idle after 6 s
@@ -125,7 +124,7 @@ export function LinkedInShareButton({
       </button>
       {status === "copied" && (
         <p className="text-xs text-green-600 max-w-[260px] leading-snug font-heading">
-          ✅ Post text copied! Paste it in LinkedIn (Ctrl+V / ⌘V)
+          Post text copied! Paste it in LinkedIn
         </p>
       )}
       {status === "error" && errorMsg && (
