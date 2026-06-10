@@ -133,15 +133,15 @@ function SectionHeader({
 }) {
   return (
     <div className="flex items-center justify-between mb-2">
-      <div className="flex items-center gap-3">
-        <div className="flex h-9 w-9 items-center justify-center rounded-base border-4 border-border bg-main shadow-shadow shrink-0">
-          <Trophy className="h-4 w-4 text-main-foreground" />
+      <div className="flex items-center gap-2 sm:gap-3">
+        <div className="flex h-8 w-8 sm:h-9 sm:w-9 items-center justify-center rounded-base border-4 border-border bg-main shadow-shadow shrink-0">
+          <Trophy className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-main-foreground" />
         </div>
         <div>
-          <h2 className="text-xl font-heading font-bold tracking-tight leading-none">
+          <h2 className="text-lg sm:text-xl font-heading font-bold tracking-tight leading-none">
             Leaderboard
           </h2>
-          <p className="text-xs text-foreground/50 mt-0.5">{description}</p>
+          <p className="text-[10px] sm:text-xs text-foreground/50 mt-0.5">{description}</p>
         </div>
       </div>
       {action && <div className="shrink-0">{action}</div>}
@@ -167,15 +167,15 @@ function LeaderboardCard({
 
   return (
     <div
-      className={`flex items-center gap-4 px-4 py-3 rounded-base border-2 shadow-shadow bg-background transition-colors
+      className={`flex w-full min-w-0 items-center gap-2.5 sm:gap-4 px-3 py-2.5 sm:px-4 sm:py-3 rounded-base border-2 shadow-shadow bg-background transition-colors
         ${isCurrentUser ? "border-main" : "border-border"}`}
     >
       {/* Rank badge */}
       <div
-        className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-base border-2 font-heading font-bold text-sm ${medalClass}`}
+        className={`flex h-8 w-8 sm:h-9 sm:w-9 shrink-0 items-center justify-center rounded-base border-2 font-heading font-bold text-xs sm:text-sm ${medalClass}`}
       >
         {rank <= 3 ? (
-          <Trophy className="h-4 w-4" />
+          <Trophy className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
         ) : (
           <span>{rank}</span>
         )}
@@ -183,10 +183,10 @@ function LeaderboardCard({
 
       {/* Avatar */}
       <div
-        className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-full border-2 bg-secondary-background
+        className={`flex h-8 w-8 sm:h-10 sm:w-10 shrink-0 items-center justify-center rounded-full border-2 bg-secondary-background
           ${isCurrentUser ? "border-main" : "border-border"}`}
       >
-        <User className={`h-5 w-5 ${isCurrentUser ? "text-main" : "text-foreground/60"}`} />
+        <User className={`h-4 w-4 sm:h-5 sm:w-5 ${isCurrentUser ? "text-main" : "text-foreground/60"}`} />
       </div>
 
       {/* Info */}

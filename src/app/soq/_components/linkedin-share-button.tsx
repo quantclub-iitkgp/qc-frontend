@@ -16,6 +16,7 @@
 import { useRef, useState, RefObject } from "react"
 import { Linkedin, Loader2, CheckCircle, AlertCircle } from "lucide-react"
 import { captureAndShare, openLinkedInShare } from "@/lib/linkedin-share"
+import { toast } from "sonner"
 
 interface LinkedInShareButtonProps {
   /** Ref to the DOM element that should be screenshotted */
@@ -55,6 +56,7 @@ export function LinkedInShareButton({
 
   async function handleClick() {
     if (!captureRef.current) {
+      toast.error("Nothing to capture — ref is not attached.")
       setErrorMsg("Nothing to capture — ref is not attached.")
       setStatus("error")
       return
@@ -73,6 +75,7 @@ export function LinkedInShareButton({
       }
 
       setStatus("copied")
+      toast.success("Post text copied! Paste it in LinkedIn")
       // Log the URL for testing in LinkedIn Post Inspector
       // Open LinkedIn — text is in clipboard, user pastes it
       openLinkedInShare(shareUrl)
@@ -80,8 +83,10 @@ export function LinkedInShareButton({
       setTimeout(() => setStatus("idle"), 6000)
     } catch (err) {
       console.error("[LinkedInShareButton]", err)
-      setErrorMsg(err instanceof Error ? err.message : "Unknown error")
+      const msg = err instanceof Error ? err.message : "Unknown error"
+      setErrorMsg(msg)
       setStatus("error")
+      toast.error(`Share failed: ${msg}`)
       setTimeout(() => setStatus("idle"), 5000)
     }
   }
@@ -91,6 +96,13 @@ export function LinkedInShareButton({
     loading: "Preparing share…",
     copied: "Paste in LinkedIn!",
     error: "Failed — retry?",
+  }
+
+  const mobileLabel: Record<Status, string> = {
+    idle: "Share",
+    loading: "Preparing…",
+    copied: "Paste!",
+    error: "Retry?",
   }
 
   const Icon = () => {
@@ -108,11 +120,12 @@ export function LinkedInShareButton({
   }
 
   return (
-    <div className={`flex flex-col items-start gap-1 ${className}`}>
+    <div className={`flex flex-col items-end gap-1 ${className}`}>
       <button
         onClick={handleClick}
         disabled={status === "loading"}
-        className={`inline-flex items-center gap-2 px-4 py-2 text-sm font-heading font-bold
+        title="Share your Summer of Quant progress on LinkedIn"
+        className={`inline-flex items-center justify-center gap-1.5 px-2.5 py-1.5 sm:px-4 sm:py-2 text-xs sm:text-sm font-heading font-bold
           rounded-base border-2 shadow-shadow
           hover:translate-x-boxShadowX hover:translate-y-boxShadowY hover:shadow-none
           transition-all disabled:opacity-70 disabled:pointer-events-none
@@ -120,16 +133,9 @@ export function LinkedInShareButton({
         aria-label="Share your Summer of Quant progress on LinkedIn"
       >
         <Icon />
-        {label[status]}
+        <span className="sm:hidden">{mobileLabel[status]}</span>
+        <span className="hidden sm:inline">{label[status]}</span>
       </button>
-      {status === "copied" && (
-        <p className="text-xs text-green-600 max-w-[260px] leading-snug font-heading">
-          Post text copied! Paste it in LinkedIn
-        </p>
-      )}
-      {status === "error" && errorMsg && (
-        <p className="text-xs text-red-500 max-w-[260px] leading-snug">{errorMsg}</p>
-      )}
     </div>
   )
 }
