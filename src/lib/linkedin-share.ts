@@ -2,11 +2,18 @@
  * linkedin-share.ts
  *
  * Client-side utilities for the "Share on LinkedIn" feature.
+ *
  * Flow:
- *   1. Capture a DOM element as a PNG blob via html-to-image.
- *   2. Upload the blob to the public `temp-shares` Supabase Storage bucket.
- *   3. Insert a row in `linkedin_shares` with the public URL + pre-fed post text.
- *   4. Return the edge-function share URL that embeds OG tags for LinkedIn.
+ *   1. Capture the target DOM element as a PNG blob via html-to-image.
+ *   2. Trigger a browser download of the PNG to the user's device.
+ *   3. Copy the pre-written post text to the clipboard.
+ *   4. Open LinkedIn's "Create Post" page in a new tab.
+ *
+ * Why not use the LinkedIn Share URL (/sharing/share-offsite/)?
+ *   That URL only creates a "link preview" post — not a true image post.
+ *   LinkedIn's API requires OAuth2 + w_member_social scope to upload images
+ *   programmatically, which is impractical for an anonymous end-user flow.
+ *   The download-then-attach UX is used by Canva, Resume.io, and similar tools.
  */
 
 import { toBlob } from "html-to-image"
@@ -15,8 +22,10 @@ import { toBlob } from "html-to-image"
 // Types
 // ---------------------------------------------------------------------------
 export interface ShareResult {
-  shareUrl: string   // the edge-function URL (for OG image crawling)
-  postText: string   // pre-built post text to pass directly to LinkedIn
+  /** The filename that was downloaded */
+  filename: string
+  /** The pre-built post text that was copied to the clipboard */
+  postText: string
 }
 
 // ---------------------------------------------------------------------------
@@ -24,11 +33,11 @@ export interface ShareResult {
 // ---------------------------------------------------------------------------
 
 /**
- * Captures `element`, uploads the image, saves a DB record via server actions,
- * then returns the edge-function URL to hand off to the LinkedIn share dialog.
+ * Captures `element` as a PNG, downloads it to the user's device, copies
+ * `postText` to the clipboard, and returns metadata about what happened.
  *
- * @param element  - The DOM node to screenshot (e.g. a ref'd div).
- * @param postText - The pre-written LinkedIn post text to store.
+ * @param element  - The DOM node to screenshot.
+ * @param postText - The pre-written LinkedIn post text.
  */
 export async function captureAndShare(
   element: HTMLElement,
@@ -39,11 +48,11 @@ export async function captureAndShare(
   const originalHeight = element.offsetHeight
 
   const blob = await toBlob(element, {
-    quality: 0.92,
+    quality: 0.95,
     pixelRatio: 2,        // 2× for retina sharpness
     cacheBust: true,
     skipFonts: true,      // Avoid CORS font loading issues
-    fontEmbedCSS: "",     // Stop scanning document stylesheets for font rules (bypasses CORS errors)
+    fontEmbedCSS: "",     // Stop scanning document stylesheets for font rules
     width: originalWidth + 48,
     height: originalHeight + 48,
     style: {
@@ -53,36 +62,44 @@ export async function captureAndShare(
       height: `${originalHeight + 48}px`,
       backgroundColor: "oklch(93.46% 0.0304 254.32)",
       boxSizing: "border-box",
-    }
+    },
   })
   if (!blob) throw new Error("Screen capture produced an empty blob")
 
-  // Convert blob to File and append to FormData for Server Action transport
-  const file = new File([blob], "share.png", { type: "image/png" })
-  const formData = new FormData()
-  formData.append("file", file)
+  // ── 2. Download the image ───────────────────────────────────────────────
+  const filename = `summer-of-quant-progress.png`
+  const objectUrl = URL.createObjectURL(blob)
+  const anchor = document.createElement("a")
+  anchor.href = objectUrl
+  anchor.download = filename
+  document.body.appendChild(anchor)
+  anchor.click()
+  document.body.removeChild(anchor)
+  // Revoke after a short delay so the download has time to start
+  setTimeout(() => URL.revokeObjectURL(objectUrl), 10_000)
 
-  // ── 2. Run Server Action ────────────────────────────────────────────────
-  const { shareOnLinkedInAction } = await import("@/app/soq/actions")
-  const result = await shareOnLinkedInAction(formData, postText)
-
-  if ("error" in result) {
-    throw new Error(result.error)
+  // ── 3. Copy post text to clipboard ─────────────────────────────────────
+  try {
+    await navigator.clipboard.writeText(postText)
+  } catch {
+    // Clipboard may be blocked in some browsers — not fatal
   }
 
-  return { shareUrl: result.shareUrl, postText }
+  return { filename, postText }
 }
 
 // ---------------------------------------------------------------------------
-// LinkedIn window opener
+// LinkedIn "Create Post" opener
 // ---------------------------------------------------------------------------
 
 /**
- * Opens the LinkedIn share dialog with the Edge Function URL.
- * Post text is pre-copied to clipboard by the caller — user just pastes.
+ * Opens LinkedIn's Create Post page in a new tab.
+ * The image has already been downloaded; the user just attaches it.
  */
-export function openLinkedInShare(shareUrl: string): void {
-  const encoded = encodeURIComponent(shareUrl)
-  const liUrl = `https://www.linkedin.com/sharing/share-offsite/?url=${encoded}`
-  window.open(liUrl, "_blank", "width=600,height=600,noopener,noreferrer")
+export function openLinkedInCreatePost(): void {
+  window.open(
+    "https://www.linkedin.com/feed/?shareActive=true",
+    "_blank",
+    "noopener,noreferrer",
+  )
 }
