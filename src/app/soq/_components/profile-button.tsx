@@ -182,6 +182,21 @@ function ProfileModal({ open, onClose, profile, onSave }: ProfileModalProps) {
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
     setError(null)
+
+    // Check if any field that was previously filled is now being set to empty
+    for (const key of PROFILE_FIELDS) {
+      const initialValue = profile[key]
+      const wasFilled = initialValue !== null && initialValue !== undefined && String(initialValue).trim() !== ""
+
+      const currentValue = form[key]
+      const isEmptyNow = currentValue === null || currentValue === undefined || String(currentValue).trim() === ""
+
+      if (wasFilled && isEmptyNow) {
+        setError("Field cannot be set empty")
+        return
+      }
+    }
+
     startTransition(async () => {
       const result = await upsertUserProfileAction(form)
       if (result.error) {

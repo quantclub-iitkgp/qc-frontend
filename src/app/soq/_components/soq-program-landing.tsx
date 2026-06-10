@@ -103,6 +103,21 @@ export function SoQProgramLanding({
   const completedCount = completedTopicIds.length
   const overallPct = totalTopics > 0 ? Math.round((completedCount / totalTopics) * 100) : 0
 
+  const isProfileComplete = useMemo(() => {
+    if (!userProfile) return false
+    const fields: (keyof Omit<UserProfile, "id">)[] = [
+      "fullName",
+      "university",
+      "email",
+      "phone",
+      "gender",
+    ]
+    return fields.every((f) => {
+      const v = userProfile[f]
+      return v !== null && v !== undefined && String(v).trim() !== ""
+    })
+  }, [userProfile])
+
   return (
     <div className="pt-[70px] pb-16 bg-background bg-[linear-gradient(to_right,#80808033_1px,transparent_1px),linear-gradient(to_bottom,#80808033_1px,transparent_1px)] bg-[size:70px_70px] min-h-dvh">
       <div className="container max-w-6xl mx-auto relative px-5 py-8 md:py-12">
@@ -283,7 +298,11 @@ export function SoQProgramLanding({
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.4, duration: 0.5 }}
         >
-          <Leaderboard entries={leaderboard} currentUserId={userId} />
+          <Leaderboard
+            entries={leaderboard}
+            currentUserId={userId}
+            isProfileComplete={isProfileComplete}
+          />
         </motion.div>
       </div>
     </div>

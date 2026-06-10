@@ -301,6 +301,31 @@ export async function upsertUserProfile(
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return { error: "Not authenticated" }
 
+  // Check existing profile
+  const { data: existing } = await supabase
+    .from("user_profiles")
+    .select("full_name, university, email, phone, gender")
+    .eq("id", user.id)
+    .single()
+
+  if (existing) {
+    const checks = [
+      { initial: existing.full_name, current: profile.fullName },
+      { initial: existing.university, current: profile.university },
+      { initial: existing.email, current: profile.email },
+      { initial: existing.phone, current: profile.phone },
+      { initial: existing.gender, current: profile.gender },
+    ]
+
+    for (const check of checks) {
+      const wasFilled = check.initial !== null && check.initial !== undefined && String(check.initial).trim() !== ""
+      const isEmptyNow = check.current === null || check.current === undefined || String(check.current).trim() === ""
+      if (wasFilled && isEmptyNow) {
+        return { error: "Field cannot be set empty" }
+      }
+    }
+  }
+
   const { error } = await supabase
     .from("user_profiles")
     .upsert(
