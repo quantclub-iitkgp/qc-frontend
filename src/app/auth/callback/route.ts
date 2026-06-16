@@ -5,7 +5,7 @@ import type { NextRequest } from "next/server"
 export async function GET(request: NextRequest) {
   const { searchParams, origin } = new URL(request.url)
   const code = searchParams.get("code")
-  const next = searchParams.get("next") ?? "/soq"
+  const next = searchParams.get("next") ?? "/soq/"
 
   if (code) {
     const supabase = await createClient()
@@ -14,7 +14,9 @@ export async function GET(request: NextRequest) {
       const hasEmailIdentity = data.user.identities?.some(
         (identity) => identity.provider === "email",
       )
-      if (!hasEmailIdentity) {
+      const hasPasswordSet = data.user.user_metadata?.password_set === true
+
+      if (!hasEmailIdentity && !hasPasswordSet) {
         return NextResponse.redirect(
           `${origin}/soq/setup-password?next=${encodeURIComponent(next)}`,
         )

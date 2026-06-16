@@ -30,7 +30,7 @@ type FormValues = z.infer<typeof schema>
 function SignupForm() {
   const router = useRouter()
   const searchParams = useSearchParams()
-  const [next, setNext] = useState("/soq")
+  const [next, setNext] = useState("/soq/")
   const [serverError, setServerError] = useState<string | null>(null)
   const [githubLoading, setGithubLoading] = useState(false)
 
@@ -228,7 +228,7 @@ function SignupForm() {
           <CardFooter className="flex justify-center border-t-2 border-border/40 pt-4">
             <p className="text-sm text-foreground/60">
               Already have an account?{" "}
-              <Link href={`/soq/login${next !== "/soq" ? `?next=${encodeURIComponent(next)}` : ""}`} className="font-heading text-foreground underline underline-offset-2 hover:text-main transition-colors">
+              <Link href={`/soq/login${next !== "/soq/" && next !== "/soq" ? `?next=${encodeURIComponent(next)}` : ""}`} className="font-heading text-foreground underline underline-offset-2 hover:text-main transition-colors">
                 Sign in
               </Link>
             </p>

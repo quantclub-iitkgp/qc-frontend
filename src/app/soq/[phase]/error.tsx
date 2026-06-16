@@ -11,7 +11,7 @@ export default function PhaseError({ reset }: { reset: () => void }) {
         <p className="text-foreground/60 mb-6 text-sm">An error occurred loading this content.</p>
         <div className="flex gap-3 justify-center">
           <Button onClick={reset}>Try again</Button>
-          <Link href="/soq">
+          <Link href="/soq/">
             <Button variant="neutral">Back to SoQ</Button>
           </Link>
         </div>

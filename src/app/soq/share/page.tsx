@@ -67,7 +67,7 @@ export default async function SharePage({ searchParams }: SharePageProps) {
         <p>Redirecting to Summer of Quant...</p>
         <script
           dangerouslySetInnerHTML={{
-            __html: `window.location.replace("/soq");`,
+            __html: `window.location.replace("/soq/");`,
           }}
         />
       </body>

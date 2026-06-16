@@ -85,7 +85,7 @@ function SoQButton({ mobile = false }: { mobile?: boolean }) {
     return (
       <div className="px-4 pb-4">
         <Link
-          href="/soq"
+          href="/soq/"
           className="flex items-center gap-2 px-4 py-3 font-heading border-4 border-border bg-main text-main-foreground shadow-shadow hover:translate-x-boxShadowX hover:translate-y-boxShadowY hover:shadow-none transition-all"
         >
           <Sun className="size-4 shrink-0" />
@@ -97,7 +97,7 @@ function SoQButton({ mobile = false }: { mobile?: boolean }) {
 
   return (
     <Link
-      href="/soq"
+      href="/soq/"
       className="relative flex items-center gap-1.5 px-3 h-9 font-heading text-sm border-4 border-border bg-main text-main-foreground shadow-shadow hover:translate-x-boxShadowX hover:translate-y-boxShadowY hover:shadow-none transition-all shrink-0"
     >
       <Sun className="size-3.5" />

@@ -27,7 +27,7 @@ type FormValues = z.infer<typeof schema>
 function SetupPasswordForm() {
   const router = useRouter()
   const searchParams = useSearchParams()
-  const [next, setNext] = useState("/soq")
+  const [next, setNext] = useState("/soq/")
   const [email, setEmail] = useState<string | null>(null)
   const [loadingEmail, setLoadingEmail] = useState(true)
   const [serverError, setServerError] = useState<string | null>(null)
@@ -78,6 +78,9 @@ function SetupPasswordForm() {
     const supabase = createClient()
     const { error } = await supabase.auth.updateUser({
       password: values.password,
+      data: {
+        password_set: true,
+      },
     })
     if (error) {
       setServerError(error.message)
@@ -86,9 +89,9 @@ function SetupPasswordForm() {
 
     setSuccess(true)
     // Wait for the success animation before navigating to dashboard
+    // Use window.location.href to perform a hard redirect, bypassing Next.js client-side caches and cookies sync lag
     setTimeout(() => {
-      router.push(next)
-      router.refresh()
+      window.location.href = next
     }, 1500)
   }
 

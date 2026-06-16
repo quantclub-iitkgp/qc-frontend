@@ -32,6 +32,11 @@ const USER_CACHE_TTL = 60 // seconds
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl
 
+  // Redirect /soq to /soq/ to ensure trailing slash consistency
+  if (pathname === "/soq") {
+    return NextResponse.redirect(new URL("/soq/", request.url))
+  }
+
   // Skip public auth pages AND the LinkedIn share OG page (must be accessible to unauthenticated crawlers)
   if (
     pathname.startsWith("/soq/login") ||
@@ -71,9 +76,12 @@ export async function middleware(request: NextRequest) {
           const hasEmailIdentity = cached.identities?.some(
             (identity) => identity.provider === "email",
           )
-          // Only proceed with cache if user has an email identity OR is accessing setup-password.
+          const hasPasswordSet = cached.user_metadata?.password_set === true
+          const hasPassword = hasEmailIdentity || hasPasswordSet
+
+          // Only proceed with cache if user has a password OR is accessing setup-password.
           // Otherwise, fall through to live check to see if they've set a password since.
-          if (hasEmailIdentity || pathname.startsWith("/soq/setup-password")) {
+          if (hasPassword || pathname.startsWith("/soq/setup-password")) {
             return NextResponse.next({ request })
           }
         }
@@ -119,12 +127,14 @@ export async function middleware(request: NextRequest) {
     return NextResponse.redirect(loginUrl)
   }
 
-  // Check if they need to set up a password (i.e. no email identity)
+  // Check if they need to set up a password (i.e. no email identity or password_set flag)
   const hasEmailIdentity = user.identities?.some(
     (identity) => identity.provider === "email",
   )
+  const hasPasswordSet = user.user_metadata?.password_set === true
+  const hasPassword = hasEmailIdentity || hasPasswordSet
 
-  if (!hasEmailIdentity && !pathname.startsWith("/soq/setup-password")) {
+  if (!hasPassword && !pathname.startsWith("/soq/setup-password")) {
     const setupUrl = new URL(
       `/soq/setup-password?next=${encodeURIComponent(pathname)}`,
       request.url,
@@ -132,8 +142,8 @@ export async function middleware(request: NextRequest) {
     return NextResponse.redirect(setupUrl)
   }
 
-  // If they already have an email identity and try to visit setup-password, redirect to next or /soq
-  if (hasEmailIdentity && pathname.startsWith("/soq/setup-password")) {
+  // If they already have a password and try to visit setup-password, redirect to next or /soq
+  if (hasPassword && pathname.startsWith("/soq/setup-password")) {
     const nextParam = request.nextUrl.searchParams.get("next") ?? "/soq"
     return NextResponse.redirect(new URL(nextParam, request.url))
   }

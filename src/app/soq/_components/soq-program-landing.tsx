@@ -8,7 +8,6 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Button } from "@/components/ui/button"
 import type { SoQPhaseWithTopics, UserProfile, LeaderboardEntry } from "@/lib/soq-api"
 import { ProfileButton } from "./profile-button"
-import { SettingsButton } from "./settings-button"
 import { Leaderboard } from "./leaderboard"
 import { LinkedInShareButton } from "./linkedin-share-button"
 
@@ -172,7 +171,7 @@ export function SoQProgramLanding({
             )}
           </motion.div>
 
-          {/* Profile + Settings + Sign out buttons */}
+          {/* Profile + Sign out buttons */}
           {userEmail && (
             <motion.div
               initial={{ opacity: 0 }}
@@ -180,7 +179,6 @@ export function SoQProgramLanding({
               transition={{ delay: 0.3 }}
               className="flex items-center gap-2 shrink-0 self-start sm:self-auto"
             >
-              <SettingsButton userEmail={userEmail} />
               <ProfileButton initialProfile={userProfile} />
               <form action="/soq/logout" method="POST">
                 <Button variant="neutral" size="sm" type="submit">
