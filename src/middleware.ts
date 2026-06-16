@@ -37,7 +37,8 @@ export async function middleware(request: NextRequest) {
     pathname.startsWith("/soq/login") ||
     pathname.startsWith("/soq/signup") ||
     pathname.startsWith("/soq/forgot-password") ||
-    pathname.startsWith("/soq/share")
+    pathname.startsWith("/soq/share") ||
+    pathname.startsWith("/soq/logout")
   ) {
     return NextResponse.next()
   }
@@ -67,8 +68,14 @@ export async function middleware(request: NextRequest) {
       try {
         const cached = await r.get<User>(`soq:user:${sessionToken}`)
         if (cached) {
-          // User is authenticated and cached — proceed immediately
-          return NextResponse.next({ request })
+          const hasEmailIdentity = cached.identities?.some(
+            (identity) => identity.provider === "email",
+          )
+          // Only proceed with cache if user has an email identity OR is accessing setup-password.
+          // Otherwise, fall through to live check to see if they've set a password since.
+          if (hasEmailIdentity || pathname.startsWith("/soq/setup-password")) {
+            return NextResponse.next({ request })
+          }
         }
       } catch {
         // Redis unavailable — fall through to live auth check
@@ -110,6 +117,25 @@ export async function middleware(request: NextRequest) {
       request.url,
     )
     return NextResponse.redirect(loginUrl)
+  }
+
+  // Check if they need to set up a password (i.e. no email identity)
+  const hasEmailIdentity = user.identities?.some(
+    (identity) => identity.provider === "email",
+  )
+
+  if (!hasEmailIdentity && !pathname.startsWith("/soq/setup-password")) {
+    const setupUrl = new URL(
+      `/soq/setup-password?next=${encodeURIComponent(pathname)}`,
+      request.url,
+    )
+    return NextResponse.redirect(setupUrl)
+  }
+
+  // If they already have an email identity and try to visit setup-password, redirect to next or /soq
+  if (hasEmailIdentity && pathname.startsWith("/soq/setup-password")) {
+    const nextParam = request.nextUrl.searchParams.get("next") ?? "/soq"
+    return NextResponse.redirect(new URL(nextParam, request.url))
   }
 
   // Cache the verified user so subsequent requests on this session are fast

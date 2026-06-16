@@ -9,8 +9,16 @@ export async function GET(request: NextRequest) {
 
   if (code) {
     const supabase = await createClient()
-    const { error } = await supabase.auth.exchangeCodeForSession(code)
-    if (!error) {
+    const { data, error } = await supabase.auth.exchangeCodeForSession(code)
+    if (!error && data?.user) {
+      const hasEmailIdentity = data.user.identities?.some(
+        (identity) => identity.provider === "email",
+      )
+      if (!hasEmailIdentity) {
+        return NextResponse.redirect(
+          `${origin}/soq/setup-password?next=${encodeURIComponent(next)}`,
+        )
+      }
       return NextResponse.redirect(`${origin}${next}`)
     }
   }
