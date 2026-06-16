@@ -6,5 +6,5 @@ export async function POST(request: Request) {
   await supabase.auth.signOut()
   // Redirect against the incoming request's origin so this works in dev and on
   // any deployment host without depending on a NEXT_PUBLIC_SITE_URL env var.
-  return NextResponse.redirect(new URL("/soq", request.url))
+  return NextResponse.redirect(new URL("/soq/", request.url))
 }

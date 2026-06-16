@@ -2,7 +2,8 @@
 
 import { useState, useTransition, useEffect } from "react"
 import { motion, AnimatePresence, useReducedMotion } from "framer-motion"
-import { User, Check, Loader2, X } from "lucide-react"
+import { User, Check, Loader2, X, Settings } from "lucide-react"
+import { SettingsModal } from "./settings-modal"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import {
@@ -51,6 +52,7 @@ export function ProfileButton({ initialProfile }: ProfileButtonProps) {
   }
 
   const [open, setOpen] = useState(false)
+  const [settingsOpen, setSettingsOpen] = useState(false)
   const [profile, setProfile] = useState<Omit<UserProfile, "id">>(
     initialProfile ?? emptyProfile,
   )
@@ -80,21 +82,21 @@ export function ProfileButton({ initialProfile }: ProfileButtonProps) {
         variant="neutral"
         size="sm"
         onClick={() => setOpen(true)}
-        className="relative overflow-hidden min-w-[90px] h-9"
+        className="relative overflow-hidden h-9 px-3 flex items-center gap-2 pr-2"
         aria-label="Edit your profile"
       >
         <AnimatePresence mode="wait" initial={false}>
           {showProgress && !isComplete ? (
             <motion.div
               key="progress"
-              className="flex items-center gap-2 w-full"
+              className="flex items-center gap-2"
               initial={reduce ? {} : { opacity: 0, y: -8 }}
               animate={{ opacity: 1, y: 0 }}
               exit={reduce ? {} : { opacity: 0, y: 8 }}
               transition={{ duration: 0.25 }}
             >
               {/* mini progress bar */}
-              <div className="flex-1 h-1.5 rounded-full bg-border overflow-hidden">
+              <div className="w-12 h-1.5 rounded-full bg-border overflow-hidden">
                 <motion.div
                   className="h-full bg-main rounded-full"
                   initial={{ width: 0 }}
@@ -125,6 +127,22 @@ export function ProfileButton({ initialProfile }: ProfileButtonProps) {
             </motion.div>
           )}
         </AnimatePresence>
+
+        {/* Vertical divider */}
+        <span className="h-4 w-px bg-border/60 self-center" />
+
+        {/* Settings button */}
+        <span
+          role="button"
+          onClick={(e) => {
+            e.stopPropagation()
+            setSettingsOpen(true)
+          }}
+          className="hover:text-main transition-colors p-1 -m-1 flex items-center justify-center"
+          title="Account Settings"
+        >
+          <Settings className="h-3.5 w-3.5" />
+        </span>
       </Button>
 
       <ProfileModal
@@ -132,6 +150,12 @@ export function ProfileButton({ initialProfile }: ProfileButtonProps) {
         onClose={() => setOpen(false)}
         profile={profile}
         onSave={(updated) => setProfile(updated)}
+      />
+
+      <SettingsModal
+        open={settingsOpen}
+        onClose={() => setSettingsOpen(false)}
+        userEmail={profile.email}
       />
     </>
   )

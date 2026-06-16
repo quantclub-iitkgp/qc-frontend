@@ -181,7 +181,7 @@ function SidebarContent({ phases, userEmail, completedTopicIds = [] }: Props) {
                   localStorage.removeItem(PHASES_KEY)
                 } catch {}
                 fetch("/soq/logout", { method: "POST" }).then(() => {
-                  window.location.href = "/soq"
+                  window.location.href = "/soq/"
                 })
               }}
             >

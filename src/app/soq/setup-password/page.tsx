@@ -4,10 +4,8 @@ import { Suspense, useState, useEffect } from "react"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { z } from "zod"
-import { motion } from "framer-motion"
-import { UserPlus, Mail, Lock, TrendingUp } from "lucide-react"
-import { Github } from "lucide-react"
-import Link from "next/link"
+import { motion, AnimatePresence } from "framer-motion"
+import { Lock, KeyRound, TrendingUp, LogOut, CheckCircle, Github } from "lucide-react"
 import { useRouter, useSearchParams } from "next/navigation"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
@@ -17,7 +15,6 @@ import { createClient } from "@/lib/supabase/client"
 
 const schema = z
   .object({
-    email: z.string().email("Enter a valid email"),
     password: z.string().min(8, "Password must be at least 8 characters"),
     confirmPassword: z.string(),
   })
@@ -27,18 +24,32 @@ const schema = z
   })
 type FormValues = z.infer<typeof schema>
 
-function SignupForm() {
+function SetupPasswordForm() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const [next, setNext] = useState("/soq/")
+  const [email, setEmail] = useState<string | null>(null)
+  const [loadingEmail, setLoadingEmail] = useState(true)
   const [serverError, setServerError] = useState<string | null>(null)
-  const [githubLoading, setGithubLoading] = useState(false)
+  const [success, setSuccess] = useState(false)
+  const [mounted, setMounted] = useState(false)
 
   useEffect(() => {
+    setMounted(true)
     const nextParam = searchParams.get("next")
     if (nextParam) {
       setNext(nextParam)
     }
+
+    async function fetchUser() {
+      const supabase = createClient()
+      const { data: { user } } = await supabase.auth.getUser()
+      if (user) {
+        setEmail(user.email ?? null)
+      }
+      setLoadingEmail(false)
+    }
+    fetchUser()
   }, [searchParams])
 
   const {
@@ -47,48 +58,41 @@ function SignupForm() {
     formState: { errors, isSubmitting },
   } = useForm<FormValues>({ resolver: zodResolver(schema) })
 
+  if (!mounted || loadingEmail) {
+    return (
+      <div className="min-h-dvh pt-[70px] bg-background bg-[linear-gradient(to_right,#80808033_1px,transparent_1px),linear-gradient(to_bottom,#80808033_1px,transparent_1px)] bg-[size:70px_70px] flex items-center justify-center px-5">
+        <div className="flex flex-col items-center gap-3">
+          <motion.div
+            animate={{ rotate: 360 }}
+            transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+            className="h-10 w-10 border-4 border-main border-t-transparent rounded-full"
+          />
+          <p className="text-foreground/50 text-sm font-heading">Loading account details...</p>
+        </div>
+      </div>
+    )
+  }
+
   async function onSubmit(values: FormValues) {
     setServerError(null)
     const supabase = createClient()
-    const { data, error } = await supabase.auth.signUp({
-      email: values.email,
+    const { error } = await supabase.auth.updateUser({
       password: values.password,
+      data: {
+        password_set: true,
+      },
     })
     if (error) {
       setServerError(error.message)
       return
     }
-    // With "Confirm email" disabled, signUp returns a live session and the user is
-    // logged in immediately. If confirmation is still enabled (no session yet), fall
-    // back to an explicit password sign-in so the flow never dead-ends on an email.
-    if (!data.session) {
-      const { error: signInError } = await supabase.auth.signInWithPassword({
-        email: values.email,
-        password: values.password,
-      })
-      if (signInError) {
-        setServerError(signInError.message)
-        return
-      }
-    }
-    router.push(next)
-    router.refresh()
-  }
 
-  async function handleGithubSignup() {
-    setGithubLoading(true)
-    setServerError(null)
-    const supabase = createClient()
-    const redirectTo = `${window.location.origin}/auth/callback?next=${encodeURIComponent(next)}`
-    const { error } = await supabase.auth.signInWithOAuth({
-      provider: "github",
-      options: { redirectTo },
-    })
-    if (error) {
-      setServerError(error.message)
-      setGithubLoading(false)
-    }
-    // On success, the browser is redirected to GitHub — no further action needed here
+    setSuccess(true)
+    // Wait for the success animation before navigating to dashboard
+    // Use window.location.href to perform a hard redirect, bypassing Next.js client-side caches and cookies sync lag
+    setTimeout(() => {
+      window.location.href = next
+    }, 1500)
   }
 
   return (
@@ -109,33 +113,51 @@ function SignupForm() {
 
         <Card className="border-4 border-border shadow-shadow">
           <CardHeader>
-            <CardTitle className="text-xl font-heading">Create your account</CardTitle>
+            <CardTitle className="text-xl font-heading">Set up your password</CardTitle>
             <CardDescription className="text-foreground/60">
-              Sign up to access the Summer of Quant program
+              Please secure your account with a password to complete your registration.
             </CardDescription>
           </CardHeader>
 
           <CardContent>
-            <motion.form
-              onSubmit={handleSubmit(onSubmit)}
-              className="space-y-4"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-            >
-                  <div className="space-y-2">
-                    <Label htmlFor="email" className="flex items-center gap-2 font-heading">
-                      <Mail className="h-4 w-4" /> Email
-                    </Label>
-                    <Input
-                      id="email"
-                      type="email"
-                      placeholder="arjun@example.com"
-                      {...register("email")}
-                      className={errors.email ? "border-red-500" : ""}
-                    />
-                    {errors.email && <p className="text-sm text-red-500">{errors.email.message}</p>}
-                  </div>
+            {email && (
+              <div className="flex items-center gap-2 px-3 py-2 bg-secondary-background border-2 border-border rounded-base text-xs font-heading w-full mb-4">
+                <Github className="h-4 w-4 shrink-0 text-foreground" />
+                <div className="truncate">
+                  Signed in as: <span className="text-main font-bold">{email}</span>
+                </div>
+              </div>
+            )}
 
+            <AnimatePresence mode="wait">
+              {success ? (
+                <motion.div
+                  key="success"
+                  initial={{ opacity: 0, scale: 0.95 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  className="flex flex-col items-center gap-4 py-6 text-center"
+                >
+                  <motion.div
+                    initial={{ scale: 0 }}
+                    animate={{ scale: 1 }}
+                    transition={{ type: "spring", stiffness: 300, damping: 20, delay: 0.1 }}
+                    className="flex h-14 w-14 items-center justify-center rounded-base border-4 border-border bg-main shadow-shadow"
+                  >
+                    <CheckCircle className="h-7 w-7 text-main-foreground" />
+                  </motion.div>
+                  <h3 className="text-xl font-heading">Password Set Successfully!</h3>
+                  <p className="text-sm text-foreground/60 max-w-xs">
+                    Your account is secure. Redirecting you to the dashboard...
+                  </p>
+                </motion.div>
+              ) : (
+                <motion.form
+                  key="form"
+                  onSubmit={handleSubmit(onSubmit)}
+                  className="space-y-4"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                >
                   <div className="space-y-2">
                     <Label htmlFor="password" className="flex items-center gap-2 font-heading">
                       <Lock className="h-4 w-4" /> Password
@@ -170,7 +192,7 @@ function SignupForm() {
                     </p>
                   )}
 
-                  <Button type="submit" className="w-full mt-2" disabled={isSubmitting || githubLoading}>
+                  <Button type="submit" className="w-full mt-2" disabled={isSubmitting}>
                     {isSubmitting ? (
                       <>
                         <motion.span
@@ -178,71 +200,39 @@ function SignupForm() {
                           transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
                           className="inline-block mr-2 h-4 w-4 border-2 border-current border-t-transparent rounded-full"
                         />
-                        Creating account...
+                        Setting password...
                       </>
                     ) : (
                       <>
-                        <UserPlus className="mr-2 h-4 w-4" />
-                        Create Account
+                        <KeyRound className="mr-2 h-4 w-4" />
+                        Set Password & Continue
                       </>
                     )}
                   </Button>
-            </motion.form>
-
-            {/* Divider */}
-            <div className="relative my-4">
-              <div className="absolute inset-0 flex items-center">
-                <span className="w-full border-t-2 border-border/40" />
-              </div>
-              <div className="relative flex justify-center text-xs uppercase">
-                <span className="bg-card px-2 text-foreground/40 font-heading">or</span>
-              </div>
-            </div>
-
-            {/* GitHub OAuth */}
-            <Button
-              type="button"
-              variant="neutral"
-              className="w-full font-heading"
-              onClick={handleGithubSignup}
-              disabled={isSubmitting || githubLoading}
-            >
-              {githubLoading ? (
-                <>
-                  <motion.span
-                    animate={{ rotate: 360 }}
-                    transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
-                    className="inline-block mr-2 h-4 w-4 border-2 border-current border-t-transparent rounded-full"
-                  />
-                  Connecting to GitHub...
-                </>
-              ) : (
-                <>
-                  <Github className="mr-2 h-4 w-4" />
-                  Continue with GitHub
-                </>
+                </motion.form>
               )}
-            </Button>
+            </AnimatePresence>
           </CardContent>
 
-          <CardFooter className="flex justify-center border-t-2 border-border/40 pt-4">
-            <p className="text-sm text-foreground/60">
-              Already have an account?{" "}
-              <Link href={`/soq/login${next !== "/soq/" && next !== "/soq" ? `?next=${encodeURIComponent(next)}` : ""}`} className="font-heading text-foreground underline underline-offset-2 hover:text-main transition-colors">
-                Sign in
-              </Link>
-            </p>
-          </CardFooter>
+          {!success && (
+            <CardFooter className="flex justify-center border-t-2 border-border/40 pt-4">
+              <form action="/soq/logout" method="POST" className="w-full">
+                <Button variant="neutral" type="submit" className="w-full font-heading">
+                  <LogOut className="mr-2 h-4 w-4" /> Cancel & Sign Out
+                </Button>
+              </form>
+            </CardFooter>
+          )}
         </Card>
       </motion.div>
     </div>
   )
 }
 
-export default function SoQSignupPage() {
+export default function SetupPasswordPage() {
   return (
     <Suspense>
-      <SignupForm />
+      <SetupPasswordForm />
     </Suspense>
   )
 }

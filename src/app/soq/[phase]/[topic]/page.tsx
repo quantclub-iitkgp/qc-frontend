@@ -100,7 +100,7 @@ export default async function TopicPage({ params }: Props) {
       {/* Breadcrumb + progress */}
       <div className="flex items-center justify-between mb-6">
         <nav aria-label="Breadcrumb" className="flex items-center gap-1 text-xs text-foreground/50 font-base min-w-0">
-          <Link href="/soq" className="hover:text-foreground transition-colors shrink-0">
+          <Link href="/soq/" className="hover:text-foreground transition-colors shrink-0">
             SoQ
           </Link>
           <ChevronRight className="h-3 w-3 shrink-0" />
@@ -185,7 +185,7 @@ export default async function TopicPage({ params }: Props) {
               ) : (
                 <div className="p-3 rounded-base border-2 border-dashed border-border text-right flex flex-col justify-center">
                   <p className="text-xs text-foreground/40 mb-1">You&apos;ve reached the end!</p>
-                  <Link href="/soq" className="text-sm font-medium text-main hover:underline">
+                  <Link href="/soq/" className="text-sm font-medium text-main hover:underline">
                     Back to overview
                   </Link>
                 </div>

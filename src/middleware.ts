@@ -32,12 +32,18 @@ const USER_CACHE_TTL = 60 // seconds
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl
 
+  // Redirect /soq to /soq/ to ensure trailing slash consistency
+  if (pathname === "/soq") {
+    return NextResponse.redirect(new URL("/soq/", request.url))
+  }
+
   // Skip public auth pages AND the LinkedIn share OG page (must be accessible to unauthenticated crawlers)
   if (
     pathname.startsWith("/soq/login") ||
     pathname.startsWith("/soq/signup") ||
     pathname.startsWith("/soq/forgot-password") ||
-    pathname.startsWith("/soq/share")
+    pathname.startsWith("/soq/share") ||
+    pathname.startsWith("/soq/logout")
   ) {
     return NextResponse.next()
   }
@@ -67,8 +73,17 @@ export async function middleware(request: NextRequest) {
       try {
         const cached = await r.get<User>(`soq:user:${sessionToken}`)
         if (cached) {
-          // User is authenticated and cached — proceed immediately
-          return NextResponse.next({ request })
+          const hasEmailIdentity = cached.identities?.some(
+            (identity) => identity.provider === "email",
+          )
+          const hasPasswordSet = cached.user_metadata?.password_set === true
+          const hasPassword = hasEmailIdentity || hasPasswordSet
+
+          // Only proceed with cache if user has a password OR is accessing setup-password.
+          // Otherwise, fall through to live check to see if they've set a password since.
+          if (hasPassword || pathname.startsWith("/soq/setup-password")) {
+            return NextResponse.next({ request })
+          }
         }
       } catch {
         // Redis unavailable — fall through to live auth check
@@ -110,6 +125,27 @@ export async function middleware(request: NextRequest) {
       request.url,
     )
     return NextResponse.redirect(loginUrl)
+  }
+
+  // Check if they need to set up a password (i.e. no email identity or password_set flag)
+  const hasEmailIdentity = user.identities?.some(
+    (identity) => identity.provider === "email",
+  )
+  const hasPasswordSet = user.user_metadata?.password_set === true
+  const hasPassword = hasEmailIdentity || hasPasswordSet
+
+  if (!hasPassword && !pathname.startsWith("/soq/setup-password")) {
+    const setupUrl = new URL(
+      `/soq/setup-password?next=${encodeURIComponent(pathname)}`,
+      request.url,
+    )
+    return NextResponse.redirect(setupUrl)
+  }
+
+  // If they already have a password and try to visit setup-password, redirect to next or /soq
+  if (hasPassword && pathname.startsWith("/soq/setup-password")) {
+    const nextParam = request.nextUrl.searchParams.get("next") ?? "/soq"
+    return NextResponse.redirect(new URL(nextParam, request.url))
   }
 
   // Cache the verified user so subsequent requests on this session are fast
