@@ -71,15 +71,37 @@ function topicFromRow(row: any): SoQTopic {
 
 export type SoQPhaseWithTopics = SoQPhase & { topics: SoQTopic[] }
 
+export type SoQCourse = "beginner" | "advanced"
+
+// Uncached inner read — reused inside the already-cached structure queries so a
+// single cache miss does one settings round-trip and invalidates together.
+async function readActiveCourse(): Promise<SoQCourse> {
+  const { data } = await getSupabaseClient()
+    .from("soq_settings")
+    .select("active_course")
+    .eq("id", true)
+    .single()
+  return data?.active_course === "advanced" ? "advanced" : "beginner"
+}
+
+// Cached variant for consumers that only need the active course (e.g. the sidebar label).
+export const getActiveCourse = unstable_cache(
+  readActiveCourse,
+  ["soq-active-course"],
+  { tags: [SOQ_STRUCTURE_TAG], revalidate: 3600 },
+)
+
 // Public, rarely-changing data fetched via the anon client (no cookies → safe to cache).
 // Cached across requests (tag-invalidated on admin edit) AND deduped within a request, so
 // the layout, the page, and generateMetadata all share a single Supabase round-trip.
 export const getAllPhasesWithTopics = unstable_cache(
   async (): Promise<SoQPhaseWithTopics[]> => {
+    const activeCourse = await readActiveCourse()
     const { data, error } = await getSupabaseClient()
       .from("soq_phases")
       .select("*, soq_topics(*)")
       .eq("is_published", true)
+      .eq("course", activeCourse)
       .eq("soq_topics.is_published", true)
       .order("order_index", { ascending: true })
       .order("order_index", { referencedTable: "soq_topics", ascending: true })
@@ -97,10 +119,12 @@ export const getAllPhasesWithTopics = unstable_cache(
 // Uses anon client — phases are publicly readable (RLS: is_published = true).
 export const getPublishedPhases = unstable_cache(
   async (): Promise<SoQPhase[]> => {
+    const activeCourse = await readActiveCourse()
     const { data, error } = await getSupabaseClient()
       .from("soq_phases")
       .select("*")
       .eq("is_published", true)
+      .eq("course", activeCourse)
       .order("order_index", { ascending: true })
     if (error) throw new Error(error.message)
     return (data ?? []).map(phaseFromRow)
