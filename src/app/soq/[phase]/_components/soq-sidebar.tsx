@@ -14,9 +14,10 @@ interface Props {
   phases: SoQPhaseWithTopics[]
   userEmail?: string
   completedTopicIds?: number[]
+  programLabel: string
 }
 
-function SidebarContent({ phases, userEmail, completedTopicIds = [] }: Props) {
+function SidebarContent({ phases, userEmail, completedTopicIds = [], programLabel }: Props) {
   const params = useParams<{ phase: string; topic?: string }>()
   const [searchQuery, setSearchQuery] = useState("")
   const { visited } = useSoQProgress()
@@ -75,7 +76,7 @@ function SidebarContent({ phases, userEmail, completedTopicIds = [] }: Props) {
         </div>
         <div>
           <p className="font-heading font-bold text-sm leading-tight">Summer of Quant</p>
-          <p className="text-[10px] text-foreground/50 leading-tight">Elementary Program</p>
+          <p className="text-[10px] text-foreground/50 leading-tight">{programLabel}</p>
         </div>
       </div>
 
