@@ -85,23 +85,26 @@ async function readActiveCourse(): Promise<SoQCourse> {
 }
 
 // Cached variant for consumers that only need the active course (e.g. the sidebar label).
+// Short TTL so an admin course switch propagates within ~a minute even WITHOUT the cross-app
+// /api/revalidate bust (which needs QC_FRONTEND_URL + REVALIDATE_SECRET wired in both apps).
+// ponytail: 60s propagation ceiling; set the revalidate env in both apps for instant switch.
 export const getActiveCourse = unstable_cache(
   readActiveCourse,
-  ["soq-active-course"],
-  { tags: [SOQ_STRUCTURE_TAG], revalidate: 3600 },
+  ["soq-active-course-v2"],
+  { tags: [SOQ_STRUCTURE_TAG], revalidate: 60 },
 )
 
-// Public, rarely-changing data fetched via the anon client (no cookies → safe to cache).
-// Cached across requests (tag-invalidated on admin edit) AND deduped within a request, so
-// the layout, the page, and generateMetadata all share a single Supabase round-trip.
-export const getAllPhasesWithTopics = unstable_cache(
-  async (): Promise<SoQPhaseWithTopics[]> => {
-    const activeCourse = await readActiveCourse()
+// Structure keyed BY COURSE — `course` is part of the unstable_cache key, so flipping the
+// active course is a cache MISS on the new course, never a stale HIT on the old one. This is
+// the fix for "toggled the course but the site still shows the old one": a static cache key
+// survives Vercel's cross-deploy Data Cache and only clears on tag-bust or the revalidate timer.
+const getPhasesForCourse = unstable_cache(
+  async (course: SoQCourse): Promise<SoQPhaseWithTopics[]> => {
     const { data, error } = await getSupabaseClient()
       .from("soq_phases")
       .select("*, soq_topics(*)")
       .eq("is_published", true)
-      .eq("course", activeCourse)
+      .eq("course", course)
       .eq("soq_topics.is_published", true)
       .order("order_index", { ascending: true })
       .order("order_index", { referencedTable: "soq_topics", ascending: true })
@@ -112,9 +115,15 @@ export const getAllPhasesWithTopics = unstable_cache(
       topics: (row.soq_topics ?? []).map(topicFromRow),
     }))
   },
-  ["soq-all-phases-with-topics"],
+  ["soq-phases-by-course"],
   { tags: [SOQ_STRUCTURE_TAG], revalidate: 3600 },
 )
+
+// Public structure for the CURRENTLY ACTIVE course. Active-course lookup (short TTL) picks the
+// course; the heavy phase+topics join is cached per course under a course-varying key.
+export async function getAllPhasesWithTopics(): Promise<SoQPhaseWithTopics[]> {
+  return getPhasesForCourse(await getActiveCourse())
+}
 
 // Uses anon client — phases are publicly readable (RLS: is_published = true).
 export const getPublishedPhases = unstable_cache(
